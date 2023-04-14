@@ -296,9 +296,6 @@
     <Folder Include="Implementations" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="drivers\.git">
-      <SubType>compile</SubType>
-    </None>
     <None Include="drivers\.gitignore">
       <SubType>compile</SubType>
     </None>
@@ -350,10 +347,16 @@
     <Compile Include="Headers\Garage.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="Headers\Light.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="Headers\TempAndHum.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Implementations\GarageImpl.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Implementations\LightImpl.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Implementations\TempAndHumImpl.c">

@@ -15,7 +15,7 @@ typedef struct tempAndHum
 
 tempAndHum_t tempAndHum_create()
 {
-	tempAndHum_t _new_tempAndHum = (tempAndHum_t)calloc(1,sizeof(tempAndHum_t));
+	tempAndHum_t _new_tempAndHum = (tempAndHum_t)calloc(1,sizeof(tempAndHum));
 	if (NULL == _new_tempAndHum)
 		return NULL;
 	if (HIH8120_OK != hih8120_initialise())
