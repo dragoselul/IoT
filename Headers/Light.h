@@ -10,4 +10,4 @@ light_t light_create();
 void light_destroy(light_t);
 bool power_up_sensor();
 bool power_down_sensor();
-uint16_t get_light_data();
+light_t get_light_data(light_t);
