@@ -5,7 +5,9 @@
  *  Author: drago
  */ 
 #include "hcSr501.h"
-#include "MotionSensor.h"
+#include "../Headers/MotionSensor.h"
+#include <stdlib.h>
+#include <avr/io.h>
 
 typedef struct motion
 {

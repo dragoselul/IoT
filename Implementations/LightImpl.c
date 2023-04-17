@@ -5,7 +5,9 @@
  *  Author: drago
  */ 
 #include "tsl2591.h"
-#include "Light.h"
+#include "../Headers/Light.h"
+#include <stdlib.h>
+#include <stdio.h>
 
 typedef struct light
 {
@@ -13,7 +15,10 @@ typedef struct light
 	float _lux;
 }light;
 
-void tsl2591Callback(tsl2591_returnCode_t rc, light_t self)
+uint16_t *tmp_pos;
+float *lux_pos;
+
+void tsl2591Callback(tsl2591_returnCode_t rc)
 {
 	uint16_t _tmp;
 	float _lux;
@@ -22,7 +27,7 @@ void tsl2591Callback(tsl2591_returnCode_t rc, light_t self)
 		case TSL2591_DATA_READY:
 		if ( TSL2591_OK == (rc = tsl259_getVisibleRaw(&_tmp)) )
 		{
-			self->_tmp = _tmp;
+			tmp_pos = &_tmp;
 		}
 		else if( TSL2591_OVERFLOW == rc )
 		{
@@ -31,7 +36,7 @@ void tsl2591Callback(tsl2591_returnCode_t rc, light_t self)
 		
 		if ( TSL2591_OK == (rc = tsl2591_getLux(&_lux)) )
 		{
-			self->_lux = _lux;
+			lux_pos = &_lux;
 		}
 		else if( TSL2591_OVERFLOW == rc )
 		{
@@ -85,15 +90,20 @@ bool power_down_sensor()
 	return false;
 }
 
-light_t get_light_data(light_t self)
+void get_light_data(light_t self)
 {
-	if ( TSL2591_OK != tsl2591_fetchData() )
+	if ( TSL2591_OK == tsl2591_fetchData() ) 
 	{
-		return NULL;
+		self->_tmp = *tmp_pos;
+		self->_lux = *lux_pos;
 	}
-	else
-	{
-		tsl2591Callback(TSL2591_DATA_READY, self);
-		return self
-	}
+}
+
+uint16_t get_tmp(light_t self)
+{
+	return self->_tmp;
+}
+float get_lux(light_t self)
+{
+	return self->_lux;
 }

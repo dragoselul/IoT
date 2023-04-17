@@ -344,7 +344,10 @@
     <None Include="FreeRTOS\src\LICENSE.md">
       <SubType>compile</SubType>
     </None>
-    <Compile Include="Headers\Garage.h">
+    <None Include="Headers\Garage.h">
+      <SubType>compile</SubType>
+    </None>
+    <Compile Include="Headers\CO2.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Headers\Light.h">
@@ -356,7 +359,10 @@
     <Compile Include="Headers\TempAndHum.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="Implementations\GarageImpl.c">
+    <None Include="Implementations\GarageImpl.c">
+      <SubType>compile</SubType>
+    </None>
+    <Compile Include="Implementations\CO2Impl.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Implementations\LightImpl.c">

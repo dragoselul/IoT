@@ -25,6 +25,7 @@ Here you you will find the functions you normally will need.
 #ifndef HCSR501_H_
 #define HCSR501_H_
 #include <stdbool.h>
+#include <stdint-gcc.h>
 
 // Abstract Data Type (ADT)
 typedef struct hcsr501_struct *hcsr501_p;

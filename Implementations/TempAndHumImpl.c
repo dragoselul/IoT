@@ -5,12 +5,11 @@
  *  Author: drago
  */ 
 #include "hih8120.h"
-#include "TempAndHum.h"
+#include "../Headers/TempAndHum.h"
+#include <stdlib.h>
 
 typedef struct tempAndHum
 {
-	float humidityF;
-	float temperatureF;
 }tempAndHum;
 
 tempAndHum_t tempAndHum_create()
@@ -20,8 +19,6 @@ tempAndHum_t tempAndHum_create()
 		return NULL;
 	if (HIH8120_OK != hih8120_initialise())
 		return NULL;
-	_new_tempAndHum->humidityF = 0.0;
-	_new_tempAndHum->temperatureF = 0.0;
 	return _new_tempAndHum;
 }
 
@@ -49,21 +46,19 @@ bool measure_temp_hum()
 	return true;
 }
 
-float get_humidity_float(tempAndHum_t self)
+float get_humidity_float()
 {
-	self->humidityF = hih8120_getHumidity();
-	return self->humidityF;
+	return hih8120_getHumidity();
 }
-float get_temperature_float(tempAndHum_t self)
+float get_temperature_float()
 {
-	self->temperatureF = hih8120_getTemperature();
-	return self->temperatureF;
+	return hih8120_getTemperature();
 }
-uint16_t get_humidity_bytes()
+uint16_t get_humidity_int()
 {
 	return hih8120_getHumidityPercent_x10();
 }
-uint16_t get_temperature_bytes()
+uint16_t get_temperature_int()
 {
 	return hih8120_getTemperature_x10();
 }

@@ -5,7 +5,7 @@
 * Example main file including LoRaWAN setup
 * Just for inspiration :)
 */
-
+#include "stdint-gcc.h"
 #include <stdio.h>
 #include <avr/io.h>
 
@@ -21,18 +21,27 @@
 #include <status_leds.h>
 
 //Drivers
-#include <display_7seg.h>
-#include <hih8120.h>
+#include "./Headers/Light.h"
+#include "./Headers/TempAndHum.h"
+#include "./Headers/MotionSensor.h"
+#include "display_7seg.h"
 
 // define two Tasks
 void displayTask( void *pvParameters );
-void tempAndHumidity( void *pvParameters );
+void tempAndHumidityTask( void *pvParameters );
+void lightTask(void *pvParameters);
+void motionTask(void *pvParameters);
 
 // define semaphore handle
 SemaphoreHandle_t xTestSemaphore;
 
 // Prototype for LoRaWAN handler
 void lora_handler_initialise(UBaseType_t lora_handler_task_priority);
+
+// sensor variables
+tempAndHum_t temp_hum;
+light_t light_sensor;
+motion_t motion_sensor;
 
 /*-----------------------------------------------------------*/
 void create_tasks_and_semaphores(void)
@@ -50,16 +59,25 @@ void create_tasks_and_semaphores(void)
 	}
 /*
 	xTaskCreate(
-	displayTask
-	,  "Display-Task"  // A name just for humans
+	lightTask
+	,  "Light Task"  // A name just for humans
 	,  configMINIMAL_STACK_SIZE  // This stack size can be checked & adjusted by reading the Stack Highwater
 	,  NULL
-	,  2  // Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
+	,  1  // Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
+	,  NULL );
+
+	xTaskCreate(
+	tempAndHumidityTask
+	,  "Temperature and Humidity"  // A name just for humans
+	,  configMINIMAL_STACK_SIZE  // This stack size can be checked & adjusted by reading the Stack Highwater
+	,  NULL
+	,  1  // Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
 	,  NULL );
 	*/
+	
 	xTaskCreate(
-	tempAndHumidity
-	,  "Task2"  // A name just for humans
+	motionTask
+	,  "Motion sensor task"  // A name just for humans
 	,  configMINIMAL_STACK_SIZE  // This stack size can be checked & adjusted by reading the Stack Highwater
 	,  NULL
 	,  1  // Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
@@ -68,60 +86,82 @@ void create_tasks_and_semaphores(void)
 }
 
 /*-----------------------------------------------------------*/
-void displayTask(void *pvParameters)
+void motionTask(void *pvParameters)
 {
 	TickType_t xLastWakeTime;
-	const TickType_t xFrequency = 500/portTICK_PERIOD_MS; // 500 ms
 	// Initialise the xLastWakeTime variable with the current time.
 	xLastWakeTime = xTaskGetTickCount();
 	
-	for(;;)
+	if(motion_sensor != NULL)
 	{
-		display_7seg_displayHex("FFFF");
-		xTaskDelayUntil( &xLastWakeTime, xFrequency );
-		display_7seg_displayHex("");
-		xTaskDelayUntil( &xLastWakeTime, xFrequency );
-		PORTA ^= _BV(PA0);
+		for(;;)
+		{
+			if(!detecting(motion_sensor))
+			{
+				puts("Nothing detected...\n");
+			}
+			else
+			{
+				puts("Detecting something...\n");
+			}
+			xTaskDelayUntil( &xLastWakeTime, 1000/portTICK_PERIOD_MS); // 10 ms
+		}
 	}
 }
 
 /*-----------------------------------------------------------*/
-void tempAndHumidity( void *pvParameters )
+void lightTask(void *pvParameters)
 {
 	TickType_t xLastWakeTime;
-	const TickType_t xFrequency = 50/portTICK_PERIOD_MS; // 1000 ms
-	float humidity = 0.0;
-	float temperature = 0.0;
 	// Initialise the xLastWakeTime variable with the current time.
 	xLastWakeTime = xTaskGetTickCount();
-
-	for(;;)
+	
+	if(light_sensor != NULL) 
 	{
-		if ( HIH8120_OK != hih8120_wakeup() )
+		for(;;)
 		{
-			// Something went wrong
-			// Investigate the return code further
-		}
-		else{
-		xTaskDelayUntil( &xLastWakeTime, xFrequency );
-		if ( HIH8120_OK !=  hih8120_measure() )
-		{
-			// Something went wrong
-			// Investigate the return code further
-		}
-		else {
-		xTaskDelayUntil( &xLastWakeTime, 3 );
-		humidity = hih8120_getHumidity();
-		temperature = hih8120_getTemperature();
-		display_7seg_display(temperature, 2);
-		xTaskDelayUntil( &xLastWakeTime, 250 );
-		display_7seg_display(humidity, 2);
-		xTaskDelayUntil( &xLastWakeTime, 250 );
-		}
-		}
-		
-		PORTA ^= _BV(PA7);
+			if(power_up_sensor())
+			{
+				get_light_data(light_sensor);
+				xTaskDelayUntil( &xLastWakeTime, 10/portTICK_PERIOD_MS); // 10 ms
+				printf("The tmp is %d, and the lux is %d", get_tmp(light_sensor), (int)get_lux(light_sensor));
+				xTaskDelayUntil( &xLastWakeTime, 500/portTICK_PERIOD_MS); // 500 ms
+				power_down_sensor();
+				xTaskDelayUntil( &xLastWakeTime, 10/portTICK_PERIOD_MS); // 10 ms
+			}
+			
+			PORTA ^= _BV(PA0);
+		}		
 	}
+}
+
+/*-----------------------------------------------------------*/
+void tempAndHumidityTask( void *pvParameters )
+{
+	TickType_t xLastWakeTime;
+	// Initialise the xLastWakeTime variable with the current time.
+	xLastWakeTime = xTaskGetTickCount();
+	if(temp_hum!= NULL)
+	{
+		for(;;)
+		{	
+			if(wakeup_sensor())
+			{
+				//It takes the sensor around 50 ms to wake up
+				xTaskDelayUntil( &xLastWakeTime, 50/portTICK_PERIOD_MS ); // 50 ms
+				if(measure_temp_hum())
+				{
+					//It takes the sensor around 1 ms to measure up something
+					xTaskDelayUntil( &xLastWakeTime, 1/portTICK_PERIOD_MS); // 1 ms
+					display_7seg_display(get_temperature_float(), 2);
+					xTaskDelayUntil( &xLastWakeTime, 1000/portTICK_PERIOD_MS); // 1000 ms
+					display_7seg_display(get_humidity_float(), 2);
+					xTaskDelayUntil( &xLastWakeTime, 1000/portTICK_PERIOD_MS ); //1000 ms
+				}
+			}
+		}
+	}
+	PORTA ^= _BV(PA7);
 }
 
 /*-----------------------------------------------------------*/
@@ -138,12 +178,12 @@ void initialiseSystem()
 	display_7seg_initialise(NULL);
 	display_7seg_powerUp();
 	//Temp and humidity sensor
-	if ( HIH8120_OK == hih8120_initialise() )
-	{
-		// Driver initialised OK
-		// Always check what hih8120_initialise() returns
-	}
-
+	temp_hum = tempAndHum_create();
+	//Light sensor
+	light_sensor = light_create();
+	//Motion sensor
+	motion_sensor = motion_create();
+/*
 	// vvvvvvvvvvvvvvvvv BELOW IS LoRaWAN initialisation vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 	// Status Leds driver
 	status_leds_initialise(5); // Priority 5 for internal task
@@ -152,6 +192,7 @@ void initialiseSystem()
 	lora_driver_initialise(1, NULL);
 	// Create LoRaWAN task and start it up with priority 3
 	lora_handler_initialise(3);
+	*/
 	
 }
 
@@ -167,4 +208,3 @@ int main(void)
 	{
 	}
 }
-

@@ -24,6 +24,12 @@ FreeRTOS\src\timers.c
 
 FreeRTOS\src\variantHooks.c
 
+Implementations\LightImpl.c
+
+Implementations\MotionSensorImpl.c
+
+Implementations\TempAndHumImpl.c
+
 LoRaWANHandler.c
 
 main.c
