@@ -8,6 +8,7 @@
 #include "stdint-gcc.h"
 #include <stdio.h>
 #include <avr/io.h>
+#include "util/delay.h"
 
 #include <ATMEGA_FreeRTOS.h>
 #include <task.h>
@@ -24,6 +25,7 @@
 #include "./Headers/Light.h"
 #include "./Headers/TempAndHum.h"
 #include "./Headers/MotionSensor.h"
+#include "./Headers/Servo.h"
 #include "display_7seg.h"
 
 // define two Tasks
@@ -31,6 +33,7 @@ void displayTask( void *pvParameters );
 void tempAndHumidityTask( void *pvParameters );
 void lightTask(void *pvParameters);
 void motionTask(void *pvParameters);
+void servoTask(void *pvParameters);
 
 // define semaphore handle
 SemaphoreHandle_t xTestSemaphore;
@@ -164,6 +167,13 @@ void tempAndHumidityTask( void *pvParameters )
 	PORTA ^= _BV(PA7);
 }
 
+void servoTask( void *pvParameters){
+	
+	rc_servo_setPosition(50);
+	_delay_ms(5000);
+	rc_servo_setPosition(-50);
+}
+
 /*-----------------------------------------------------------*/
 void initialiseSystem()
 {
@@ -183,6 +193,8 @@ void initialiseSystem()
 	light_sensor = light_create();
 	//Motion sensor
 	motion_sensor = motion_create();
+	//RC servo
+	rc_servo_initialise();
 /*
 	// vvvvvvvvvvvvvvvvv BELOW IS LoRaWAN initialisation vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 	// Status Leds driver
