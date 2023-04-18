@@ -15,21 +15,6 @@ void sen14262_envelope(){
 	return lastSoundValue;
 }
 
-bool sen14262_gate111(){
-		// Read the state of the sensor
-		bool sensor_state = r();
-		// Convert the sensor state to the corresponding gate state
-		bool gate_state;
-		if (sensor_state) {
-			gate_state = true; // Gate is open
-			} else {
-			gate_state = false; // Gate is closed
-		}
-
-		// Return the gate state
-		return gate_state;
-	}
-
 }
 
 sound_t sound_create();
