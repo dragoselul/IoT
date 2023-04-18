@@ -25,12 +25,14 @@
 #include "./Headers/TempAndHum.h"
 #include "./Headers/MotionSensor.h"
 #include "display_7seg.h"
+#include "./Headers/Sound.h"
 
 // define two Tasks
 void displayTask( void *pvParameters );
 void tempAndHumidityTask( void *pvParameters );
 void lightTask(void *pvParameters);
 void motionTask(void *pvParameters);
+void soundTask(void *pvParameters);
 
 // define semaphore handle
 SemaphoreHandle_t xTestSemaphore;
