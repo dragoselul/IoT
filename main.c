@@ -44,6 +44,7 @@ void lora_handler_initialise(UBaseType_t lora_handler_task_priority);
 tempAndHum_t temp_hum;
 light_t light_sensor;
 motion_t motion_sensor;
+sound_t sound_sensor;
 
 /*-----------------------------------------------------------*/
 void create_tasks_and_semaphores(void)
@@ -91,7 +92,7 @@ void create_tasks_and_semaphores(void)
 void motionTask(void *pvParameters)
 {
 	TickType_t xLastWakeTime;
-	// Initialise the xLastWakeTime variable with the current time.
+	//Initialize the xLastWakeTime variable with the current time.
 	xLastWakeTime = xTaskGetTickCount();
 	
 	if(motion_sensor != NULL)
@@ -115,7 +116,7 @@ void motionTask(void *pvParameters)
 void lightTask(void *pvParameters)
 {
 	TickType_t xLastWakeTime;
-	// Initialise the xLastWakeTime variable with the current time.
+	// Initialize the xLastWakeTime variable with the current time.
 	xLastWakeTime = xTaskGetTickCount();
 	
 	if(light_sensor != NULL) 
@@ -137,11 +138,12 @@ void lightTask(void *pvParameters)
 	}
 }
 
+
 /*-----------------------------------------------------------*/
 void tempAndHumidityTask( void *pvParameters )
 {
 	TickType_t xLastWakeTime;
-	// Initialise the xLastWakeTime variable with the current time.
+	// Initialize the xLastWakeTime variable with the current time.
 	xLastWakeTime = xTaskGetTickCount();
 	if(temp_hum!= NULL)
 	{
@@ -165,7 +167,29 @@ void tempAndHumidityTask( void *pvParameters )
 	}
 	PORTA ^= _BV(PA7);
 }
-
+/*-----------------------------------------------------------*/
+void soundTask( void *pvParameters )
+{
+	TickType_t xLastWakeTime;
+	//Initialize the xLastWakeTime variable with the current time.
+	xLastWakeTime = xTaskGetTickCount();
+	
+	if(sound_sensor != NULL)
+	{
+		for(;;)
+		{
+			if(!detecting(sound_sensor))
+			{
+				puts("Nothing detected...\n");
+			}
+			else
+			{
+				puts("Detecting something...\n");
+			}
+			xTaskDelayUntil( &xLastWakeTime, 1000/portTICK_PERIOD_MS); // 10 ms
+		}
+	}
+}
 /*-----------------------------------------------------------*/
 void initialiseSystem()
 {

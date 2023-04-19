@@ -9,18 +9,24 @@
 
 void sen14262_initialise();
 
-void sen14262_envelope(){
+typedef struct sound
+{
+	uint16_t _sound;	
+}sound;
+
+sound_t sound_create(){
 	uint16_t lastSoundValue;
 	lastSoundValue = sen14262_envelope();
 	return lastSoundValue;
 }
 
-}
-
-sound_t sound_create();
-void sound_destroy();
-uint16_t get_sound_level();
 bool get_sound_state()
 {
 	return sen14262_gate();
+}
+
+void sound_destroy(sound_t self)
+{
+	if (NULL != self)
+	free(self);
 }

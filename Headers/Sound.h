@@ -10,5 +10,4 @@ typedef struct sound* sound_t;
 
 sound_t sound_create();
 void sound_destroy();
-uint16_t get_sound_level();
 bool get_sound_state();
