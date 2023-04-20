@@ -25,14 +25,12 @@
 #include "./Headers/TempAndHum.h"
 #include "./Headers/MotionSensor.h"
 #include "display_7seg.h"
-#include "./Headers/Sound.h"
 
 // define two Tasks
 void displayTask( void *pvParameters );
 void tempAndHumidityTask( void *pvParameters );
 void lightTask(void *pvParameters);
 void motionTask(void *pvParameters);
-void soundTask(void *pvParameters);
 
 // define semaphore handle
 SemaphoreHandle_t xTestSemaphore;
@@ -45,7 +43,6 @@ tempAndHum_t temp_hum;
 light_t light_sensor;
 motion_t motion_sensor;
 co2_t co2_sensor;
-sound_t sound_sensor;
 
 /*-----------------------------------------------------------*/
 void create_tasks_and_semaphores(void)
@@ -102,7 +99,7 @@ void create_tasks_and_semaphores(void)
 void motionTask(void *pvParameters)
 {
 	TickType_t xLastWakeTime;
-	//Initialize the xLastWakeTime variable with the current time.
+	// Initialise the xLastWakeTime variable with the current time.
 	xLastWakeTime = xTaskGetTickCount();
 	
 	if(motion_sensor != NULL)
@@ -126,7 +123,7 @@ void motionTask(void *pvParameters)
 void lightTask(void *pvParameters)
 {
 	TickType_t xLastWakeTime;
-	// Initialize the xLastWakeTime variable with the current time.
+	// Initialise the xLastWakeTime variable with the current time.
 	xLastWakeTime = xTaskGetTickCount();
 	
 	if(light_sensor != NULL) 
@@ -148,12 +145,11 @@ void lightTask(void *pvParameters)
 	}
 }
 
-
 /*-----------------------------------------------------------*/
 void tempAndHumidityTask( void *pvParameters )
 {
 	TickType_t xLastWakeTime;
-	// Initialize the xLastWakeTime variable with the current time.
+	// Initialise the xLastWakeTime variable with the current time.
 	xLastWakeTime = xTaskGetTickCount();
 	if(temp_hum!= NULL)
 	{
@@ -207,29 +203,6 @@ void co2task( void *pvParameters )
 }
 
 /*-----------------------------------------------------------*/
-void soundTask( void *pvParameters )
-{
-	TickType_t xLastWakeTime;
-	//Initialize the xLastWakeTime variable with the current time.
-	xLastWakeTime = xTaskGetTickCount();
-	
-	if(sound_sensor != NULL)
-	{
-		for(;;)
-		{
-			if(!soundDetection(sound_sensor))
-			{
-				puts("Nothing detected...\n");
-			}
-			else
-			{
-				puts("Detecting something...\n");
-			}
-			xTaskDelayUntil( &xLastWakeTime, 1000/portTICK_PERIOD_MS); // 10 ms
-		}
-	}
-}
-/*-----------------------------------------------------------*/
 void initialiseSystem()
 {
 	// Set output ports for leds used in the example
@@ -248,9 +221,6 @@ void initialiseSystem()
 	light_sensor = light_create();
 	//Motion sensor
 	motion_sensor = motion_create();
-	//Sound sensor
-	sound_sensor = sound_create();
-
 /*
 	// vvvvvvvvvvvvvvvvv BELOW IS LoRaWAN initialisation vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 	// Status Leds driver

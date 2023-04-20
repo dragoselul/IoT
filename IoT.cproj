@@ -368,9 +368,6 @@
     <Compile Include="Headers\MotionSensor.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="Headers\Sound.h">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="Headers\TempAndHum.h">
       <SubType>compile</SubType>
     </Compile>
@@ -384,9 +381,6 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Implementations\MotionSensorImpl.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="Implementations\SoundImpl.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Implementations\TempAndHumImpl.c">
