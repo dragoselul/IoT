@@ -24,8 +24,6 @@ FreeRTOS\src\timers.c
 
 FreeRTOS\src\variantHooks.c
 
-Implementations\CO2Impl.c
-
 Implementations\LightImpl.c
 
 Implementations\MotionSensorImpl.c
