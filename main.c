@@ -209,6 +209,9 @@ void initialiseSystem()
 	light_sensor = light_create();
 	//Motion sensor
 	motion_sensor = motion_create();
+	//Sound sensor
+	sound_sensor = sound_create();
+
 /*
 	// vvvvvvvvvvvvvvvvv BELOW IS LoRaWAN initialisation vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 	// Status Leds driver
