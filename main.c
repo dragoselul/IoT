@@ -65,6 +65,8 @@ void create_tasks_and_semaphores(void)
 	,  NULL
 	,  1  // Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
 	,  NULL );
+	
+	*/
 
 	xTaskCreate(
 	tempAndHumidityTask
@@ -73,8 +75,9 @@ void create_tasks_and_semaphores(void)
 	,  NULL
 	,  1  // Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
 	,  NULL );
-	*/
 	
+	
+	/*
 	xTaskCreate(
 	motionTask
 	,  "Motion sensor task"  // A name just for humans
@@ -82,7 +85,7 @@ void create_tasks_and_semaphores(void)
 	,  NULL
 	,  1  // Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
 	,  NULL );
-	
+	*/
 }
 
 /*-----------------------------------------------------------*/
@@ -134,6 +137,32 @@ void lightTask(void *pvParameters)
 		}		
 	}
 }
+
+/*
+void co2Task(void *pvParameters)
+{
+	TickType_t xLastWakeTime;
+	// Initialise the xLastWakeTime variable with the current time.
+	xLastWakeTime = xTaskGetTickCount();
+	
+	if(light_sensor != NULL)
+	{
+		for(;;)
+		{
+			if(power_up_sensor())
+			{
+				get_light_data(light_sensor);
+				xTaskDelayUntil( &xLastWakeTime, 10/portTICK_PERIOD_MS); // 10 ms
+				printf("The tmp is %d, and the lux is %d", get_tmp(light_sensor), (int)get_lux(light_sensor));
+				xTaskDelayUntil( &xLastWakeTime, 500/portTICK_PERIOD_MS); // 500 ms
+				power_down_sensor();
+				xTaskDelayUntil( &xLastWakeTime, 10/portTICK_PERIOD_MS); // 10 ms
+			}
+			
+			PORTA ^= _BV(PA0);
+		}
+	}
+}*/
 
 /*-----------------------------------------------------------*/
 void tempAndHumidityTask( void *pvParameters )
