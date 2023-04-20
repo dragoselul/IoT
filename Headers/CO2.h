@@ -1,11 +1,13 @@
-#include "stdint.h";
-#include "mh_z19.h";
+#include "stdint.h"
+#include "mh_z19.h"
 
-typedef struct CO2;
+uint16_t val;
 
-void initialize(uint8_t com_port);
-bool takeMeasuring();
-bool getCO2Ppm();
-bool setAutoCalibration(bool on);
-bool calibrateZeroPoint();
-bool calibrateSpanPoint();
+void mhz19_callback(uint16_t ppm);
+void co2_initialize();
+//co2_t co2_create();
+//void co2_destroy(co2_t self);
+void take_measuring();
+void get_measuring();
+uint16_t get_value();
+void logErrors(mh_z19_returnCode_t code);
