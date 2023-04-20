@@ -1,7 +1,7 @@
 #include "stdint.h";
 #include "mh_z19.h";
 
-typedef struct CO2;
+float CO2;
 
 void initialize(uint8_t com_port);
 bool takeMeasuring();

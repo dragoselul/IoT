@@ -42,6 +42,7 @@ void lora_handler_initialise(UBaseType_t lora_handler_task_priority);
 tempAndHum_t temp_hum;
 light_t light_sensor;
 motion_t motion_sensor;
+co2_t co2_sensor;
 
 /*-----------------------------------------------------------*/
 void create_tasks_and_semaphores(void)
@@ -65,7 +66,7 @@ void create_tasks_and_semaphores(void)
 	,  NULL
 	,  1  // Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
 	,  NULL );
-
+*/
 	xTaskCreate(
 	tempAndHumidityTask
 	,  "Temperature and Humidity"  // A name just for humans
@@ -73,8 +74,9 @@ void create_tasks_and_semaphores(void)
 	,  NULL
 	,  1  // Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
 	,  NULL );
-	*/
 	
+
+/*	
 	xTaskCreate(
 	motionTask
 	,  "Motion sensor task"  // A name just for humans
@@ -82,7 +84,15 @@ void create_tasks_and_semaphores(void)
 	,  NULL
 	,  1  // Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
 	,  NULL );
-	
+	*/
+
+	xTaskCreate(
+		tempAndHumidityTask
+		,  "CO2"  // A name just for humans
+		,  configMINIMAL_STACK_SIZE  // This stack size can be checked & adjusted by reading the Stack Highwater
+		,  NULL
+		,  1  // Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
+		,  NULL );
 }
 
 /*-----------------------------------------------------------*/
@@ -142,6 +152,34 @@ void tempAndHumidityTask( void *pvParameters )
 	// Initialise the xLastWakeTime variable with the current time.
 	xLastWakeTime = xTaskGetTickCount();
 	if(temp_hum!= NULL)
+	{
+		for(;;)
+		{	
+			if(wakeup_sensor())
+			{
+				//It takes the sensor around 50 ms to wake up
+				xTaskDelayUntil( &xLastWakeTime, 50/portTICK_PERIOD_MS ); // 50 ms
+				if(measure_temp_hum())
+				{
+					//It takes the sensor around 1 ms to measure up something
+					xTaskDelayUntil( &xLastWakeTime, 1/portTICK_PERIOD_MS); // 1 ms
+					display_7seg_display(get_temperature_float(), 2);
+					xTaskDelayUntil( &xLastWakeTime, 1000/portTICK_PERIOD_MS); // 1000 ms
+					display_7seg_display(get_humidity_float(), 2);
+					xTaskDelayUntil( &xLastWakeTime, 1000/portTICK_PERIOD_MS ); //1000 ms
+				}
+			}
+		}
+	}
+	PORTA ^= _BV(PA7);
+}
+
+void co2task( void *pvParameters )
+{
+	TickType_t xLastWakeTime;
+	// Initialise the xLastWakeTime variable with the current time.
+	xLastWakeTime = xTaskGetTickCount();
+	if(co2_sensor != NULL)
 	{
 		for(;;)
 		{	
