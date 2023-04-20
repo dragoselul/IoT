@@ -44,11 +44,11 @@ void co2_initialize(){
 }
 
 void take_measuring(){
-	logErrors(mh_z19_takeMeassuring());
+	log_errors(mh_z19_takeMeassuring());
 }
 
 void get_measuring(){
-	logErrors(mh_z19_getCo2Ppm(&val));
+	log_errors(mh_z19_getCo2Ppm(&val));
 }
 
 uint16_t get_value(){
@@ -56,7 +56,7 @@ uint16_t get_value(){
 	return val;
 }
 
-void logErrors(mh_z19_returnCode_t code){
+void log_errors(mh_z19_returnCode_t code){
 	if(code == MHZ19_OK){
 		printf("[CO2 Sensor]: MHZ19_OK%c",END);
 	}if(code == MHZ19_NO_SERIAL){

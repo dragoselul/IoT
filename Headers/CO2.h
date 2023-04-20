@@ -10,4 +10,4 @@ void co2_initialize();
 void take_measuring();
 void get_measuring();
 uint16_t get_value();
-void logErrors(mh_z19_returnCode_t code);
+void log_errors(mh_z19_returnCode_t code);
