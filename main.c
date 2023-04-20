@@ -178,7 +178,7 @@ void soundTask( void *pvParameters )
 	{
 		for(;;)
 		{
-			if(!detecting(sound_sensor))
+			if(!soundDetection(sound_sensor))
 			{
 				puts("Nothing detected...\n");
 			}

@@ -30,3 +30,16 @@ void sound_destroy(sound_t self)
 	if (NULL != self)
 	free(self);
 }
+
+bool soundDetection(sound self)
+{
+	uint16_t lastSoundValue;
+	if (self = sen14262_envelope(lastSoundValue))
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}

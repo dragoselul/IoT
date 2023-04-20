@@ -11,3 +11,4 @@ typedef struct sound* sound_t;
 sound_t sound_create();
 void sound_destroy();
 bool get_sound_state();
+bool soundDetection(sound_t self)
