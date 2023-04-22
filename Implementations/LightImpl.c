@@ -4,30 +4,25 @@
  * Created: 4/13/2023 2:04:26 PM
  *  Author: drago
  */ 
-#include "tsl2591.h"
 #include "../Headers/Light.h"
 #include <stdlib.h>
 #include <stdio.h>
 
 typedef struct light
 {
-	uint16_t _tmp;
-	float _lux;
 }light;
 
-uint16_t *tmp_pos;
-float *lux_pos;
+uint16_t _tmp;
+float _lux;
 
 void tsl2591Callback(tsl2591_returnCode_t rc)
 {
-	uint16_t _tmp;
-	float _lux;
 	switch (rc)
 	{
 		case TSL2591_DATA_READY:
 		if ( TSL2591_OK == (rc = tsl259_getVisibleRaw(&_tmp)) )
 		{
-			tmp_pos = &_tmp;
+			printf("Light tmp: %d", _tmp);
 		}
 		else if( TSL2591_OVERFLOW == rc )
 		{
@@ -36,7 +31,7 @@ void tsl2591Callback(tsl2591_returnCode_t rc)
 		
 		if ( TSL2591_OK == (rc = tsl2591_getLux(&_lux)) )
 		{
-			lux_pos = &_lux;
+			printf("Light lux: %f", _lux);
 		}
 		else if( TSL2591_OVERFLOW == rc )
 		{
@@ -64,8 +59,8 @@ light_t light_create()
 		return NULL;
 	if (TSL2591_OK != tsl2591_initialise(tsl2591Callback))
 		return NULL;
-	_new_light->_lux = 0.0;
-	_new_light->_tmp = 0;
+	_tmp = 0;
+	_lux = 0.00;
 	return _new_light;
 }
 void light_destroy(light_t self)
@@ -83,7 +78,7 @@ bool power_up_sensor()
 }
 bool power_down_sensor()
 {
-	if ( TSL2591_OK == tsl2591_destroy())
+	if ( TSL2591_OK == tsl2591_disable())
 	{
 		return true;
 	}
@@ -94,16 +89,20 @@ void get_light_data(light_t self)
 {
 	if ( TSL2591_OK == tsl2591_fetchData() ) 
 	{
-		self->_tmp = *tmp_pos;
-		self->_lux = *lux_pos;
+	
+	}
+	else 
+	{
+		_tmp = 0;
+		_lux = 0.00;	
 	}
 }
 
 uint16_t get_tmp(light_t self)
 {
-	return self->_tmp;
+	return _tmp;
 }
 float get_lux(light_t self)
 {
-	return self->_lux;
+	return _lux;
 }

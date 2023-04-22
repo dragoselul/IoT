@@ -33,7 +33,7 @@ void lightTask(void *pvParameters);
 void motionTask(void *pvParameters);
 
 // define semaphore handle
-SemaphoreHandle_t xTestSemaphore;
+SemaphoreHandle_t gateKeeper = NULL;
 
 // Prototype for LoRaWAN handler
 void lora_handler_initialise(UBaseType_t lora_handler_task_priority);
@@ -49,15 +49,11 @@ void create_tasks_and_semaphores(void)
 	// Semaphores are useful to stop a Task proceeding, where it should be paused to wait,
 	// because it is sharing a resource, such as the Serial port.
 	// Semaphores should only be used whilst the scheduler is running, but we can set it up here.
-	if ( xTestSemaphore == NULL )  // Check to confirm that the Semaphore has not already been created.
+	if ( gateKeeper == NULL )  // Check to confirm that the Semaphore has not already been created.
 	{
-		xTestSemaphore = xSemaphoreCreateMutex();  // Create a mutex semaphore.
-		if ( ( xTestSemaphore ) != NULL )
-		{
-			xSemaphoreGive( ( xTestSemaphore ) );  // Make the mutex available for use, by initially "Giving" the Semaphore.
-		}
+		gateKeeper = xSemaphoreCreateMutex();  // Create a mutex semaphore.
 	}
-/*
+	
 	xTaskCreate(
 	lightTask
 	,  "Light Task"  // A name just for humans
@@ -73,7 +69,7 @@ void create_tasks_and_semaphores(void)
 	,  NULL
 	,  1  // Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
 	,  NULL );
-	*/
+/*
 	
 	xTaskCreate(
 	motionTask
@@ -82,6 +78,7 @@ void create_tasks_and_semaphores(void)
 	,  NULL
 	,  1  // Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
 	,  NULL );
+		*/
 	
 }
 
@@ -120,17 +117,19 @@ void lightTask(void *pvParameters)
 	{
 		for(;;)
 		{
-			if(power_up_sensor())
+			if(power_up_sensor() && xSemaphoreTake(gateKeeper, 5000/portTICK_PERIOD_MS))
 			{
+				puts("Light task took the semaphore");
 				get_light_data(light_sensor);
 				xTaskDelayUntil( &xLastWakeTime, 10/portTICK_PERIOD_MS); // 10 ms
-				printf("The tmp is %d, and the lux is %d", get_tmp(light_sensor), (int)get_lux(light_sensor));
-				xTaskDelayUntil( &xLastWakeTime, 500/portTICK_PERIOD_MS); // 500 ms
+				display_7seg_display(get_tmp(light_sensor),0);
+				xTaskDelayUntil( &xLastWakeTime, 2000/portTICK_PERIOD_MS); // 1000 ms
+				display_7seg_display(get_lux(light_sensor),1);
 				power_down_sensor();
-				xTaskDelayUntil( &xLastWakeTime, 10/portTICK_PERIOD_MS); // 10 ms
+				xTaskDelayUntil( &xLastWakeTime, 2000/portTICK_PERIOD_MS); // 10 ms
+				display_7seg_display(0,0);
+				xSemaphoreGive(gateKeeper);
 			}
-			
-			PORTA ^= _BV(PA0);
 		}		
 	}
 }
@@ -149,19 +148,20 @@ void tempAndHumidityTask( void *pvParameters )
 			{
 				//It takes the sensor around 50 ms to wake up
 				xTaskDelayUntil( &xLastWakeTime, 50/portTICK_PERIOD_MS ); // 50 ms
-				if(measure_temp_hum())
+				if(measure_temp_hum() && xSemaphoreTake(gateKeeper, 5000/portTICK_PERIOD_MS));
 				{
+					puts("Temp task took the semaphore");
 					//It takes the sensor around 1 ms to measure up something
 					xTaskDelayUntil( &xLastWakeTime, 1/portTICK_PERIOD_MS); // 1 ms
 					display_7seg_display(get_temperature_float(), 2);
-					xTaskDelayUntil( &xLastWakeTime, 1000/portTICK_PERIOD_MS); // 1000 ms
+					xTaskDelayUntil( &xLastWakeTime, 2000/portTICK_PERIOD_MS); // 1000 ms
 					display_7seg_display(get_humidity_float(), 2);
-					xTaskDelayUntil( &xLastWakeTime, 1000/portTICK_PERIOD_MS ); //1000 ms
+					xTaskDelayUntil( &xLastWakeTime, 2000/portTICK_PERIOD_MS ); //1000 ms
+					xSemaphoreGive(gateKeeper);
 				}
 			}
 		}
 	}
-	PORTA ^= _BV(PA7);
 }
 
 /*-----------------------------------------------------------*/

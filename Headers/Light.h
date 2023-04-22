@@ -5,6 +5,7 @@
  *  Author: drago
  */ 
 #include "stdint-gcc.h"
+#include "tsl2591.h"
 
 typedef struct light* light_t;
 
