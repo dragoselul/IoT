@@ -8,12 +8,30 @@ TODO When connecting to LoRaWAN, change com port in mh_z19_initialise() method
 #include <stdio.h>
 
 uint16_t val;
-mh_z19_returnCode_t rc;
-char END = 3;
+Average average = {0, 0};
+	
+void updateAverage(uint16_t newVal){
+	average.measurements += 1;
+	average.current_average = (uint16_t)(float)((average.current_average * (average.measurements-1)) + newVal) / average.measurements;
+}
+
+uint16_t get_measurements(){
+	return average.measurements;
+}
+
+uint16_t get_average(){
+	return average.current_average;
+}
+
+void resetAverage(){
+	average.measurements = 0;
+	average.current_average = 0;
+}
+
 
 void mhz19_callback(uint16_t ppm){
-	printf("[CO2 Sensor]: Value - %d\n", ppm);
 	val = ppm;
+	updateAverage(ppm);
 }
 
 void co2_initialize(){
@@ -22,22 +40,22 @@ void co2_initialize(){
 }
 
 void take_measuring(){
-	log_errors(mh_z19_takeMeassuring());
+	//log_errors(mh_z19_takeMeassuring());
+	mh_z19_takeMeassuring();
 }
 
 uint16_t get_value(){
-	printf("Value at get_value() -  %d\n",val,END);
 	return val;
 }
 
 void log_errors(mh_z19_returnCode_t code){
 	if(code == MHZ19_OK){
-		printf("[CO2 Sensor]: MHZ19_OK\n",END);
+		printf("[CO2 Sensor]: MHZ19_OK\n");
 	}if(code == MHZ19_NO_SERIAL){
-		printf("[CO2 Sensor]: MHZ19_NO_SERIAL\n",END);
+		printf("[CO2 Sensor]: MHZ19_NO_SERIAL\n");
 	}if(code == MHZ19_NO_MEASSURING_AVAILABLE){
-	printf("[CO2 Sensor]: MHZ19_NO_MEASSURING_AVAILABLE\n",END);
+	printf("[CO2 Sensor]: MHZ19_NO_MEASSURING_AVAILABLE\n");
 	}if(code == MHZ19_PPM_MUST_BE_GT_999){
-	printf("[CO2 Sensor]: MHZ19_PPM_MUST_BE_GT_999\n",END);
+	printf("[CO2 Sensor]: MHZ19_PPM_MUST_BE_GT_999\n");
 	}
 }

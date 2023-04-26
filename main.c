@@ -164,6 +164,7 @@ void co2Task(void *pvParameters)
 		//xTaskDelayUntil( &xLastWakeTime, 10/portTICK_PERIOD_MS); // 10 ms
 		display_7seg_display((float)get_value(), 0);
 		printf("[CO2 Sensor]: There is %d particles of CO2 per million particles of air\n", get_value());
+		printf("[CO2 Sensor]: Average for last %d measurements is %d", get_measurements(), get_average());
 		xTaskDelayUntil( &xLastWakeTime, 1000/portTICK_PERIOD_MS); // 500 ms
 		// What is this for?
 		PORTA ^= _BV(PA1);
