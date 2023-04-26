@@ -43,6 +43,21 @@ tempAndHum_t temp_hum;
 light_t light_sensor;
 motion_t motion_sensor;
 
+void display(TickType_t ms, void *data)
+{
+	if(xSemaphoreTake(gateKeeper, portMAX_DELAY))
+	{
+		puts("Display took the semaphore!\n");
+		display_7seg_display(*((float*)data), 1);
+		vTaskDelay(ms);
+		xSemaphoreGive(gateKeeper);
+	}
+	else
+	{
+		puts("Could not take the display!\n");
+	}
+}
+
 /*-----------------------------------------------------------*/
 void create_tasks_and_semaphores(void)
 {
@@ -53,7 +68,7 @@ void create_tasks_and_semaphores(void)
 	{
 		gateKeeper = xSemaphoreCreateMutex();  // Create a mutex semaphore.
 	}
-	
+	/*
 	xTaskCreate(
 	lightTask
 	,  "Light Task"  // A name just for humans
@@ -61,7 +76,7 @@ void create_tasks_and_semaphores(void)
 	,  NULL
 	,  1  // Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
 	,  NULL );
-
+*/
 	xTaskCreate(
 	tempAndHumidityTask
 	,  "Temperature and Humidity"  // A name just for humans
@@ -69,8 +84,8 @@ void create_tasks_and_semaphores(void)
 	,  NULL
 	,  1  // Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
 	,  NULL );
-/*
-	
+
+	/*
 	xTaskCreate(
 	motionTask
 	,  "Motion sensor task"  // A name just for humans
@@ -137,6 +152,7 @@ void lightTask(void *pvParameters)
 /*-----------------------------------------------------------*/
 void tempAndHumidityTask( void *pvParameters )
 {
+	float temp, hum;
 	TickType_t xLastWakeTime;
 	// Initialise the xLastWakeTime variable with the current time.
 	xLastWakeTime = xTaskGetTickCount();
@@ -147,18 +163,17 @@ void tempAndHumidityTask( void *pvParameters )
 			if(wakeup_sensor())
 			{
 				//It takes the sensor around 50 ms to wake up
-				xTaskDelayUntil( &xLastWakeTime, 50/portTICK_PERIOD_MS ); // 50 ms
-				if(measure_temp_hum() && xSemaphoreTake(gateKeeper, 5000/portTICK_PERIOD_MS));
+				vTaskDelay(50/portTICK_PERIOD_MS); // 50 ms
+				if(measure_temp_hum());
 				{
-					puts("Temp task took the semaphore");
 					//It takes the sensor around 1 ms to measure up something
-					xTaskDelayUntil( &xLastWakeTime, 1/portTICK_PERIOD_MS); // 1 ms
-					display_7seg_display(get_temperature_float(), 2);
-					xTaskDelayUntil( &xLastWakeTime, 2000/portTICK_PERIOD_MS); // 1000 ms
-					display_7seg_display(get_humidity_float(), 2);
-					xTaskDelayUntil( &xLastWakeTime, 2000/portTICK_PERIOD_MS ); //1000 ms
-					xSemaphoreGive(gateKeeper);
+					vTaskDelay(1/portTICK_PERIOD_MS);// 1 ms
+					temp =  get_temperature_float();
+					hum = get_humidity_float();
+					display(3000/portTICK_PERIOD_MS, &temp);
+					display(1000/portTICK_PERIOD_MS, &hum);
 				}
+				xTaskDelayUntil( &xLastWakeTime, 50/portTICK_PERIOD_MS );
 			}
 		}
 	}
@@ -183,7 +198,7 @@ void initialiseSystem()
 	light_sensor = light_create();
 	//Motion sensor
 	motion_sensor = motion_create();
-/*
+
 	// vvvvvvvvvvvvvvvvv BELOW IS LoRaWAN initialisation vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 	// Status Leds driver
 	status_leds_initialise(5); // Priority 5 for internal task
@@ -192,7 +207,6 @@ void initialiseSystem()
 	lora_driver_initialise(1, NULL);
 	// Create LoRaWAN task and start it up with priority 3
 	lora_handler_initialise(3);
-	*/
 	
 }
 
