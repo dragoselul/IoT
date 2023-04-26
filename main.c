@@ -162,7 +162,6 @@ void co2Task(void *pvParameters)
 	{		
 		take_measuring();
 		//xTaskDelayUntil( &xLastWakeTime, 10/portTICK_PERIOD_MS); // 10 ms
-		get_measuring();
 		display_7seg_display((float)get_value(), 0);
 		printf("[CO2 Sensor]: There is %d particles of CO2 per million particles of air\n", get_value());
 		xTaskDelayUntil( &xLastWakeTime, 1000/portTICK_PERIOD_MS); // 500 ms
