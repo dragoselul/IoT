@@ -7,8 +7,21 @@ TODO When connecting to LoRaWAN, change com port in mh_z19_initialise() method
 #include <stdlib.h>
 #include <stdio.h>
 
+uint16_t threshold = -1;
 uint16_t val;
 Average average = {0, 0};
+	
+bool threshold_surpassed(){
+	return threshold != -1 && val > threshold;
+}
+
+uint16_t get_threshold(){
+	return threshold;
+}
+
+void set_threshold(uint16_t newThreshold){
+	threshold = newThreshold;
+}
 	
 void updateAverage(uint16_t newVal){
 	average.measurements += 1;

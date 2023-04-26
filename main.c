@@ -57,6 +57,7 @@ void create_tasks_and_semaphores(void)
 		gateKeeper = xSemaphoreCreateMutex();  // Create a mutex semaphore.
 	}
 	
+	/*
 	xTaskCreate(
 	lightTask
 	,  "Light Task"  // A name just for humans
@@ -64,6 +65,7 @@ void create_tasks_and_semaphores(void)
 	,  NULL
 	,  1  // Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
 	,  NULL );
+	*/
 	
 	
 	/*
@@ -77,7 +79,7 @@ void create_tasks_and_semaphores(void)
 	
 	*/
 	
-	/*
+	
 	xTaskCreate(
 	co2Task
 	,  "CO2 Task"  // A name just for humans
@@ -85,7 +87,7 @@ void create_tasks_and_semaphores(void)
 	,  NULL
 	,  1  // Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
 	,  NULL );
-	*/
+	
 	
 	/*
 	xTaskCreate(
@@ -165,7 +167,14 @@ void co2Task(void *pvParameters)
 		//xTaskDelayUntil( &xLastWakeTime, 10/portTICK_PERIOD_MS); // 10 ms
 		display_7seg_display((float)get_value(), 0);
 		printf("[CO2 Sensor]: There is %d particles of CO2 per million particles of air\n", get_value());
-		printf("[CO2 Sensor]: Average for last %d measurements is %d", get_measurements(), get_average());
+		printf("[CO2 Sensor]: Average for last %d measurements is %d\n", get_measurements(), get_average());
+		
+		//printf("[CO2 Sensor]: Value: %d, Threshold: %d, Surpassed: %d", get_value(), get_threshold(), threshold_surpassed());
+		if(threshold_surpassed()){
+			// START SERVO
+			printf("\n[CO2 Sensor]: Threshold of %d ppm surpassed\n", get_threshold());
+		}
+		
 		xTaskDelayUntil( &xLastWakeTime, 1000/portTICK_PERIOD_MS); // 500 ms
 		// What is this for?
 		PORTA ^= _BV(PA1);
@@ -223,8 +232,9 @@ void initialiseSystem()
 	light_sensor = light_create();
 	//Motion sensor
 	motion_sensor = motion_create();
-	// Create co2 sensor
-	//co2_sensor = co2_create();
+	
+	//co2 sensor
+	set_threshold(1000);
 /*
 	// vvvvvvvvvvvvvvvvv BELOW IS LoRaWAN initialisation vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 	// Status Leds driver

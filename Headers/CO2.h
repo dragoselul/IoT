@@ -8,6 +8,9 @@ typedef struct {
 
 Average average;
 
+bool threshold_surpassed();
+uint16_t get_threshold();
+void set_threshold(uint16_t newThreshold);
 uint16_t get_average();
 uint16_t get_measurements();
 uint16_t reset_average();
