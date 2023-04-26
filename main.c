@@ -21,6 +21,7 @@
 #include <status_leds.h>
 
 //Drivers
+#include "./Headers/CO2.h"
 #include "./Headers/Light.h"
 #include "./Headers/TempAndHum.h"
 #include "./Headers/MotionSensor.h"
@@ -31,6 +32,7 @@ void displayTask( void *pvParameters );
 void tempAndHumidityTask( void *pvParameters );
 void lightTask(void *pvParameters);
 void motionTask(void *pvParameters);
+void co2Task(void *pvParameters);
 
 // define semaphore handle
 SemaphoreHandle_t gateKeeper = NULL;
@@ -42,6 +44,7 @@ void lora_handler_initialise(UBaseType_t lora_handler_task_priority);
 tempAndHum_t temp_hum;
 light_t light_sensor;
 motion_t motion_sensor;
+//co2_t co2_sensor;
 
 void display(TickType_t ms, void *data)
 {
@@ -68,6 +71,7 @@ void create_tasks_and_semaphores(void)
 	{
 		gateKeeper = xSemaphoreCreateMutex();  // Create a mutex semaphore.
 	}
+
 	/*
 	xTaskCreate(
 	lightTask
@@ -76,7 +80,7 @@ void create_tasks_and_semaphores(void)
 	,  NULL
 	,  1  // Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
 	,  NULL );
-*/
+
 	xTaskCreate(
 	tempAndHumidityTask
 	,  "Temperature and Humidity"  // A name just for humans
@@ -85,6 +89,16 @@ void create_tasks_and_semaphores(void)
 	,  1  // Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
 	,  NULL );
 
+	
+	
+	xTaskCreate(
+	co2Task
+	,  "CO2 Task"  // A name just for humans
+	,  configMINIMAL_STACK_SIZE  // This stack size can be checked & adjusted by reading the Stack Highwater
+	,  NULL
+	,  1  // Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
+	,  NULL );
+	
 	/*
 	xTaskCreate(
 	motionTask
@@ -96,6 +110,7 @@ void create_tasks_and_semaphores(void)
 		*/
 	
 }
+
 
 /*-----------------------------------------------------------*/
 void motionTask(void *pvParameters)
@@ -149,6 +164,34 @@ void lightTask(void *pvParameters)
 	}
 }
 
+
+void co2Task(void *pvParameters)
+{
+	TickType_t xLastWakeTime;
+	// Initialize the xLastWakeTime variable with the current time.
+	xLastWakeTime = xTaskGetTickCount();
+	
+	for(;;)
+	{		
+		take_measuring();
+		//xTaskDelayUntil( &xLastWakeTime, 10/portTICK_PERIOD_MS); // 10 ms
+		display_7seg_display((float)get_value(), 0);
+		printf("[CO2 Sensor]: There is %d particles of CO2 per million particles of air\n", get_value());
+		printf("[CO2 Sensor]: Average for last %d measurements is %d\n", get_measurements(), get_average());
+		
+		//printf("[CO2 Sensor]: Value: %d, Threshold: %d, Surpassed: %d", get_value(), get_threshold(), threshold_surpassed());
+		if(threshold_surpassed()){
+			// START SERVO
+			printf("\n[CO2 Sensor]: Threshold of %d ppm surpassed\n", get_threshold());
+		}
+		
+		xTaskDelayUntil( &xLastWakeTime, 1000/portTICK_PERIOD_MS); // 500 ms
+		// What is this for?
+		PORTA ^= _BV(PA1);
+	}
+	
+}
+
 /*-----------------------------------------------------------*/
 void tempAndHumidityTask( void *pvParameters )
 {
@@ -192,13 +235,16 @@ void initialiseSystem()
 	
 	display_7seg_initialise(NULL);
 	display_7seg_powerUp();
+	co2_initialize();
 	//Temp and humidity sensor
 	temp_hum = tempAndHum_create();
 	//Light sensor
 	light_sensor = light_create();
 	//Motion sensor
 	motion_sensor = motion_create();
-
+	
+	//co2 sensor
+	set_threshold(1000);
 	// vvvvvvvvvvvvvvvvv BELOW IS LoRaWAN initialisation vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 	// Status Leds driver
 	status_leds_initialise(5); // Priority 5 for internal task
