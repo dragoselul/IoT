@@ -65,7 +65,7 @@ void create_tasks_and_semaphores(void)
 	,  1  // Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
 	,  NULL );
 	
-	*/
+	
 	/*
 	xTaskCreate(
 	tempAndHumidityTask
@@ -77,6 +77,7 @@ void create_tasks_and_semaphores(void)
 	
 	*/
 	
+	/*
 	xTaskCreate(
 	co2Task
 	,  "CO2 Task"  // A name just for humans
@@ -84,6 +85,7 @@ void create_tasks_and_semaphores(void)
 	,  NULL
 	,  1  // Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
 	,  NULL );
+	*/
 	
 	/*
 	xTaskCreate(
