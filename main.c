@@ -185,7 +185,7 @@ void motionTask(void *pvParameters)
 				is_detecting = 1;
 				add_to_payload(is_detecting, 8,NULL, 1);
 			}
-			vTaskDelay(1000/portTICK_PERIOD_MS); // 1000 ms
+			vTaskDelay(4000/portTICK_PERIOD_MS); // 1000 ms
 		}
 	}
 }
@@ -210,7 +210,7 @@ void lightTask(void *pvParameters)
 				printf("Light is : %d\n", (int)aux_lux);
 				add_to_payload(lux, 6,7, NULL);
 				power_down_sensor();
-				vTaskDelay(1000/portTICK_PERIOD_MS); // 2000 ms
+				vTaskDelay(4000/portTICK_PERIOD_MS); // 2000 ms
 			}
 		}		
 	}
@@ -241,7 +241,7 @@ void co2Task(void *pvParameters)
 		}
 		
 		add_to_payload(co2, 0,1, NULL);
-		xTaskDelayUntil( &xLastWakeTime, 1000/portTICK_PERIOD_MS); // 500 ms
+		xTaskDelayUntil( &xLastWakeTime, 4000/portTICK_PERIOD_MS); // 500 ms
 		// What is this for?
 		PORTA ^= _BV(PA1);
 	}
@@ -272,7 +272,7 @@ void tempAndHumidityTask( void *pvParameters )
 					add_to_payload(temp, 2,3, NULL);
 					add_to_payload(hum, 4,5, NULL);
 				}
-				xTaskDelayUntil( &xLastWakeTime, 1000/portTICK_PERIOD_MS );
+				xTaskDelayUntil( &xLastWakeTime, 4000/portTICK_PERIOD_MS );
 			}
 		}
 	}
@@ -300,7 +300,7 @@ void soundTask( void *pvParameters )
 				sound_detecting = 1;
 				add_to_payload(sound_detecting, 8,NULL, 2);
 			}
-			xTaskDelayUntil( &xLastWakeTime, 1000/portTICK_PERIOD_MS); // 10 ms
+			xTaskDelayUntil( &xLastWakeTime, 4000/portTICK_PERIOD_MS); // 10 ms
 		}
 	}
 }
