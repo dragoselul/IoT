@@ -44,6 +44,7 @@ void lora_handler_initialise(UBaseType_t lora_handler_task_priority);
 tempAndHum_t temp_hum;
 light_t light_sensor;
 motion_t motion_sensor;
+sount_t sound_sensor;
 //co2_t co2_sensor;
 
 void display(TickType_t ms, void *data, uint8_t decimal_places)
@@ -228,6 +229,31 @@ void tempAndHumidityTask( void *pvParameters )
 }
 
 /*-----------------------------------------------------------*/
+void soundTask( void *pvParameters )
+{
+	TickType_t xLastWakeTime;
+	//Initialize the xLastWakeTime variable with the current time.
+	xLastWakeTime = xTaskGetTickCount();
+	
+	if(sound_sensor != NULL)
+	{
+		for(;;)
+		{
+			if(!detecting(sound_sensor))
+			if(!soundDetection(sound_sensor))
+			{
+				puts("Nothing detected...\n");
+			}
+			else
+			{
+				puts("Detecting something...\n");
+			}
+			xTaskDelayUntil( &xLastWakeTime, 1000/portTICK_PERIOD_MS); // 10 ms
+		}
+	}
+}
+
+/*-----------------------------------------------------------*/
 void initialiseSystem()
 {
 	// Set output ports for leds used in the example
@@ -247,7 +273,8 @@ void initialiseSystem()
 	light_sensor = light_create();
 	//Motion sensor
 	motion_sensor = motion_create();
-	
+	//Sound sensor
+	sound_sensor = sound_create();
 	//co2 sensor
 	set_threshold(1000);
 	// vvvvvvvvvvvvvvvvv BELOW IS LoRaWAN initialisation vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv

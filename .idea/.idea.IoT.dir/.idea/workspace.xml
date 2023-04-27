@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="1b2aa15e-c1b6-484b-b27b-70ba55b7c7ae" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/Diagrams/CO2 Measurment -  System Sequence Diagram.asta" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Diagrams/Class Diagram.asta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.vs/IoT/v14/.atsuo" beforeDir="false" afterPath="$PROJECT_DIR$/.vs/IoT/v14/.atsuo" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Debug/FreeRTOS/FreeRTOSTraceDriver/FreeRTOSTraceDriver.o" beforeDir="false" afterPath="$PROJECT_DIR$/Debug/FreeRTOS/FreeRTOSTraceDriver/FreeRTOSTraceDriver.o" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Debug/FreeRTOS/src/croutine.o" beforeDir="false" afterPath="$PROJECT_DIR$/Debug/FreeRTOS/src/croutine.o" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Debug/FreeRTOS/src/event_groups.o" beforeDir="false" afterPath="$PROJECT_DIR$/Debug/FreeRTOS/src/event_groups.o" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Debug/FreeRTOS/src/heap_4.o" beforeDir="false" afterPath="$PROJECT_DIR$/Debug/FreeRTOS/src/heap_4.o" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Debug/FreeRTOS/src/list.o" beforeDir="false" afterPath="$PROJECT_DIR$/Debug/FreeRTOS/src/list.o" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Debug/FreeRTOS/src/queue.o" beforeDir="false" afterPath="$PROJECT_DIR$/Debug/FreeRTOS/src/queue.o" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Debug/FreeRTOS/src/stream_buffer.o" beforeDir="false" afterPath="$PROJECT_DIR$/Debug/FreeRTOS/src/stream_buffer.o" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Debug/FreeRTOS/src/tasks.o" beforeDir="false" afterPath="$PROJECT_DIR$/Debug/FreeRTOS/src/tasks.o" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Debug/FreeRTOS/src/timers.o" beforeDir="false" afterPath="$PROJECT_DIR$/Debug/FreeRTOS/src/timers.o" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Debug/FreeRTOS/src/variantHooks.o" beforeDir="false" afterPath="$PROJECT_DIR$/Debug/FreeRTOS/src/variantHooks.o" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Debug/main.d" beforeDir="false" afterPath="$PROJECT_DIR$/Debug/main.d" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Debug/main.o" beforeDir="false" afterPath="$PROJECT_DIR$/Debug/main.o" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Headers/CO2.h" beforeDir="false" afterPath="$PROJECT_DIR$/Headers/CO2.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Implementations/CO2Impl.c" beforeDir="false" afterPath="$PROJECT_DIR$/Implementations/CO2Impl.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IoT.cproj" beforeDir="false" afterPath="$PROJECT_DIR$/IoT.cproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.c" beforeDir="false" afterPath="$PROJECT_DIR$/main.c" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProjectId" id="2OyYfjT24MHeBLUQ9mee21exCZ1" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="1b2aa15e-c1b6-484b-b27b-70ba55b7c7ae" name="Changes" comment="" />
+      <created>1682534397502</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1682534397502</updated>
+      <workItem from="1682534413534" duration="86000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="UnityCheckinConfiguration" checkUnsavedScenes="true" />
+  <component name="UnityUnitTestConfiguration" currentTestLauncher="NUnit" />
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
+  </component>
+</project>
