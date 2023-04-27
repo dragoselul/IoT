@@ -46,12 +46,12 @@ light_t light_sensor;
 motion_t motion_sensor;
 //co2_t co2_sensor;
 
-void display(TickType_t ms, void *data)
+void display(TickType_t ms, void *data, uint8_t decimal_places)
 {
 	if(xSemaphoreTake(gateKeeper, portMAX_DELAY))
 	{
 		puts("Display took the semaphore!\n");
-		display_7seg_display(*((float*)data), 1);
+		display_7seg_display(*((float*)data), decimal_places);
 		vTaskDelay(ms);
 		xSemaphoreGive(gateKeeper);
 	}
@@ -71,8 +71,9 @@ void create_tasks_and_semaphores(void)
 	{
 		gateKeeper = xSemaphoreCreateMutex();  // Create a mutex semaphore.
 	}
-
+	
 	/*
+
 	xTaskCreate(
 	lightTask
 	,  "Light Task"  // A name just for humans
@@ -80,6 +81,8 @@ void create_tasks_and_semaphores(void)
 	,  NULL
 	,  1  // Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
 	,  NULL );
+	
+	*/
 
 	xTaskCreate(
 	tempAndHumidityTask
@@ -88,8 +91,6 @@ void create_tasks_and_semaphores(void)
 	,  NULL
 	,  1  // Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
 	,  NULL );
-
-	
 	
 	xTaskCreate(
 	co2Task
@@ -139,6 +140,7 @@ void motionTask(void *pvParameters)
 /*-----------------------------------------------------------*/
 void lightTask(void *pvParameters)
 {
+	float tmp, lux;
 	TickType_t xLastWakeTime;
 	// Initialise the xLastWakeTime variable with the current time.
 	xLastWakeTime = xTaskGetTickCount();
@@ -147,18 +149,17 @@ void lightTask(void *pvParameters)
 	{
 		for(;;)
 		{
-			if(power_up_sensor() && xSemaphoreTake(gateKeeper, 5000/portTICK_PERIOD_MS))
+			if(power_up_sensor())
 			{
 				puts("Light task took the semaphore");
 				get_light_data(light_sensor);
 				xTaskDelayUntil( &xLastWakeTime, 10/portTICK_PERIOD_MS); // 10 ms
-				display_7seg_display(get_tmp(light_sensor),0);
-				xTaskDelayUntil( &xLastWakeTime, 2000/portTICK_PERIOD_MS); // 1000 ms
-				display_7seg_display(get_lux(light_sensor),1);
+				tmp = get_tmp(light_sensor);
+				display(3000/portTICK_PERIOD_MS, &tmp, 0);
+				lux = get_lux(light_sensor);
+				display(3000/portTICK_PERIOD_MS, &lux, 1);
 				power_down_sensor();
 				xTaskDelayUntil( &xLastWakeTime, 2000/portTICK_PERIOD_MS); // 10 ms
-				display_7seg_display(0,0);
-				xSemaphoreGive(gateKeeper);
 			}
 		}		
 	}
@@ -167,15 +168,18 @@ void lightTask(void *pvParameters)
 
 void co2Task(void *pvParameters)
 {
+	
+	float co2;
 	TickType_t xLastWakeTime;
 	// Initialize the xLastWakeTime variable with the current time.
 	xLastWakeTime = xTaskGetTickCount();
 	
 	for(;;)
-	{		
+	{
+		vTaskDelay(50/portTICK_PERIOD_MS);		
 		take_measuring();
 		//xTaskDelayUntil( &xLastWakeTime, 10/portTICK_PERIOD_MS); // 10 ms
-		display_7seg_display((float)get_value(), 0);
+		co2 = (float) get_value();
 		printf("[CO2 Sensor]: There is %d particles of CO2 per million particles of air\n", get_value());
 		printf("[CO2 Sensor]: Average for last %d measurements is %d\n", get_measurements(), get_average());
 		
@@ -185,7 +189,8 @@ void co2Task(void *pvParameters)
 			printf("\n[CO2 Sensor]: Threshold of %d ppm surpassed\n", get_threshold());
 		}
 		
-		xTaskDelayUntil( &xLastWakeTime, 1000/portTICK_PERIOD_MS); // 500 ms
+		display(3000/portTICK_PERIOD_MS, &co2, 0);
+		xTaskDelayUntil( &xLastWakeTime, 50/portTICK_PERIOD_MS); // 500 ms
 		// What is this for?
 		PORTA ^= _BV(PA1);
 	}
@@ -213,8 +218,8 @@ void tempAndHumidityTask( void *pvParameters )
 					vTaskDelay(1/portTICK_PERIOD_MS);// 1 ms
 					temp =  get_temperature_float();
 					hum = get_humidity_float();
-					display(3000/portTICK_PERIOD_MS, &temp);
-					display(1000/portTICK_PERIOD_MS, &hum);
+					display(3000/portTICK_PERIOD_MS, &temp, 1);
+					display(1000/portTICK_PERIOD_MS, &hum, 1);
 				}
 				xTaskDelayUntil( &xLastWakeTime, 50/portTICK_PERIOD_MS );
 			}
