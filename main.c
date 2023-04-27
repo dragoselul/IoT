@@ -1,9 +1,6 @@
 /*
 * main.c
-* Author : IHA
-*
-* Example main file including LoRaWAN setup
-* Just for inspiration :)
+* Author : gRPC
 */
 #include "stdint-gcc.h"
 #include <stdio.h>
@@ -25,6 +22,7 @@
 #include "./Headers/Light.h"
 #include "./Headers/TempAndHum.h"
 #include "./Headers/MotionSensor.h"
+#include "./Headers/Sound.h"
 #include "display_7seg.h"
 
 // define two Tasks
@@ -38,14 +36,18 @@ void co2Task(void *pvParameters);
 SemaphoreHandle_t gateKeeper = NULL;
 
 // Prototype for LoRaWAN handler
-void lora_handler_initialise(UBaseType_t lora_handler_task_priority);
+void lora_handler_initialise(UBaseType_t lora_handler_task_priority, void* payload_var);
 
 // sensor variables
 tempAndHum_t temp_hum;
 light_t light_sensor;
 motion_t motion_sensor;
-sount_t sound_sensor;
+sound_t sound_sensor;
 //co2_t co2_sensor;
+
+//Payload array
+uint8_t payload[20];
+bool switchGarageId = true;
 
 void display(TickType_t ms, void *data, uint8_t decimal_places)
 {
@@ -62,6 +64,57 @@ void display(TickType_t ms, void *data, uint8_t decimal_places)
 	}
 }
 
+void add_to_payload(uint16_t data, uint8_t byte_pos1, uint8_t byte_pos2, uint8_t bit_pos)
+{
+	if(xSemaphoreTake(gateKeeper, portMAX_DELAY))
+	{
+		printf("\n Data is: %d\n", data);
+		if(byte_pos1 == 0)
+			puts("CO2 writing payload\n");
+		if(byte_pos1 == 2)
+			puts("Temp writing payload\n");
+		if(byte_pos1 == 4)
+			puts("Hum writing payload\n");
+		if(byte_pos1 == 6)
+			puts("Lux writing payload\n");
+		if(byte_pos1 == 8)
+		{
+			if(bit_pos == 0)
+				puts("Servo changing bit\n");
+			if(bit_pos == 1)
+				puts("Motion changing bit\n");
+			if(bit_pos == 2)
+				puts("Sound changing bit\n");
+			if(bit_pos == 3)
+				puts("Alarm changing bit\n");
+			payload[byte_pos1] = data>>bit_pos;
+		}
+		else
+		{
+		payload[byte_pos1] = data >> 8;
+		payload[byte_pos2] = data & 0xFF;	
+		}
+		if(switchGarageId)
+		{
+			uint16_t hash = 5381;
+			int c;
+			unsigned char* str = "0004A30B00251001";
+			while (c = *str++) {
+				hash = ((hash << 5) + hash) + c;
+			}
+			payload[9] = hash;
+			switchGarageId = false;
+		}
+		printf("[0]: %d \n [1]: %d \n [2]: %d \n [3]: %d \n [4]: %d \n [5]: %d \n [6]: %d \n [7]: %d \n [8]: %d \n [9]: %d \n",payload[0], payload[1], payload[2], payload[3], payload[4], payload[5], payload[6], payload[7], payload[8], payload[9]);
+		vTaskDelay(50/portTICK_PERIOD_MS);
+		xSemaphoreGive(gateKeeper);
+	}
+	else 
+	{
+		puts("Could not take mutex");	
+	}
+}
+
 /*-----------------------------------------------------------*/
 void create_tasks_and_semaphores(void)
 {
@@ -72,8 +125,7 @@ void create_tasks_and_semaphores(void)
 	{
 		gateKeeper = xSemaphoreCreateMutex();  // Create a mutex semaphore.
 	}
-	
-	/*
+
 
 	xTaskCreate(
 	lightTask
@@ -83,7 +135,6 @@ void create_tasks_and_semaphores(void)
 	,  1  // Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
 	,  NULL );
 	
-	*/
 
 	xTaskCreate(
 	tempAndHumidityTask
@@ -101,7 +152,6 @@ void create_tasks_and_semaphores(void)
 	,  1  // Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
 	,  NULL );
 	
-	/*
 	xTaskCreate(
 	motionTask
 	,  "Motion sensor task"  // A name just for humans
@@ -109,7 +159,6 @@ void create_tasks_and_semaphores(void)
 	,  NULL
 	,  1  // Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
 	,  NULL );
-		*/
 	
 }
 
@@ -120,6 +169,7 @@ void motionTask(void *pvParameters)
 	TickType_t xLastWakeTime;
 	// Initialise the xLastWakeTime variable with the current time.
 	xLastWakeTime = xTaskGetTickCount();
+	uint16_t is_detecting;
 	
 	if(motion_sensor != NULL)
 	{
@@ -127,13 +177,15 @@ void motionTask(void *pvParameters)
 		{
 			if(!detecting(motion_sensor))
 			{
-				puts("Nothing detected...\n");
+				is_detecting = 0;
+				add_to_payload(is_detecting, 8,NULL, 1);
 			}
 			else
 			{
-				puts("Detecting something...\n");
+				is_detecting = 1;
+				add_to_payload(is_detecting, 8,NULL, 1);
 			}
-			xTaskDelayUntil( &xLastWakeTime, 1000/portTICK_PERIOD_MS); // 10 ms
+			vTaskDelay(1000/portTICK_PERIOD_MS); // 1000 ms
 		}
 	}
 }
@@ -141,7 +193,7 @@ void motionTask(void *pvParameters)
 /*-----------------------------------------------------------*/
 void lightTask(void *pvParameters)
 {
-	float tmp, lux;
+	uint16_t lux;
 	TickType_t xLastWakeTime;
 	// Initialise the xLastWakeTime variable with the current time.
 	xLastWakeTime = xTaskGetTickCount();
@@ -152,15 +204,13 @@ void lightTask(void *pvParameters)
 		{
 			if(power_up_sensor())
 			{
-				puts("Light task took the semaphore");
 				get_light_data(light_sensor);
-				xTaskDelayUntil( &xLastWakeTime, 10/portTICK_PERIOD_MS); // 10 ms
-				tmp = get_tmp(light_sensor);
-				display(3000/portTICK_PERIOD_MS, &tmp, 0);
-				lux = get_lux(light_sensor);
-				display(3000/portTICK_PERIOD_MS, &lux, 1);
+				float aux_lux = get_lux(light_sensor);
+				lux = (int)aux_lux;
+				printf("Light is : %d\n", (int)aux_lux);
+				add_to_payload(lux, 6,7, NULL);
 				power_down_sensor();
-				xTaskDelayUntil( &xLastWakeTime, 2000/portTICK_PERIOD_MS); // 10 ms
+				vTaskDelay(1000/portTICK_PERIOD_MS); // 2000 ms
 			}
 		}		
 	}
@@ -170,7 +220,7 @@ void lightTask(void *pvParameters)
 void co2Task(void *pvParameters)
 {
 	
-	float co2;
+	uint16_t co2;
 	TickType_t xLastWakeTime;
 	// Initialize the xLastWakeTime variable with the current time.
 	xLastWakeTime = xTaskGetTickCount();
@@ -180,18 +230,18 @@ void co2Task(void *pvParameters)
 		vTaskDelay(50/portTICK_PERIOD_MS);		
 		take_measuring();
 		//xTaskDelayUntil( &xLastWakeTime, 10/portTICK_PERIOD_MS); // 10 ms
-		co2 = (float) get_value();
-		printf("[CO2 Sensor]: There is %d particles of CO2 per million particles of air\n", get_value());
-		printf("[CO2 Sensor]: Average for last %d measurements is %d\n", get_measurements(), get_average());
+		co2 = get_value();
+	//	printf("[CO2 Sensor]: There is %d particles of CO2 per million particles of air\n", get_value());
+	//	printf("[CO2 Sensor]: Average for last %d measurements is %d\n", get_measurements(), get_average());
 		
 		//printf("[CO2 Sensor]: Value: %d, Threshold: %d, Surpassed: %d", get_value(), get_threshold(), threshold_surpassed());
 		if(threshold_surpassed()){
 			// START SERVO
-			printf("\n[CO2 Sensor]: Threshold of %d ppm surpassed\n", get_threshold());
+			//printf("\n[CO2 Sensor]: Threshold of %d ppm surpassed\n", get_threshold());
 		}
 		
-		display(3000/portTICK_PERIOD_MS, &co2, 0);
-		xTaskDelayUntil( &xLastWakeTime, 50/portTICK_PERIOD_MS); // 500 ms
+		add_to_payload(co2, 0,1, NULL);
+		xTaskDelayUntil( &xLastWakeTime, 1000/portTICK_PERIOD_MS); // 500 ms
 		// What is this for?
 		PORTA ^= _BV(PA1);
 	}
@@ -201,7 +251,7 @@ void co2Task(void *pvParameters)
 /*-----------------------------------------------------------*/
 void tempAndHumidityTask( void *pvParameters )
 {
-	float temp, hum;
+	uint16_t temp, hum;
 	TickType_t xLastWakeTime;
 	// Initialise the xLastWakeTime variable with the current time.
 	xLastWakeTime = xTaskGetTickCount();
@@ -217,12 +267,12 @@ void tempAndHumidityTask( void *pvParameters )
 				{
 					//It takes the sensor around 1 ms to measure up something
 					vTaskDelay(1/portTICK_PERIOD_MS);// 1 ms
-					temp =  get_temperature_float();
-					hum = get_humidity_float();
-					display(3000/portTICK_PERIOD_MS, &temp, 1);
-					display(1000/portTICK_PERIOD_MS, &hum, 1);
+					temp =  get_temperature_int();
+					hum = get_humidity_int();
+					add_to_payload(temp, 2,3, NULL);
+					add_to_payload(hum, 4,5, NULL);
 				}
-				xTaskDelayUntil( &xLastWakeTime, 50/portTICK_PERIOD_MS );
+				xTaskDelayUntil( &xLastWakeTime, 1000/portTICK_PERIOD_MS );
 			}
 		}
 	}
@@ -234,19 +284,21 @@ void soundTask( void *pvParameters )
 	TickType_t xLastWakeTime;
 	//Initialize the xLastWakeTime variable with the current time.
 	xLastWakeTime = xTaskGetTickCount();
+	uint16_t sound_detecting;
 	
 	if(sound_sensor != NULL)
 	{
 		for(;;)
 		{
-			if(!detecting(sound_sensor))
 			if(!soundDetection(sound_sensor))
 			{
-				puts("Nothing detected...\n");
+				sound_detecting = 0;
+				add_to_payload(sound_detecting, 8,NULL, 2);
 			}
 			else
 			{
-				puts("Detecting something...\n");
+				sound_detecting = 1;
+				add_to_payload(sound_detecting, 8,NULL, 2);
 			}
 			xTaskDelayUntil( &xLastWakeTime, 1000/portTICK_PERIOD_MS); // 10 ms
 		}
@@ -261,6 +313,10 @@ void initialiseSystem()
 
 	// Make it possible to use stdio on COM port 0 (USB) on Arduino board - Setting 57600,8,N,1
 	stdio_initialise(ser_USART0);
+	for (int i = 0; i < 20; i++)
+	{
+		payload[i] = 0;
+	}
 	// Let's create some tasks
 	create_tasks_and_semaphores();
 	
@@ -284,7 +340,7 @@ void initialiseSystem()
 	// Initialise the LoRaWAN driver without down-link buffer
 	lora_driver_initialise(1, NULL);
 	// Create LoRaWAN task and start it up with priority 3
-	lora_handler_initialise(3);
+	lora_handler_initialise(3,&payload);
 	
 }
 

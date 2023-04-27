@@ -59,6 +59,7 @@ C_SRCS +=  \
 ../Implementations/CO2Impl.c \
 ../Implementations/LightImpl.c \
 ../Implementations/MotionSensorImpl.c \
+../Implementations/SoundImpl.c \
 ../Implementations/TempAndHumImpl.c \
 ../LoRaWANHandler.c \
 ../main.c
@@ -85,6 +86,7 @@ FreeRTOS/src/variantHooks.o \
 Implementations/CO2Impl.o \
 Implementations/LightImpl.o \
 Implementations/MotionSensorImpl.o \
+Implementations/SoundImpl.o \
 Implementations/TempAndHumImpl.o \
 LoRaWANHandler.o \
 main.o
@@ -104,6 +106,7 @@ FreeRTOS/src/variantHooks.o \
 Implementations/CO2Impl.o \
 Implementations/LightImpl.o \
 Implementations/MotionSensorImpl.o \
+Implementations/SoundImpl.o \
 Implementations/TempAndHumImpl.o \
 LoRaWANHandler.o \
 main.o
@@ -123,6 +126,7 @@ FreeRTOS/src/variantHooks.d \
 Implementations/CO2Impl.d \
 Implementations/LightImpl.d \
 Implementations/MotionSensorImpl.d \
+Implementations/SoundImpl.d \
 Implementations/TempAndHumImpl.d \
 LoRaWANHandler.d \
 main.d
@@ -142,6 +146,7 @@ FreeRTOS/src/variantHooks.d \
 Implementations/CO2Impl.d \
 Implementations/LightImpl.d \
 Implementations/MotionSensorImpl.d \
+Implementations/SoundImpl.d \
 Implementations/TempAndHumImpl.d \
 LoRaWANHandler.d \
 main.d
@@ -252,6 +257,13 @@ Implementations/LightImpl.o: ../Implementations/LightImpl.c
 	
 
 Implementations/MotionSensorImpl.o: ../Implementations/MotionSensorImpl.c
+	@echo Building file: $<
+	@echo Invoking: AVR/GNU C Compiler : 5.4.0
+	$(QUOTE)C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avr8-gnu-toolchain\bin\avr-gcc.exe$(QUOTE)  -x c -funsigned-char -funsigned-bitfields -DDEBUG -DF_CPU=16000000L  -I"C:\Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\include" -I"../drivers" -I"../FreeRTOS/src"  -Og -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -mrelax -g2 -Wall -mmcu=atmega2560 -B "C:\Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\gcc\dev\atmega2560" -c -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"   -o "$@" "$<" 
+	@echo Finished building: $<
+	
+
+Implementations/SoundImpl.o: ../Implementations/SoundImpl.c
 	@echo Building file: $<
 	@echo Invoking: AVR/GNU C Compiler : 5.4.0
 	$(QUOTE)C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avr8-gnu-toolchain\bin\avr-gcc.exe$(QUOTE)  -x c -funsigned-char -funsigned-bitfields -DDEBUG -DF_CPU=16000000L  -I"C:\Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\include" -I"../drivers" -I"../FreeRTOS/src"  -Og -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -mrelax -g2 -Wall -mmcu=atmega2560 -B "C:\Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\gcc\dev\atmega2560" -c -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"   -o "$@" "$<" 

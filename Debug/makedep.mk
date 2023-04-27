@@ -30,6 +30,8 @@ Implementations\LightImpl.c
 
 Implementations\MotionSensorImpl.c
 
+Implementations\SoundImpl.c
+
 Implementations\TempAndHumImpl.c
 
 LoRaWANHandler.c

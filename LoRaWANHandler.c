@@ -20,13 +20,13 @@ void lora_handler_task( void *pvParameters );
 
 static lora_driver_payload_t _uplink_payload;
 
-void lora_handler_initialise(UBaseType_t lora_handler_task_priority)
+void lora_handler_initialise(UBaseType_t lora_handler_task_priority, void *payload_var)
 {
 	xTaskCreate(
 	lora_handler_task
 	,  "LRHand"  // A name just for humans
 	,  configMINIMAL_STACK_SIZE+200  // This stack size can be checked & adjusted by reading the Stack Highwater
-	,  NULL
+	,  payload_var
 	,  lora_handler_task_priority  // Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
 	,  NULL );
 }
@@ -118,7 +118,7 @@ void lora_handler_task( void *pvParameters )
 
 	_lora_setup();
 
-	_uplink_payload.len = 6;
+	_uplink_payload.len = 10;
 	_uplink_payload.portNo = 2;
 
 	TickType_t xLastWakeTime;
@@ -128,18 +128,11 @@ void lora_handler_task( void *pvParameters )
 	for(;;)
 	{
 		xTaskDelayUntil( &xLastWakeTime, xFrequency );
-
-		// Some dummy payload
-		uint16_t hum = 12345; // Dummy humidity
-		int16_t temp = 675; // Dummy temp
-		uint16_t co2_ppm = 1050; // Dummy CO2
-
-		_uplink_payload.bytes[0] = hum >> 8;
-		_uplink_payload.bytes[1] = hum & 0xFF;
-		_uplink_payload.bytes[2] = temp >> 8;
-		_uplink_payload.bytes[3] = temp & 0xFF;
-		_uplink_payload.bytes[4] = co2_ppm >> 8;
-		_uplink_payload.bytes[5] = co2_ppm & 0xFF;
+		for (int i = 0; i<20;i++)
+		{
+			_uplink_payload.bytes[i] = ((uint8_t*)pvParameters)[i];
+		}
+		
 
 		status_leds_shortPuls(led_ST4);  // OPTIONAL
 		printf("Upload Message >%s<\n", lora_driver_mapReturnCodeToText(lora_driver_sendUploadMessage(false, &_uplink_payload)));

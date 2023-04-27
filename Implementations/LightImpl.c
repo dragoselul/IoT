@@ -10,6 +10,7 @@
 
 typedef struct light
 {
+	
 }light;
 
 uint16_t _tmp;
@@ -22,7 +23,7 @@ void tsl2591Callback(tsl2591_returnCode_t rc)
 		case TSL2591_DATA_READY:
 		if ( TSL2591_OK == (rc = tsl259_getVisibleRaw(&_tmp)) )
 		{
-			printf("Light tmp: %d", _tmp);
+		//	printf("Light tmp: %d", _tmp);
 		}
 		else if( TSL2591_OVERFLOW == rc )
 		{
@@ -31,7 +32,8 @@ void tsl2591Callback(tsl2591_returnCode_t rc)
 		
 		if ( TSL2591_OK == (rc = tsl2591_getLux(&_lux)) )
 		{
-			printf("Light lux: %f", _lux);
+			_lux*=100;
+			//printf("Light lux: %d", (int)_lux);
 		}
 		else if( TSL2591_OVERFLOW == rc )
 		{
@@ -90,11 +92,6 @@ void get_light_data(light_t self)
 	if ( TSL2591_OK == tsl2591_fetchData() ) 
 	{
 	
-	}
-	else 
-	{
-		_tmp = 0;
-		_lux = 0.00;	
 	}
 }
 
