@@ -25,7 +25,7 @@
 #include "./Headers/Sound.h"
 #include "display_7seg.h"
 
-// define two Tasks
+// define the tasks
 void displayTask( void *pvParameters );
 void tempAndHumidityTask( void *pvParameters );
 void lightTask(void *pvParameters);
@@ -43,7 +43,6 @@ tempAndHum_t temp_hum;
 light_t light_sensor;
 motion_t motion_sensor;
 sound_t sound_sensor;
-//co2_t co2_sensor;
 
 //Payload array
 uint8_t payload[20];
@@ -105,7 +104,7 @@ void add_to_payload(uint16_t data, uint8_t byte_pos1, uint8_t byte_pos2, uint8_t
 			payload[9] = hash;
 			switchGarageId = false;
 		}
-		printf("[0]: %d \n [1]: %d \n [2]: %d \n [3]: %d \n [4]: %d \n [5]: %d \n [6]: %d \n [7]: %d \n [8]: %d \n [9]: %d \n",payload[0], payload[1], payload[2], payload[3], payload[4], payload[5], payload[6], payload[7], payload[8], payload[9]);
+		//printf("[0]: %d \n [1]: %d \n [2]: %d \n [3]: %d \n [4]: %d \n [5]: %d \n [6]: %d \n [7]: %d \n [8]: %d \n [9]: %d \n",payload[0], payload[1], payload[2], payload[3], payload[4], payload[5], payload[6], payload[7], payload[8], payload[9]);
 		vTaskDelay(50/portTICK_PERIOD_MS);
 		xSemaphoreGive(gateKeeper);
 	}
@@ -232,7 +231,7 @@ void co2Task(void *pvParameters)
 		//xTaskDelayUntil( &xLastWakeTime, 10/portTICK_PERIOD_MS); // 10 ms
 		co2 = get_value();
 	//	printf("[CO2 Sensor]: There is %d particles of CO2 per million particles of air\n", get_value());
-	//	printf("[CO2 Sensor]: Average for last %d measurements is %d\n", get_measurements(), get_average());
+	//	printf("[CO2 Sensor]: Average for last %d measurements is %d\n", get_measurements(), get_average_co2());
 		
 		//printf("[CO2 Sensor]: Value: %d, Threshold: %d, Surpassed: %d", get_value(), get_threshold(), threshold_surpassed());
 		if(threshold_surpassed()){
@@ -269,6 +268,7 @@ void tempAndHumidityTask( void *pvParameters )
 					vTaskDelay(1/portTICK_PERIOD_MS);// 1 ms
 					temp =  get_temperature_int();
 					hum = get_humidity_int();
+					printf("Average temp: %d, Average hum: %d", get_average_hum(), get_average_temp());
 					add_to_payload(temp, 2,3, NULL);
 					add_to_payload(hum, 4,5, NULL);
 				}

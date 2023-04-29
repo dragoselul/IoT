@@ -6,6 +6,7 @@ TODO When connecting to LoRaWAN, change com port in mh_z19_initialise() method
 #include <mh_z19.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include "../Headers/Average.h"
 
 uint16_t threshold = -1;
 uint16_t val;
@@ -32,11 +33,11 @@ uint16_t get_measurements(){
 	return average.measurements;
 }
 
-uint16_t get_average(){
+uint16_t get_average_co2(){
 	return average.current_average;
 }
 
-void resetAverage(){
+void reset_average_co2(){
 	average.measurements = 0;
 	average.current_average = 0;
 }

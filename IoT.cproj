@@ -359,6 +359,9 @@
     <None Include="Headers\Garage.h">
       <SubType>compile</SubType>
     </None>
+    <Compile Include="Headers\Average.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="Headers\CO2.h">
       <SubType>compile</SubType>
     </Compile>

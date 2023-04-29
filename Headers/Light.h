@@ -9,6 +9,8 @@
 
 typedef struct light* light_t;
 
+uint16_t get_average_light();
+void reset_average_light();
 light_t light_create();
 void light_destroy(light_t);
 bool power_up_sensor();

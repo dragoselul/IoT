@@ -7,6 +7,10 @@
 #include "stdint-gcc.h"
 typedef struct tempAndHum* tempAndHum_t;
 
+uint16_t get_average_hum();
+void reset_average_hum();
+uint16_t get_average_temp();
+void reset_average_temp();
 tempAndHum_t tempAndHum_create();
 void tempAndHum_destroy(tempAndHum_t);
 bool wakeup_sensor();
