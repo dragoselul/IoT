@@ -206,7 +206,7 @@ void lightTask(void *pvParameters)
 				get_light_data(light_sensor);
 				float aux_lux = get_lux(light_sensor);
 				lux = (int)aux_lux;
-				printf("Light is : %d\n", (int)aux_lux);
+				printf("Light is : %d\n, Average: %d\n", (int)aux_lux, get_average_light());
 				add_to_payload(lux, 6,7, NULL);
 				power_down_sensor();
 				vTaskDelay(4000/portTICK_PERIOD_MS); // 2000 ms

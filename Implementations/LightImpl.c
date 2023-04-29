@@ -5,6 +5,7 @@
  *  Author: drago
  */ 
 #include "../Headers/Light.h"
+#include "../Headers/Average.h"
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -15,6 +16,8 @@ typedef struct light
 
 uint16_t _tmp;
 float _lux;
+
+Average average_light = {0,0};
 
 void tsl2591Callback(tsl2591_returnCode_t rc)
 {
@@ -33,7 +36,8 @@ void tsl2591Callback(tsl2591_returnCode_t rc)
 		if ( TSL2591_OK == (rc = tsl2591_getLux(&_lux)) )
 		{
 			_lux*=100;
-			//printf("Light lux: %d", (int)_lux);
+			update_average_light((int)_lux);
+			printf("Light lux: %d", (int)_lux);
 		}
 		else if( TSL2591_OVERFLOW == rc )
 		{
@@ -52,6 +56,16 @@ void tsl2591Callback(tsl2591_returnCode_t rc)
 		default:
 		break;
 	}
+}
+
+// VALUES ARE WEIRD
+void update_average_light(uint16_t newVal){
+	average_light.measurements += 1;
+	average_light.current_average = (uint16_t)(float)((average_light.current_average * (average_light.measurements-1)) + newVal) / average_light.measurements;
+}
+
+uint16_t get_average_light(){
+	return average_light.current_average;
 }
 
 light_t light_create()
@@ -91,7 +105,7 @@ void get_light_data(light_t self)
 {
 	if ( TSL2591_OK == tsl2591_fetchData() ) 
 	{
-	
+		
 	}
 }
 

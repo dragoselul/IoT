@@ -10,7 +10,7 @@ TODO When connecting to LoRaWAN, change com port in mh_z19_initialise() method
 
 uint16_t threshold = -1;
 uint16_t val;
-Average average = {0, 0};
+Average average_co2 = {0, 0};
 	
 bool threshold_surpassed(){
 	return threshold != -1 && val > threshold;
@@ -25,21 +25,21 @@ void set_threshold(uint16_t newThreshold){
 }
 	
 void updateAverage(uint16_t newVal){
-	average.measurements += 1;
-	average.current_average = (uint16_t)(float)((average.current_average * (average.measurements-1)) + newVal) / average.measurements;
+	average_co2.measurements += 1;
+	average_co2.current_average = (uint16_t)(float)((average_co2.current_average * (average_co2.measurements-1)) + newVal) / average_co2.measurements;
 }
 
 uint16_t get_measurements(){
-	return average.measurements;
+	return average_co2.measurements;
 }
 
 uint16_t get_average_co2(){
-	return average.current_average;
+	return average_co2.current_average;
 }
 
 void reset_average_co2(){
-	average.measurements = 0;
-	average.current_average = 0;
+	average_co2.measurements = 0;
+	average_co2.current_average = 0;
 }
 
 
