@@ -16,6 +16,7 @@
  // Needed for LoRaWAN
 #include <lora_driver.h>
 #include <status_leds.h>
+#include <rc_servo.h>
 
 //Drivers
 #include "./Headers/CO2.h"
@@ -161,6 +162,11 @@ void create_tasks_and_semaphores(void)
 	
 }
 
+// SERVO JC14 = 0, JC13 = 1
+void rc_servo(uint16_t percentage){
+	rc_servo_setPosition(1, percentage);
+}
+
 
 /*-----------------------------------------------------------*/
 void motionTask(void *pvParameters)
@@ -235,8 +241,11 @@ void co2Task(void *pvParameters)
 		
 		//printf("[CO2 Sensor]: Value: %d, Threshold: %d, Surpassed: %d", get_value(), get_threshold(), threshold_surpassed());
 		if(threshold_surpassed()){
+			rc_servo(100);
 			// START SERVO
 			//printf("\n[CO2 Sensor]: Threshold of %d ppm surpassed\n", get_threshold());
+		}else{
+			rc_servo(-100);
 		}
 		
 		add_to_payload(co2, 0,1, NULL);
@@ -323,6 +332,8 @@ void initialiseSystem()
 	display_7seg_initialise(NULL);
 	display_7seg_powerUp();
 	co2_initialize();
+	rc_servo_initialise();
+	rc_servo(-100);
 	//Temp and humidity sensor
 	temp_hum = tempAndHum_create();
 	//Light sensor

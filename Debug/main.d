@@ -25,10 +25,10 @@ main.d main.o: .././main.c \
  c:\program\ files\ (x86)\atmel\studio\7.0\toolchain\avr8\avr8-gnu-toolchain\lib\gcc\avr\5.4.0\include\stdbool.h \
  ../drivers/serial.h ../drivers/lora_driver.h \
  ../FreeRTOS/src/message_buffer.h ../FreeRTOS/src/stream_buffer.h \
- ../drivers/status_leds.h ../././Headers/CO2.h ../drivers/mh_z19.h \
- ../././Headers/Light.h ../drivers/tsl2591.h ../././Headers/TempAndHum.h \
- ../././Headers/MotionSensor.h ../././Headers/Sound.h \
- ../drivers/sen14262.h \
+ ../drivers/status_leds.h ../drivers/rc_servo.h ../././Headers/CO2.h \
+ ../drivers/mh_z19.h ../././Headers/Light.h ../drivers/tsl2591.h \
+ ../././Headers/TempAndHum.h ../././Headers/MotionSensor.h \
+ ../././Headers/Sound.h ../drivers/sen14262.h \
  c:\program\ files\ (x86)\atmel\studio\7.0\toolchain\avr8\avr8-gnu-toolchain\avr\include\stdlib.h \
  ../drivers/display_7seg.h
 
@@ -103,6 +103,8 @@ c:\program\ files\ (x86)\atmel\studio\7.0\toolchain\avr8\avr8-gnu-toolchain\lib\
 ../FreeRTOS/src/stream_buffer.h:
 
 ../drivers/status_leds.h:
+
+../drivers/rc_servo.h:
 
 ../././Headers/CO2.h:
 
