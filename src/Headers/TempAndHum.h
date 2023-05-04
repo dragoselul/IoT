@@ -1,4 +1,9 @@
 #include "stdint-gcc.h"
+#include <stdlib.h>
+#include "hih8120.h"
+#include "./Average.h"
+#include "ATMEGA_FreeRTOS.h"
+#include "task.h"
 
 typedef struct tempAndHum* tempAndHum_t;
 

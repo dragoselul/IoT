@@ -1,14 +1,11 @@
-#include "hih8120.h"
 #include "../Headers/TempAndHum.h"
-#include <stdlib.h>
-#include "../Headers/Average.h"
 
 typedef struct tempAndHum
 {
 	uint16_t humidity;
 	uint16_t temperature;
-	Average average_hum;
-	Average average_temp;
+	average_t average_hum;
+	average_t average_temp;
 }tempAndHum;
 
 tempAndHum_t tempAndHum_create()
@@ -20,8 +17,10 @@ tempAndHum_t tempAndHum_create()
 		return NULL;
 	_new_tempAndHum->humidity = 0;
 	_new_tempAndHum->temperature = 0;
-	_new_tempAndHum->average_hum = {0,0};
-	_new_tempAndHum->average_temp = {0,0};
+	_new_tempAndHum->average_hum.current_average = 0;
+	_new_tempAndHum->average_hum.measurements = 0;
+	_new_tempAndHum->average_temp.current_average = 0;
+	_new_tempAndHum->average_temp.measurements = 0;
 	return _new_tempAndHum;
 }
 

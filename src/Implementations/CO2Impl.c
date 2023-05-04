@@ -10,7 +10,7 @@ TODO When connecting to LoRaWAN, change com port in mh_z19_initialise() method
 
 uint16_t threshold = -1;
 uint16_t val;
-Average average_co2 = {0, 0};
+average_t average_co2 = {0, 0};
 	
 bool threshold_surpassed(){
 	return threshold != -1 && val > threshold;

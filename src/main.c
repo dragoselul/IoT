@@ -5,11 +5,9 @@
 #include "stdint-gcc.h"
 #include <stdio.h>
 #include <avr/io.h>
-
 #include <ATMEGA_FreeRTOS.h>
 #include <task.h>
 #include <semphr.h>
-
 #include <stdio_driver.h>
 #include <serial.h>
 
@@ -207,14 +205,12 @@ void lightTask(void *pvParameters)
 	{
 		for(;;)
 		{
-			if(power_up_sensor())
+			if(get_light_data(light_sensor))
 			{
-				get_light_data(light_sensor);
 				float aux_lux = get_lux(light_sensor);
 				lux = (int)aux_lux;
-				printf("Light is : %d\n, Average: %d\n", (int)aux_lux, get_average_light());
+				printf("Average: %d\n",get_average_light(light_sensor));
 				add_to_payload(lux, 6,7, NULL);
-				power_down_sensor();
 				vTaskDelay(4000/portTICK_PERIOD_MS); // 2000 ms
 			}
 		}		
@@ -259,7 +255,6 @@ void co2Task(void *pvParameters)
 /*-----------------------------------------------------------*/
 void tempAndHumidityTask( void *pvParameters )
 {
-	uint16_t temp, hum;
 	TickType_t xLastWakeTime;
 	// Initialise the xLastWakeTime variable with the current time.
 	xLastWakeTime = xTaskGetTickCount();
@@ -267,22 +262,15 @@ void tempAndHumidityTask( void *pvParameters )
 	{
 		for(;;)
 		{	
-			if(wakeup_sensor())
+			if(measure_temp_hum(temp_hum));
 			{
-				//It takes the sensor around 50 ms to wake up
-				vTaskDelay(50/portTICK_PERIOD_MS); // 50 ms
-				if(measure_temp_hum());
-				{
-					//It takes the sensor around 1 ms to measure up something
-					vTaskDelay(1/portTICK_PERIOD_MS);// 1 ms
-					temp =  get_temperature_int();
-					hum = get_humidity_int();
-					printf("Average temp: %d, Average hum: %d", get_average_hum(), get_average_temp());
-					add_to_payload(temp, 2,3, NULL);
-					add_to_payload(hum, 4,5, NULL);
-				}
-				xTaskDelayUntil( &xLastWakeTime, 4000/portTICK_PERIOD_MS );
+				//It takes the sensor around 1 ms to measure up something
+				vTaskDelay(1/portTICK_PERIOD_MS);// 1 ms
+				printf("Average temp: %d, Average hum: %d", get_average_hum(temp_hum), get_average_temp(temp_hum));
+				add_to_payload(get_temperature_int(temp_hum), 2,3, NULL);
+				add_to_payload(get_humidity_int(temp_hum), 4,5, NULL);
 			}
+			xTaskDelayUntil( &xLastWakeTime, 4000/portTICK_PERIOD_MS );
 		}
 	}
 }
@@ -344,6 +332,7 @@ void initialiseSystem()
 	sound_sensor = sound_create();
 	//co2 sensor
 	set_threshold(1000);
+	/*
 	// vvvvvvvvvvvvvvvvv BELOW IS LoRaWAN initialisation vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 	// Status Leds driver
 	status_leds_initialise(5); // Priority 5 for internal task
@@ -352,6 +341,7 @@ void initialiseSystem()
 	lora_driver_initialise(1, NULL);
 	// Create LoRaWAN task and start it up with priority 3
 	lora_handler_initialise(3,&payload);
+	*/
 	
 }
 
