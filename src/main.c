@@ -264,8 +264,6 @@ void tempAndHumidityTask( void *pvParameters )
 		{	
 			if(measure_temp_hum(temp_hum));
 			{
-				//It takes the sensor around 1 ms to measure up something
-				vTaskDelay(1/portTICK_PERIOD_MS);// 1 ms
 				printf("Average temp: %d, Average hum: %d", get_average_hum(temp_hum), get_average_temp(temp_hum));
 				add_to_payload(get_temperature_int(temp_hum), 2,3, NULL);
 				add_to_payload(get_humidity_int(temp_hum), 4,5, NULL);

@@ -8,6 +8,8 @@ typedef struct tempAndHum
 	average_t average_temp;
 }tempAndHum;
 
+int latch;
+
 tempAndHum_t tempAndHum_create()
 {
 	tempAndHum_t _new_tempAndHum = (tempAndHum_t)calloc(1,sizeof(tempAndHum));
@@ -17,10 +19,9 @@ tempAndHum_t tempAndHum_create()
 		return NULL;
 	_new_tempAndHum->humidity = 0;
 	_new_tempAndHum->temperature = 0;
-	_new_tempAndHum->average_hum.current_average = 0;
-	_new_tempAndHum->average_hum.measurements = 0;
-	_new_tempAndHum->average_temp.current_average = 0;
-	_new_tempAndHum->average_temp.measurements = 0;
+	_new_tempAndHum->average_hum = average_create();
+	_new_tempAndHum->average_temp = average_create();
+	latch = 0;
 	return _new_tempAndHum;
 }
 
@@ -31,17 +32,16 @@ void tempAndHum_destroy(tempAndHum_t self)
 }
 
 void update_averages(tempAndHum_t self){
-	self->average_hum.measurements += 1;
-	self->average_hum.current_average = (uint16_t)(float)((self->average_hum.current_average * (self->average_hum.measurements-1)) + self->humidity) / self->average_hum.measurements;
-	self->average_temp.measurements += 1;
-	self->average_temp.current_average = (uint16_t)(float)((self->average_temp.current_average * (self->average_temp.measurements-1)) + self->temperature) / self->average_temp.measurements;
+	calculate_average(self->humidity, self->average_hum);
+	calculate_average(self->temperature, self->average_temp);
 }
 
 void reset_averages(tempAndHum_t self){
-	self->average_hum.measurements = 0;
-	self->average_hum.current_average = 0;
-	self->average_temp.measurements = 0;
-	self->average_temp.current_average = 0;
+	average_destroy(self->average_hum);
+	average_destroy(self->average_temp);
+	self->average_hum = average_create();
+	self->average_temp = average_create();
+	latch = 0;
 }
 
 bool measure_temp_hum(tempAndHum_t self)
@@ -54,7 +54,11 @@ bool measure_temp_hum(tempAndHum_t self)
 	vTaskDelay(10/portTICK_PERIOD_MS);
 	self->humidity = hih8120_getHumidityPercent_x10();
 	self->temperature = hih8120_getTemperature_x10();
-	update_averages(self);
+	//Made a latch to ignore the first 3 values read because they are very weird and they spike up the average
+	if(latch > 3)
+		update_averages(self);
+	else
+		latch ++;
 	return true;
 }
 
@@ -76,9 +80,9 @@ uint16_t get_temperature_int(tempAndHum_t self)
 }
 
 uint16_t get_average_temp(tempAndHum_t self){
-	return self->average_temp.current_average;
+	return get_average(self->average_temp, false);
 }
 
 uint16_t get_average_hum(tempAndHum_t self){
-	return self->average_hum.current_average;
+	return get_average(self->average_hum, false);
 }

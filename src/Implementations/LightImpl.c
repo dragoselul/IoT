@@ -1,5 +1,4 @@
 #include "../Headers/Light.h"
-#include "../Headers/Average.h"
 
 typedef struct light
 {
@@ -55,8 +54,7 @@ light_t light_create()
 		return NULL;
 	_new_light->_tmp = 0;
 	_new_light->_lux = 0;
-	_new_light->average_light.current_average = 0;
-	_new_light->average_light.measurements = 0;
+	_new_light->average_light = average_create();
 	return _new_light;
 }
 void light_destroy(light_t self)
@@ -67,18 +65,17 @@ void light_destroy(light_t self)
 
 // VALUES ARE WEIRD
 void update_average_light(light_t self){
-	self->average_light.measurements += 1;
-	self->average_light.current_average = (uint16_t)(float)((self->average_light.current_average * (self->average_light.measurements-1)) + self->_lux) / self->average_light.measurements;
+	calculate_average(self->_lux, self->average_light);
 }
 
 uint16_t get_average_light(light_t self){
-	return self->average_light.current_average;
+	return get_average(self->average_light, true);
 }
 
 void reset_average_light(light_t self)
 {
-	self->average_light.measurements = 0;
-	self->average_light.current_average = 0;
+	average_destroy(self->average_light);
+	self->average_light = average_create();
 }
 
 bool get_light_data(light_t self)

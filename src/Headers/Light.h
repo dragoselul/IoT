@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include "ATMEGA_FreeRTOS.h"
 #include "task.h"
+#include "./Average.h"
 
 typedef struct light* light_t;
 
