@@ -29,7 +29,7 @@ void updateAverage(uint16_t newVal){
 }
 
 uint16_t get_average_co2(){
-	return get_average(average_co2, false);
+	return get_average(average_co2);
 }
 
 void reset_average_co2(){

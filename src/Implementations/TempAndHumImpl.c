@@ -80,9 +80,9 @@ uint16_t get_temperature_int(tempAndHum_t self)
 }
 
 uint16_t get_average_temp(tempAndHum_t self){
-	return get_average(self->average_temp, false);
+	return get_average(self->average_temp);
 }
 
 uint16_t get_average_hum(tempAndHum_t self){
-	return get_average(self->average_hum, false);
+	return get_average(self->average_hum);
 }

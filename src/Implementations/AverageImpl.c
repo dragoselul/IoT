@@ -27,11 +27,9 @@ void calculate_average(uint16_t data, average_t self)
 	self->measurements++;
 }
 
-uint16_t get_average(average_t self, bool needsScaling)
+uint16_t get_average(average_t self)
 {
 	double scaled_average = self->current_average;
-	if(needsScaling)
-		scaled_average *= 100.0;
 	return (uint16_t)round(scaled_average);
 }
 uint16_t get_measurements(average_t self)

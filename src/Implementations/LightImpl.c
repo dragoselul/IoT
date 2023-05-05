@@ -65,13 +65,14 @@ void light_destroy(light_t self)
 	free(self);
 }
 
-// VALUES ARE WEIRD
 void update_average_light(light_t self){
-	calculate_average(self->_lux, self->average_light);
+	float aux_lux = self->_lux;
+	uint16_t lux = (uint16_t)aux_lux;
+	calculate_average(lux, self->average_light);
 }
 
 uint16_t get_average_light(light_t self){
-	return get_average(self->average_light, true);
+	return get_average(self->average_light);
 }
 
 void reset_average_light(light_t self)
@@ -89,7 +90,7 @@ bool get_light_data(light_t self)
 	{
 		vTaskDelay(10/portTICK_PERIOD_MS);
 		self->_tmp = _tmp;
-		self->_lux = _lux*100;
+		self->_lux = _lux*100.0;
 		if(latch > 3)
 			update_average_light(self);
 		else

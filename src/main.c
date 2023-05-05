@@ -103,7 +103,7 @@ void add_to_payload(uint16_t data, uint8_t byte_pos1, uint8_t byte_pos2, uint8_t
 			payload[9] = hash;
 			switchGarageId = false;
 		}
-		//printf("[0]: %d \n [1]: %d \n [2]: %d \n [3]: %d \n [4]: %d \n [5]: %d \n [6]: %d \n [7]: %d \n [8]: %d \n [9]: %d \n",payload[0], payload[1], payload[2], payload[3], payload[4], payload[5], payload[6], payload[7], payload[8], payload[9]);
+		printf("[0]: %d \n [1]: %d \n [2]: %d \n [3]: %d \n [4]: %d \n [5]: %d \n [6]: %d \n [7]: %d \n [8]: %d \n [9]: %d \n",payload[0], payload[1], payload[2], payload[3], payload[4], payload[5], payload[6], payload[7], payload[8], payload[9]);
 		vTaskDelay(50/portTICK_PERIOD_MS);
 		xSemaphoreGive(gateKeeper);
 	}
@@ -196,21 +196,15 @@ void motionTask(void *pvParameters)
 /*-----------------------------------------------------------*/
 void lightTask(void *pvParameters)
 {
-	uint16_t lux;
 	TickType_t xLastWakeTime;
-	// Initialise the xLastWakeTime variable with the current time.
 	xLastWakeTime = xTaskGetTickCount();
-	
 	if(light_sensor != NULL) 
 	{
 		for(;;)
 		{
 			if(get_light_data(light_sensor))
 			{
-				float aux_lux = get_lux(light_sensor);
-				lux = (int)aux_lux;
-				printf("Average lux: %d\n",get_average_light(light_sensor));
-				add_to_payload(lux, 6,7, NULL);
+				add_to_payload(get_average_light(light_sensor), 6,7, NULL);
 				vTaskDelay(4000/portTICK_PERIOD_MS); // 2000 ms
 			}
 		}		
@@ -264,9 +258,8 @@ void tempAndHumidityTask( void *pvParameters )
 		{	
 			if(measure_temp_hum(temp_hum));
 			{
-				printf("Average temp: %d, Average hum: %d", get_average_temp(temp_hum), get_average_hum(temp_hum));
-				add_to_payload(get_temperature_int(temp_hum), 2,3, NULL);
-				add_to_payload(get_humidity_int(temp_hum), 4,5, NULL);
+				add_to_payload(get_average_temp(temp_hum), 2,3, NULL);
+				add_to_payload(get_average_hum(temp_hum), 4,5, NULL);
 			}
 			xTaskDelayUntil( &xLastWakeTime, 4000/portTICK_PERIOD_MS );
 		}
