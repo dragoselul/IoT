@@ -7,6 +7,7 @@ typedef struct light
 	average_t average_light;
 }light;
 
+int latch;
 uint16_t _tmp;
 float _lux;
 
@@ -54,6 +55,7 @@ light_t light_create()
 		return NULL;
 	_new_light->_tmp = 0;
 	_new_light->_lux = 0;
+	latch = 0;
 	_new_light->average_light = average_create();
 	return _new_light;
 }
@@ -88,7 +90,10 @@ bool get_light_data(light_t self)
 		vTaskDelay(10/portTICK_PERIOD_MS);
 		self->_tmp = _tmp;
 		self->_lux = _lux*100;
-		update_average_light(self);
+		if(latch > 3)
+			update_average_light(self);
+		else
+			latch++;	
 	}
 	if ( TSL2591_OK != tsl2591_disable())
 		return false;

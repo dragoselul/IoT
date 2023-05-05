@@ -209,7 +209,7 @@ void lightTask(void *pvParameters)
 			{
 				float aux_lux = get_lux(light_sensor);
 				lux = (int)aux_lux;
-				printf("Average: %d\n",get_average_light(light_sensor));
+				printf("Average lux: %d\n",get_average_light(light_sensor));
 				add_to_payload(lux, 6,7, NULL);
 				vTaskDelay(4000/portTICK_PERIOD_MS); // 2000 ms
 			}
@@ -264,7 +264,7 @@ void tempAndHumidityTask( void *pvParameters )
 		{	
 			if(measure_temp_hum(temp_hum));
 			{
-				printf("Average temp: %d, Average hum: %d", get_average_hum(temp_hum), get_average_temp(temp_hum));
+				printf("Average temp: %d, Average hum: %d", get_average_temp(temp_hum), get_average_hum(temp_hum));
 				add_to_payload(get_temperature_int(temp_hum), 2,3, NULL);
 				add_to_payload(get_humidity_int(temp_hum), 4,5, NULL);
 			}
@@ -330,7 +330,6 @@ void initialiseSystem()
 	sound_sensor = sound_create();
 	//co2 sensor
 	set_threshold(1000);
-	/*
 	// vvvvvvvvvvvvvvvvv BELOW IS LoRaWAN initialisation vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 	// Status Leds driver
 	status_leds_initialise(5); // Priority 5 for internal task
@@ -339,8 +338,7 @@ void initialiseSystem()
 	lora_driver_initialise(1, NULL);
 	// Create LoRaWAN task and start it up with priority 3
 	lora_handler_initialise(3,&payload);
-	*/
-	
+
 }
 
 /*-----------------------------------------------------------*/
