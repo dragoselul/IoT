@@ -48,10 +48,10 @@ bool measure_temp_hum(tempAndHum_t self)
 {
 	if ( HIH8120_OK != hih8120_wakeup())
 		return false;
-	vTaskDelay(60/portTICK_PERIOD_MS);
+	//vTaskDelay(60/portTICK_PERIOD_MS);
 	if ( HIH8120_OK !=  hih8120_measure())
 		return false;
-	vTaskDelay(10/portTICK_PERIOD_MS);
+	//vTaskDelay(10/portTICK_PERIOD_MS);
 	self->humidity = hih8120_getHumidityPercent_x10();
 	self->temperature = hih8120_getTemperature_x10();
 	//Made a latch to ignore the first 3 values read because they are very weird and they spike up the average

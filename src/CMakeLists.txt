@@ -1,1 +1,0 @@
-ADD_EXECUTABLE( iot_project main.c )
