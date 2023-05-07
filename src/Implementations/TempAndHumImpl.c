@@ -27,6 +27,7 @@ tempAndHum_t tempAndHum_create()
 
 void tempAndHum_destroy(tempAndHum_t self)
 {
+	hih8120_destroy();
 	if (NULL != self)
 	free(self);
 }
