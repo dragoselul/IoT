@@ -42,5 +42,13 @@ target_link_libraries(
   GTest::gtest_main
 )
 
-include(GoogleTest)
-gtest_discover_tests(${projectName})
+add_executable(TemperatureAndHumidityTest TemperatureAndHumidityTests.cpp)
+target_link_libraries(TemperatureAndHumidityTest gtest gtest_main)
+
+
+function(run_all_tests)
+    include(GoogleTest)
+    gtest_discover_tests(TemperatureAndHumidityTest)
+endfunction()
+
+run_all_tests()
