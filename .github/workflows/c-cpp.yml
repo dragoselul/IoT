@@ -25,5 +25,5 @@ jobs:
         make
     - name: Test
       run: |
-        cd build
+        cd build/test
         ctest --verbose
