@@ -112,6 +112,8 @@ float get_lux(light_t self)
 	return self->_lux;
 }
 
+
+/*
 bool light_threshold_surpassed(light_t self){
 	return threshold_surpassed(self->threshold, self->_lux);
 }
@@ -122,4 +124,4 @@ uint16_t light_get_threshold(light_t self){
 
 void light_set_threshold(light_t self, uint16_t val){
 	set_threshold(self->threshold, val);
-}
+}*/
