@@ -85,7 +85,7 @@ TEST_F(TempHumTest, Test_tempAndHum_update_averages_no_args)
 	// Arrange
 	update_averages(NULL);
 	// Assert/Expect
-	ASSERT_EQ(2, calculate_average_fake.call_count);
+	ASSERT_EQ(0, calculate_average_fake.call_count);
 }
 
 TEST_F(TempHumTest, Test_tempAndHum_update_averages_args) 
@@ -102,8 +102,8 @@ TEST_F(TempHumTest, Test_tempAndHum_reset_averages_no_args)
 	// Arrange
 	reset_averages(NULL);
 	// Assert/Expect
-	ASSERT_EQ(2, average_destroy_fake.call_count);
-	ASSERT_EQ(2, average_create_fake.call_count);
+	ASSERT_EQ(0, average_destroy_fake.call_count);
+	ASSERT_EQ(0, average_create_fake.call_count);
 }
 
 TEST_F(TempHumTest, Test_tempAndHum_reset_averages_args) 
@@ -113,14 +113,13 @@ TEST_F(TempHumTest, Test_tempAndHum_reset_averages_args)
 	reset_averages(tempAndHum);
 	// Assert/Expect
 	ASSERT_EQ(2, average_destroy_fake.call_count);
-	ASSERT_EQ(2, average_create_fake.call_count);
+	ASSERT_EQ(4, average_create_fake.call_count);
 }
 
 TEST_F(TempHumTest, Test_tempAndHum_measure_temp_hum_no_args) 
 {
 	// Arrange
 	ASSERT_FALSE(measure_temp_hum(NULL));
-	// Assert/Expect
 }
 
 TEST_F(TempHumTest, Test_tempAndHum_measure_temp_hum_args) 
@@ -134,6 +133,4 @@ TEST_F(TempHumTest, Test_tempAndHum_measure_temp_hum_args)
 	ASSERT_EQ(1, hih8120_measure_fake.call_count);
 	ASSERT_EQ(1, hih8120_getHumidityPercent_x10_fake.call_count);
 	ASSERT_EQ(1, hih8120_getTemperature_x10_fake.call_count);
-
-	
 }

@@ -33,6 +33,8 @@ void tempAndHum_destroy(tempAndHum_t self)
 }
 
 void update_averages(tempAndHum_t self){
+	if(self == NULL)
+		return;
 	calculate_average(self->humidity, self->average_hum);
 	calculate_average(self->temperature, self->average_temp);
 }
