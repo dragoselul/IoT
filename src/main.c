@@ -42,6 +42,7 @@ tempAndHum_t temp_hum;
 light_t light_sensor;
 motion_t motion_sensor;
 sound_t sound_sensor;
+co2_t co2_sensor;
 
 //Payload array
 uint8_t payload[20];
@@ -223,14 +224,15 @@ void co2Task(void *pvParameters)
 	for(;;)
 	{
 		vTaskDelay(50/portTICK_PERIOD_MS);		
-		take_measuring();
+		co2_measure();
 		//xTaskDelayUntil( &xLastWakeTime, 10/portTICK_PERIOD_MS); // 10 ms
-		co2 = get_value();
+		co2_get_value(co2_sensor);
+		co2 = co2_get_average(co2_sensor);
 	//	printf("[CO2 Sensor]: There is %d particles of CO2 per million particles of air\n", get_value());
 	//	printf("[CO2 Sensor]: Average for last %d measurements is %d\n", get_measurements(), get_average_co2());
 		
 		//printf("[CO2 Sensor]: Value: %d, Threshold: %d, Surpassed: %d", get_value(), get_threshold(), threshold_surpassed());
-		if(threshold_surpassed()){
+		if(co2_threshold_surpassed(co2_sensor)){
 			rc_servo(100);
 			// START SERVO
 			//printf("\n[CO2 Sensor]: Threshold of %d ppm surpassed\n", get_threshold());
@@ -310,7 +312,6 @@ void initialiseSystem()
 	
 	display_7seg_initialise(NULL);
 	display_7seg_powerUp();
-	co2_initialize();
 	rc_servo_initialise();
 	rc_servo(-100);
 	//Temp and humidity sensor
@@ -322,7 +323,8 @@ void initialiseSystem()
 	//Sound sensor
 	sound_sensor = sound_create();
 	//co2 sensor
-	set_threshold(1000);
+	co2_sensor = co2_create();
+	co2_set_threshold(co2_sensor, 800);
 	// vvvvvvvvvvvvvvvvv BELOW IS LoRaWAN initialisation vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 	// Status Leds driver
 	status_leds_initialise(5); // Priority 5 for internal task
