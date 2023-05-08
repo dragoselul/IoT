@@ -19,7 +19,7 @@ void threshold_destroy(threshold_t self){
 	}
 }
 bool threshold_surpassed(threshold_t self, uint16_t val){
-	if(self->val != -1 && self->val < val)
+	if(self->val != -1 && self->val > val)
 		return true;
 	return false;
 }

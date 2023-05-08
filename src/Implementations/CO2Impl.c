@@ -66,7 +66,7 @@ uint16_t co2_get_threshold(co2_t self){
 	return get_threshold(self->threshold);
 }
 void co2_set_threshold(co2_t self, uint16_t newThreshold){
-	set_threshold(self, newThreshold);
+	set_threshold(self->threshold, newThreshold);
 }
 
 void log_errors(mh_z19_returnCode_t code){

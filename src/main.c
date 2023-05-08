@@ -161,9 +161,18 @@ void create_tasks_and_semaphores(void)
 	
 }
 
+
 // SERVO JC14 = 0, JC13 = 1
 void rc_servo(uint16_t percentage){
 	rc_servo_setPosition(1, percentage);
+}
+
+void sound_alarm(bool on){
+	if(on){
+		rc_servo_setPosition(0, 1);
+	}else{
+		rc_servo_setPosition(0, 0);
+	}
 }
 
 
@@ -229,8 +238,12 @@ void co2Task(void *pvParameters)
 				
 				if(co2_threshold_surpassed(co2_sensor)){
 					rc_servo(100);	
+					sound_alarm(true);
+					printf("ALARM ON");
 				}else{
 					rc_servo(-100);
+					sound_alarm(false);
+					printf("ALARM OFF");
 				}
 				
 				printf("CO2 VAL: %d", co2_get_value(co2_sensor));
@@ -323,7 +336,8 @@ void initialiseSystem()
 	sound_sensor = sound_create();
 	//co2 sensor
 	co2_sensor = co2_create();
-	co2_set_threshold(co2_sensor, 800);
+	co2_set_threshold(co2_sensor, 2000);
+	rc_servo(-100);
 	// vvvvvvvvvvvvvvvvv BELOW IS LoRaWAN initialisation vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 	// Status Leds driver
 	status_leds_initialise(5); // Priority 5 for internal task
