@@ -5,6 +5,7 @@
 #include "ATMEGA_FreeRTOS.h"
 #include "task.h"
 #include "./Average.h"
+#include "./Threshold.h"
 
 typedef struct co2* co2_t;
 

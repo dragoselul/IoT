@@ -374,6 +374,9 @@
     <Compile Include="Headers\TempAndHum.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="Headers\Threshold.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="Implementations\AverageImpl.c">
       <SubType>compile</SubType>
     </Compile>
@@ -390,6 +393,9 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Implementations\TempAndHumImpl.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Implementations\ThresholdImpl.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="LoRaWANHandler.c">

@@ -54,16 +54,13 @@ void co2_update_average(co2_t self){
 }
 
 bool co2_threshold_surpassed(co2_t self){
-	if(self->threshold != -1 && self->val > self->threshold){
-		return true;
-	}
-	return false;
+	return threshold_surpassed(self->threshold, self->val);
 } 
 uint16_t co2_get_threshold(co2_t self){
-	return self->threshold;
+	return get_threshold(self->threshold);
 }
 void co2_set_threshold(co2_t self, uint16_t newThreshold){
-	self->threshold = newThreshold;
+	set_threshold(self, newThreshold);
 }
 
 void log_errors(mh_z19_returnCode_t code){
