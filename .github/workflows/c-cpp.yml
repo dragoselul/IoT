@@ -2,7 +2,7 @@ name: C/C++ CI
 
 on:
   push:
-    branches: [ "master", "Dragos's-Branch"]
+    branches: [ "master", "cleanup-optimization"]
   pull_request:
     branches: [ "master" ]
 
