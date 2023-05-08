@@ -5,6 +5,7 @@ typedef struct light
 	uint16_t _tmp;
 	float _lux;
 	average_t average_light;
+	threshold_t threshold;
 }light;
 
 int latch;
@@ -55,6 +56,7 @@ light_t light_create()
 		return NULL;
 	_new_light->_tmp = 0;
 	_new_light->_lux = 0;
+	_new_light->threshold = threshold_create();
 	latch = 0;
 	_new_light->average_light = average_create();
 	return _new_light;
@@ -108,4 +110,16 @@ uint16_t get_tmp(light_t self)
 float get_lux(light_t self)
 {
 	return self->_lux;
+}
+
+bool light_threshold_surpassed(light_t self){
+	return threshold_surpassed(self->threshold, self->_lux);
+}
+
+uint16_t light_get_threshold(light_t self){
+	return get_threshold(self->threshold);
+}
+
+void light_set_threshold(light_t self, uint16_t val){
+	set_threshold(self->threshold, val);
 }
