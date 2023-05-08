@@ -7,7 +7,8 @@ typedef struct co2
 	uint16_t threshold;
 } co2;
 
-uint16_t val;
+uint16_t val = 0;
+mh_z19_returnCode_t rc = MHZ19_NO_MEASSURING_AVAILABLE;
 
 void mhz19_callback(uint16_t ppm){
 	val = ppm;
@@ -32,14 +33,19 @@ void co2_destroy(co2_t self){
 }
 void co2_measure()
 {
-	mh_z19_takeMeassuring();
+	rc = mh_z19_takeMeassuring();
 }
-void co2_get_data(co2_t self){
-	self->val = val;
+bool co2_get_data(co2_t self){
+	if(rc == MHZ19_OK){
+		self->val = val;
+		co2_update_average(self);
+		return true;
+	}
+	return false;
+	
 }
 
 uint16_t co2_get_value(co2_t self){
-	co2_update_average(self);
 	return self->val;
 }
 uint16_t co2_get_average(co2_t self){

@@ -215,36 +215,35 @@ void lightTask(void *pvParameters)
 
 void co2Task(void *pvParameters)
 {
-	
-	uint16_t co2;
 	TickType_t xLastWakeTime;
 	// Initialize the xLastWakeTime variable with the current time.
 	xLastWakeTime = xTaskGetTickCount();
 	
-	for(;;)
-	{
-		vTaskDelay(50/portTICK_PERIOD_MS);		
-		co2_measure();
-		//xTaskDelayUntil( &xLastWakeTime, 10/portTICK_PERIOD_MS); // 10 ms
-		co2_get_value(co2_sensor);
-		co2 = co2_get_average(co2_sensor);
-	//	printf("[CO2 Sensor]: There is %d particles of CO2 per million particles of air\n", get_value());
-	//	printf("[CO2 Sensor]: Average for last %d measurements is %d\n", get_measurements(), get_average_co2());
+	if(co2_sensor != NULL){
+		for(;;)
+		{
+			vTaskDelay(50/portTICK_PERIOD_MS);
+			co2_measure();
+			
+			if(co2_get_data(co2_sensor)){
+				
+				if(co2_threshold_surpassed(co2_sensor)){
+					rc_servo(100);	
+				}else{
+					rc_servo(-100);
+				}
+				
+				printf("CO2 VAL: %d", co2_get_value(co2_sensor));
+				add_to_payload(co2_get_average(co2_sensor), 0,1, NULL);
+				//co2_reset_average(co2_sensor);
+				
+				xTaskDelayUntil( &xLastWakeTime, 4000/portTICK_PERIOD_MS); // 4000 ms
+				
+			}
 		
-		//printf("[CO2 Sensor]: Value: %d, Threshold: %d, Surpassed: %d", get_value(), get_threshold(), threshold_surpassed());
-		if(co2_threshold_surpassed(co2_sensor)){
-			rc_servo(100);
-			// START SERVO
-			//printf("\n[CO2 Sensor]: Threshold of %d ppm surpassed\n", get_threshold());
-		}else{
-			rc_servo(-100);
 		}
-		
-		add_to_payload(co2, 0,1, NULL);
-		xTaskDelayUntil( &xLastWakeTime, 4000/portTICK_PERIOD_MS); // 500 ms
-		// What is this for?
-		PORTA ^= _BV(PA1);
 	}
+	
 	
 }
 
