@@ -134,4 +134,6 @@ TEST_F(TempHumTest, Test_tempAndHum_measure_temp_hum_args)
 	ASSERT_EQ(1, hih8120_measure_fake.call_count);
 	ASSERT_EQ(1, hih8120_getHumidityPercent_x10_fake.call_count);
 	ASSERT_EQ(1, hih8120_getTemperature_x10_fake.call_count);
+
+	
 }
