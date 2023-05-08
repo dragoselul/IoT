@@ -12,6 +12,8 @@ tempAndHum_t tempAndHum_create();
 void tempAndHum_destroy(tempAndHum_t);
 void update_averages(tempAndHum_t);
 void reset_averages(tempAndHum_t);
+void create_temp_hum_task(tempAndHum_t);
+void temp_hum_task( void *pvParameters );
 bool measure_temp_hum(tempAndHum_t);
 float get_humidity_float();
 float get_temperature_float();

@@ -23,6 +23,10 @@ void average_destroy(average_t self)
 }
 void calculate_average(uint16_t data, average_t self)
 {
+	if(self == NULL)
+		return;
+	if(data == NULL)
+		data = 0;
 	self->current_average = self->current_average + (data - self->current_average) / (self->measurements + 1);
 	self->measurements++;
 }

@@ -38,6 +38,8 @@ void update_averages(tempAndHum_t self){
 }
 
 void reset_averages(tempAndHum_t self){
+	if(self==NULL)
+		return;
 	average_destroy(self->average_hum);
 	average_destroy(self->average_temp);
 	self->average_hum = average_create();
@@ -47,12 +49,14 @@ void reset_averages(tempAndHum_t self){
 
 bool measure_temp_hum(tempAndHum_t self)
 {
+	if(self == NULL)
+		return false;
 	if ( HIH8120_OK != hih8120_wakeup())
 		return false;
-	//vTaskDelay(60/portTICK_PERIOD_MS);
+	vTaskDelay(pdMS_TO_TICKS(60));
 	if ( HIH8120_OK !=  hih8120_measure())
 		return false;
-	//vTaskDelay(10/portTICK_PERIOD_MS);
+	vTaskDelay(pdMS_TO_TICKS(10));
 	self->humidity = hih8120_getHumidityPercent_x10();
 	self->temperature = hih8120_getTemperature_x10();
 	//Made a latch to ignore the first 3 values read because they are very weird and they spike up the average
@@ -61,6 +65,32 @@ bool measure_temp_hum(tempAndHum_t self)
 	else
 		latch ++;
 	return true;
+}
+
+void create_temp_hum_task(tempAndHum_t self)
+{
+	xTaskCreate
+	(
+		temp_hum_task,
+		"Temperature and Humidity task",
+		configMINIMAL_STACK_SIZE,
+		&self,
+		1,
+		NULL
+	);
+}
+
+void temp_hum_task( void *pvParameters )
+{
+	TickType_t xLastWakeTime = xTaskGetTickCount();
+	for(;;)
+	{
+		if(measure_temp_hum(*((tempAndHum_t*)(pvParameters))))
+		{
+			//adding to payload
+		}
+		xTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(4000));
+	}
 }
 
 float get_humidity_float()
