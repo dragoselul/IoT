@@ -10,6 +10,8 @@ extern "C"
 
 
 FAKE_VALUE_FUNC(bool, hcsr501_isDetecting);
+FAKE_VALUE_FUNC(hcsr501_p, hcsr501_create());
+FAKE_VALUE_FUNC(hcsr501_p, hcsr501_destroy());
 
 
 class MotionTest : public ::testing::Test
