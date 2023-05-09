@@ -18,6 +18,7 @@ FetchContent_MakeAvailable(googletest )
 
 set(SOURCES_TEST
     TemperatureAndHumidityTests.cpp
+    MotionSensorTests.cpp
     FreeRTOS_defs/FreeRTOS_FFF_MocksDefinitions.cpp
     ../src/Implementations/TempAndHumImpl.c
     ${SRCS}
