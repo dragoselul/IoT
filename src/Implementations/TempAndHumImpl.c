@@ -3,7 +3,7 @@
 typedef struct tempAndHum
 {
 	uint16_t humidity;
-	uint16_t temperature;
+	int16_t temperature;
 	average_t average_hum;
 	average_t average_temp;
 }tempAndHum;
@@ -69,14 +69,16 @@ bool measure_temp_hum(tempAndHum_t self)
 	return true;
 }
 
-void create_temp_hum_task(tempAndHum_t self)
+void create_temp_hum_task(tempAndHum_t *self)
 {
+	if(self == NULL)
+		return;
 	xTaskCreate
 	(
 		temp_hum_task,
 		"Temperature and Humidity task",
 		configMINIMAL_STACK_SIZE,
-		&self,
+		self,
 		1,
 		NULL
 	);
@@ -105,17 +107,25 @@ float get_temperature_float()
 }
 uint16_t get_humidity_int(tempAndHum_t self)
 {
+	if(self == NULL)
+		return 0;
 	return self->humidity;
 }
-uint16_t get_temperature_int(tempAndHum_t self)
+int16_t get_temperature_int(tempAndHum_t self)
 {
+	if(self == NULL)
+		return 0;
 	return self->temperature;
 }
 
-uint16_t get_average_temp(tempAndHum_t self){
+int16_t get_average_temp(tempAndHum_t self){
+	if(self == NULL)
+		return 0;
 	return get_average(self->average_temp);
 }
 
 uint16_t get_average_hum(tempAndHum_t self){
+	if(self == NULL)
+		return 0;
 	return get_average(self->average_hum);
 }

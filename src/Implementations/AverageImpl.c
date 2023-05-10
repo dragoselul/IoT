@@ -21,7 +21,7 @@ void average_destroy(average_t self)
 	if (NULL != self)
 		free(self);
 }
-void calculate_average(uint16_t data, average_t self)
+void calculate_average(int16_t data, average_t self)
 {
 	if(self == NULL)
 		return;
@@ -31,7 +31,7 @@ void calculate_average(uint16_t data, average_t self)
 	self->measurements++;
 }
 
-uint16_t get_average(average_t self)
+int16_t get_average(average_t self)
 {
 	double scaled_average = self->current_average;
 	return (uint16_t)round(scaled_average);
