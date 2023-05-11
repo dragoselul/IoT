@@ -7,7 +7,6 @@
 #include <avr/io.h>
 #include <ATMEGA_FreeRTOS.h>
 #include <task.h>
-#include <semphr.h>
 #include <stdio_driver.h>
 #include <serial.h>
 
@@ -31,11 +30,8 @@ void lightTask(void *pvParameters);
 void motionTask(void *pvParameters);
 void co2Task(void *pvParameters);
 
-// define semaphore handle
-SemaphoreHandle_t gateKeeper = NULL;
-
 // Prototype for LoRaWAN handler
-void lora_handler_initialise(UBaseType_t lora_handler_task_priority, void* payload_var);
+void lora_handler_initialise(UBaseType_t lora_handler_task_priority);
 
 // sensor variables
 tempAndHum_t temp_hum;
@@ -43,10 +39,7 @@ light_t light_sensor;
 motion_t motion_sensor;
 sound_t sound_sensor;
 
-//Payload array
-uint8_t payload[20];
-bool switchGarageId = true;
-
+/*
 void display(TickType_t ms, void *data, uint8_t decimal_places)
 {
 	if(xSemaphoreTake(gateKeeper, portMAX_DELAY))
@@ -61,57 +54,7 @@ void display(TickType_t ms, void *data, uint8_t decimal_places)
 		puts("Could not take the display!\n");
 	}
 }
-
-void add_to_payload(uint16_t data, uint8_t byte_pos1, uint8_t byte_pos2, uint8_t bit_pos)
-{
-	if(xSemaphoreTake(gateKeeper, portMAX_DELAY))
-	{
-		printf("\n Data is: %d\n", data);
-		if(byte_pos1 == 0)
-			puts("CO2 writing payload\n");
-		if(byte_pos1 == 2)
-			puts("Temp writing payload\n");
-		if(byte_pos1 == 4)
-			puts("Hum writing payload\n");
-		if(byte_pos1 == 6)
-			puts("Lux writing payload\n");
-		if(byte_pos1 == 8)
-		{
-			if(bit_pos == 0)
-				puts("Servo changing bit\n");
-			if(bit_pos == 1)
-				puts("Motion changing bit\n");
-			if(bit_pos == 2)
-				puts("Sound changing bit\n");
-			if(bit_pos == 3)
-				puts("Alarm changing bit\n");
-			payload[byte_pos1] = data>>bit_pos;
-		}
-		else
-		{
-		payload[byte_pos1] = data >> 8;
-		payload[byte_pos2] = data & 0xFF;	
-		}
-		if(switchGarageId)
-		{
-			uint16_t hash = 5381;
-			int c;
-			unsigned char* str = "0004A30B00251001";
-			while (c = *str++) {
-				hash = ((hash << 5) + hash) + c;
-			}
-			payload[9] = hash;
-			switchGarageId = false;
-		}
-		printf("[0]: %d \n [1]: %d \n [2]: %d \n [3]: %d \n [4]: %d \n [5]: %d \n [6]: %d \n [7]: %d \n [8]: %d \n [9]: %d \n",payload[0], payload[1], payload[2], payload[3], payload[4], payload[5], payload[6], payload[7], payload[8], payload[9]);
-		vTaskDelay(50/portTICK_PERIOD_MS);
-		xSemaphoreGive(gateKeeper);
-	}
-	else 
-	{
-		puts("Could not take mutex");	
-	}
-}
+*/
 
 /*-----------------------------------------------------------*/
 void create_tasks_and_semaphores(void)
@@ -119,10 +62,6 @@ void create_tasks_and_semaphores(void)
 	// Semaphores are useful to stop a Task proceeding, where it should be paused to wait,
 	// because it is sharing a resource, such as the Serial port.
 	// Semaphores should only be used whilst the scheduler is running, but we can set it up here.
-	if ( gateKeeper == NULL )  // Check to confirm that the Semaphore has not already been created.
-	{
-		gateKeeper = xSemaphoreCreateMutex();  // Create a mutex semaphore.
-	}
 
 
 	xTaskCreate(
@@ -301,11 +240,8 @@ void initialiseSystem()
 
 	// Make it possible to use stdio on COM port 0 (USB) on Arduino board - Setting 57600,8,N,1
 	stdio_initialise(ser_USART0);
-	for (int i = 0; i < 20; i++)
-	{
-		payload[i] = 0;
-	}
 	// Let's create some tasks
+	
 	create_tasks_and_semaphores();
 	
 	display_7seg_initialise(NULL);
@@ -330,8 +266,8 @@ void initialiseSystem()
 	// Initialise the LoRaWAN driver without down-link buffer
 	lora_driver_initialise(1, NULL);
 	// Create LoRaWAN task and start it up with priority 3
-	lora_handler_initialise(3,&payload);
-
+	lora_handler_initialise(3);
+	// vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 }
 
 /*-----------------------------------------------------------*/
