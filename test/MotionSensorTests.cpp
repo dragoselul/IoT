@@ -7,7 +7,6 @@ extern "C"
     #include "../src/Headers/MotionSensor.h"
     #include "../src/drivers/hcSr501.h"
 }
-//test
  
 
 FAKE_VALUE_FUNC(bool, hcsr501_isDetecting);
