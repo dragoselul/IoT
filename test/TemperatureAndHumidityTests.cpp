@@ -62,7 +62,7 @@ TEST_F(TempHumTest, create_is_called)
 	ASSERT_TRUE((tempHum!=NULL));
 }
 
-TEST_F(TempHumTest, destroy_is_called_with_NULL_arg) 
+TEST_F(TempHumTest, destroy_is_called_with_no_arg) 
 {
 	// Arrange
 	tempAndHum_destroy(NULL);
