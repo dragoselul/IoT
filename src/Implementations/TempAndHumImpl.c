@@ -7,6 +7,8 @@ typedef struct tempAndHum
 	float avg_humidity;
 	float avg_temperature;
 	uint8_t measurements;
+	threshold_t threshold_hum;
+	threshold_t threshold_temp;
 }tempAndHum;
 
 tempAndHum_t tempAndHum_create()
