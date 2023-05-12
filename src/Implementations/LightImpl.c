@@ -4,10 +4,8 @@ typedef struct light
 {
 	uint16_t _tmp;
 	float _lux;
-	average_t average_light;
 }light;
 
-int latch;
 uint16_t _tmp;
 float _lux;
 
@@ -55,46 +53,25 @@ light_t light_create()
 		return NULL;
 	_new_light->_tmp = 0;
 	_new_light->_lux = 0;
-	latch = 0;
-	_new_light->average_light = average_create();
 	return _new_light;
 }
+
 void light_destroy(light_t self)
 {
 	if (NULL != self)
 	free(self);
 }
 
-void update_average_light(light_t self){
-	float aux_lux = self->_lux;
-	uint16_t lux = (uint16_t)aux_lux;
-	calculate_average(lux, self->average_light);
-}
-
-uint16_t get_average_light(light_t self){
-	return get_average(self->average_light);
-}
-
-void reset_average_light(light_t self)
-{
-	average_destroy(self->average_light);
-	self->average_light = average_create();
-}
-
 bool get_light_data(light_t self)
 {
 	if ( TSL2591_OK != tsl2591_enable() )
 		return false;
-	vTaskDelay(60/portTICK_PERIOD_MS);
+	vTaskDelay(pdMS_TO_TICKS(60UL));
 	if ( TSL2591_OK == tsl2591_fetchData() ) 
 	{
-		vTaskDelay(10/portTICK_PERIOD_MS);
+		vTaskDelay(pdMS_TO_TICKS(10UL));
 		self->_tmp = _tmp;
 		self->_lux = _lux*100.0;
-		if(latch > 3)
-			update_average_light(self);
-		else
-			latch++;	
 	}
 	if ( TSL2591_OK != tsl2591_disable())
 		return false;
@@ -105,7 +82,34 @@ uint16_t get_tmp(light_t self)
 {
 	return self->_tmp;
 }
-float get_lux(light_t self)
+uint16_t get_lux(light_t self)
 {
-	return self->_lux;
+	return (uint16_t)self->_lux;
+}
+
+void create_light_task(light_t* self)
+{
+	xTaskCreate(
+	light_task
+	,  "Light Task"
+	,  configMINIMAL_STACK_SIZE
+	,  self
+	,  1 
+	,  NULL );
+}
+void light_task( void* pvParameters)
+{
+	TickType_t xLastWakeTime = xTaskGetTickCount();
+	light_t light_sensor = *((light_t*)(pvParameters));
+	if(light_sensor != NULL)
+	{
+		for(;;)
+		{
+			if(get_light_data(light_sensor))
+			{
+				add_to_payload(get_lux(light_sensor), 6,7, NULL);
+				vTaskDelay(pdMS_TO_TICKS(4000UL)); // 4000 ms
+			}
+		}
+	}
 }

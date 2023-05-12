@@ -156,7 +156,7 @@ void add_to_payload(uint16_t data, uint8_t byte_pos1, uint8_t byte_pos2, uint8_t
 			switchGarageId = false;
 	}
 	printf("[0]: %d \n [1]: %d \n [2]: %d \n [3]: %d \n [4]: %d \n [5]: %d \n [6]: %d \n [7]: %d \n [8]: %d \n [9]: %d \n", _uplink_payload.bytes[0], _uplink_payload.bytes[1], _uplink_payload.bytes[2], _uplink_payload.bytes[3], _uplink_payload.bytes[4], _uplink_payload.bytes[5], _uplink_payload.bytes[6], _uplink_payload.bytes[7], _uplink_payload.bytes[8], _uplink_payload.bytes[9]);
-		vTaskDelay(50/portTICK_PERIOD_MS);
+		vTaskDelay(pdMS_TO_TICKS(50UL));
 		xSemaphoreGive(gateKeeper);
 	}
 	else
@@ -179,7 +179,7 @@ void lora_handler_task( void *pvParameters )
 
 	_lora_setup();
 
-	_uplink_payload.portNo = 2;
+	_uplink_payload.portNo = 1;
 
 	TickType_t xLastWakeTime;
 	const TickType_t xFrequency = pdMS_TO_TICKS(300000UL); // Upload message every 5 minutes (300000 ms)

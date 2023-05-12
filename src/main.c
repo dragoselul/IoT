@@ -25,7 +25,6 @@
 
 // define the tasks
 void displayTask( void *pvParameters );
-void tempAndHumidityTask( void *pvParameters );
 void lightTask(void *pvParameters);
 void motionTask(void *pvParameters);
 void co2Task(void *pvParameters);
@@ -63,14 +62,8 @@ void create_tasks_and_semaphores(void)
 	// because it is sharing a resource, such as the Serial port.
 	// Semaphores should only be used whilst the scheduler is running, but we can set it up here.
 
-
-	xTaskCreate(
-	lightTask
-	,  "Light Task"  // A name just for humans
-	,  configMINIMAL_STACK_SIZE  // This stack size can be checked & adjusted by reading the Stack Highwater
-	,  NULL
-	,  1  // Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
-	,  NULL );
+/*
+	
 	
 
 	xTaskCreate(
@@ -80,6 +73,7 @@ void create_tasks_and_semaphores(void)
 	,  NULL
 	,  1  // Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
 	,  NULL );
+	
 	
 	xTaskCreate(
 	co2Task
@@ -96,7 +90,7 @@ void create_tasks_and_semaphores(void)
 	,  NULL
 	,  1  // Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
 	,  NULL );
-	
+	*/
 }
 
 // SERVO JC14 = 0, JC13 = 1
@@ -132,7 +126,7 @@ void motionTask(void *pvParameters)
 	}
 }
 
-/*-----------------------------------------------------------*/
+/*-----------------------------------------------------------*//*
 void lightTask(void *pvParameters)
 {
 	TickType_t xLastWakeTime;
@@ -149,7 +143,7 @@ void lightTask(void *pvParameters)
 		}		
 	}
 }
-
+*/
 
 void co2Task(void *pvParameters)
 {
@@ -185,7 +179,10 @@ void co2Task(void *pvParameters)
 	
 }
 
+
+
 /*-----------------------------------------------------------*/
+/*
 void tempAndHumidityTask( void *pvParameters )
 {
 	TickType_t xLastWakeTime;
@@ -204,6 +201,7 @@ void tempAndHumidityTask( void *pvParameters )
 		}
 	}
 }
+*/
 
 /*-----------------------------------------------------------*/
 void soundTask( void *pvParameters )
@@ -241,7 +239,6 @@ void initialiseSystem()
 	// Make it possible to use stdio on COM port 0 (USB) on Arduino board - Setting 57600,8,N,1
 	stdio_initialise(ser_USART0);
 	// Let's create some tasks
-	
 	create_tasks_and_semaphores();
 	
 	display_7seg_initialise(NULL);
@@ -251,8 +248,10 @@ void initialiseSystem()
 	rc_servo(-100);
 	//Temp and humidity sensor
 	temp_hum = tempAndHum_create();
+	create_temp_hum_task(&temp_hum);
 	//Light sensor
 	light_sensor = light_create();
+	create_light_task(&light_sensor);
 	//Motion sensor
 	motion_sensor = motion_create();
 	//Sound sensor
