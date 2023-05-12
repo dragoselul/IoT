@@ -6,6 +6,8 @@ typedef struct tempAndHum
 	int16_t temperature;
 	average_t average_hum;
 	average_t average_temp;
+	threshold_t threshold_hum;
+	threshold_t threshold_temp;
 }tempAndHum;
 
 int latch;
@@ -21,6 +23,8 @@ tempAndHum_t tempAndHum_create()
 	_new_tempAndHum->temperature = 0;
 	_new_tempAndHum->average_hum = average_create();
 	_new_tempAndHum->average_temp = average_create();
+	_new_tempAndHum->threshold_hum = threshold_create();
+	_new_tempAndHum->threshold_temp = threshold_create();
 	latch = 0;
 	return _new_tempAndHum;
 }
@@ -128,4 +132,24 @@ uint16_t get_average_hum(tempAndHum_t self){
 	if(self == NULL)
 		return 0;
 	return get_average(self->average_hum);
+}
+
+bool hum_threshold_surpassed(tempAndHum_t self){
+	return threshold_surpassed(self->threshold_hum, self->humidity);
+}
+uint16_t hum_get_threshold(tempAndHum_t self){
+	return get_threshold(self->threshold_hum);
+}
+void hum_set_threshold(tempAndHum_t self, uint16_t val){
+	set_threshold(self->threshold_hum, val);
+}
+
+bool temp_threshold_surpassed(tempAndHum_t self){
+	return threshold_surpassed(self->threshold_temp, self->temperature);
+}
+uint16_t temp_get_threshold(tempAndHum_t self){
+	return get_threshold(self->threshold_temp);
+}
+void temp_set_threshold(tempAndHum_t self, uint16_t val){
+	set_threshold(self->threshold_temp, val);
 }

@@ -38,6 +38,7 @@ tempAndHum_t temp_hum;
 light_t light_sensor;
 motion_t motion_sensor;
 sound_t sound_sensor;
+co2_t co2_sensor;
 
 /*
 void display(TickType_t ms, void *data, uint8_t decimal_places)
@@ -99,9 +100,18 @@ void create_tasks_and_semaphores(void)
 	
 }
 
+
 // SERVO JC14 = 0, JC13 = 1
 void rc_servo(uint16_t percentage){
 	rc_servo_setPosition(1, percentage);
+}
+
+void sound_alarm(bool on){
+	if(on){
+		rc_servo_setPosition(0, 1);
+	}else{
+		rc_servo_setPosition(0, 0);
+	}
 }
 
 
@@ -153,35 +163,39 @@ void lightTask(void *pvParameters)
 
 void co2Task(void *pvParameters)
 {
-	
-	uint16_t co2;
 	TickType_t xLastWakeTime;
 	// Initialize the xLastWakeTime variable with the current time.
 	xLastWakeTime = xTaskGetTickCount();
 	
-	for(;;)
-	{
-		vTaskDelay(50/portTICK_PERIOD_MS);		
-		take_measuring();
-		//xTaskDelayUntil( &xLastWakeTime, 10/portTICK_PERIOD_MS); // 10 ms
-		co2 = get_value();
-	//	printf("[CO2 Sensor]: There is %d particles of CO2 per million particles of air\n", get_value());
-	//	printf("[CO2 Sensor]: Average for last %d measurements is %d\n", get_measurements(), get_average_co2());
+	if(co2_sensor != NULL){
+		for(;;)
+		{
+			vTaskDelay(50/portTICK_PERIOD_MS);
+			co2_measure();
+			
+			if(co2_get_data(co2_sensor)){
+				
+				if(co2_threshold_surpassed(co2_sensor)){
+					rc_servo(100);	
+					sound_alarm(true);
+					printf("ALARM ON");
+				}else{
+					rc_servo(-100);
+					sound_alarm(false);
+					printf("ALARM OFF");
+				}
+				
+				printf("CO2 VAL: %d", co2_get_value(co2_sensor));
+				add_to_payload(co2_get_average(co2_sensor), 0,1, NULL);
+				//co2_reset_average(co2_sensor);
+				
+				xTaskDelayUntil( &xLastWakeTime, 4000/portTICK_PERIOD_MS); // 4000 ms
+				
+			}
 		
-		//printf("[CO2 Sensor]: Value: %d, Threshold: %d, Surpassed: %d", get_value(), get_threshold(), threshold_surpassed());
-		if(threshold_surpassed()){
-			rc_servo(100);
-			// START SERVO
-			//printf("\n[CO2 Sensor]: Threshold of %d ppm surpassed\n", get_threshold());
-		}else{
-			rc_servo(-100);
 		}
-		
-		add_to_payload(co2, 0,1, NULL);
-		xTaskDelayUntil( &xLastWakeTime, 4000/portTICK_PERIOD_MS); // 500 ms
-		// What is this for?
-		PORTA ^= _BV(PA1);
 	}
+	
 	
 }
 
@@ -246,7 +260,6 @@ void initialiseSystem()
 	
 	display_7seg_initialise(NULL);
 	display_7seg_powerUp();
-	co2_initialize();
 	rc_servo_initialise();
 	rc_servo(-100);
 	//Temp and humidity sensor
@@ -258,7 +271,9 @@ void initialiseSystem()
 	//Sound sensor
 	sound_sensor = sound_create();
 	//co2 sensor
-	set_threshold(1000);
+	co2_sensor = co2_create();
+	co2_set_threshold(co2_sensor, 2000);
+	rc_servo(-100);
 	// vvvvvvvvvvvvvvvvv BELOW IS LoRaWAN initialisation vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 	// Status Leds driver
 	status_leds_initialise(5); // Priority 5 for internal task
