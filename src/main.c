@@ -25,9 +25,8 @@
 
 // define the tasks
 void displayTask( void *pvParameters );
-void lightTask(void *pvParameters);
 void motionTask(void *pvParameters);
-void co2Task(void *pvParameters);
+
 
 // Prototype for LoRaWAN handler
 void lora_handler_initialise(UBaseType_t lora_handler_task_priority);
@@ -63,19 +62,7 @@ void create_tasks_and_semaphores(void)
 	// because it is sharing a resource, such as the Serial port.
 	// Semaphores should only be used whilst the scheduler is running, but we can set it up here.
 
-/*
-	
-	
-
-	xTaskCreate(
-	tempAndHumidityTask
-	,  "Temperature and Humidity"  // A name just for humans
-	,  configMINIMAL_STACK_SIZE  // This stack size can be checked & adjusted by reading the Stack Highwater
-	,  NULL
-	,  1  // Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
-	,  NULL );
-	
-	
+/*	
 	xTaskCreate(
 	co2Task
 	,  "CO2 Task"  // A name just for humans
@@ -94,18 +81,9 @@ void create_tasks_and_semaphores(void)
 	*/
 }
 
-
 // SERVO JC14 = 0, JC13 = 1
 void rc_servo(uint16_t percentage){
 	rc_servo_setPosition(1, percentage);
-}
-
-void sound_alarm(bool on){
-	if(on){
-		rc_servo_setPosition(0, 1);
-	}else{
-		rc_servo_setPosition(0, 0);
-	}
 }
 
 
@@ -135,87 +113,6 @@ void motionTask(void *pvParameters)
 		}
 	}
 }
-
-/*-----------------------------------------------------------*//*
-void lightTask(void *pvParameters)
-{
-	TickType_t xLastWakeTime;
-	xLastWakeTime = xTaskGetTickCount();
-	if(light_sensor != NULL) 
-	{
-		for(;;)
-		{
-			if(get_light_data(light_sensor))
-			{
-				add_to_payload(get_average_light(light_sensor), 6,7, NULL);
-				vTaskDelay(4000/portTICK_PERIOD_MS); // 2000 ms
-			}
-		}		
-	}
-}
-*/
-
-void co2Task(void *pvParameters)
-{
-	TickType_t xLastWakeTime;
-	// Initialize the xLastWakeTime variable with the current time.
-	xLastWakeTime = xTaskGetTickCount();
-	
-	if(co2_sensor != NULL){
-		for(;;)
-		{
-			vTaskDelay(50/portTICK_PERIOD_MS);
-			co2_measure();
-			
-			if(co2_get_data(co2_sensor)){
-				
-				if(co2_threshold_surpassed(co2_sensor)){
-					rc_servo(100);	
-					sound_alarm(true);
-					printf("ALARM ON");
-				}else{
-					rc_servo(-100);
-					sound_alarm(false);
-					printf("ALARM OFF");
-				}
-				
-				printf("CO2 VAL: %d", co2_get_value(co2_sensor));
-				add_to_payload(co2_get_average(co2_sensor), 0,1, NULL);
-				//co2_reset_average(co2_sensor);
-				
-				xTaskDelayUntil( &xLastWakeTime, 4000/portTICK_PERIOD_MS); // 4000 ms
-				
-			}
-		
-		}
-	}
-	
-	
-}
-
-
-
-/*-----------------------------------------------------------*/
-/*
-void tempAndHumidityTask( void *pvParameters )
-{
-	TickType_t xLastWakeTime;
-	// Initialise the xLastWakeTime variable with the current time.
-	xLastWakeTime = xTaskGetTickCount();
-	if(temp_hum!= NULL)
-	{
-		for(;;)
-		{	
-			if(measure_temp_hum(temp_hum));
-			{
-				add_to_payload(get_average_temp(temp_hum), 2,3, NULL);
-				add_to_payload(get_average_hum(temp_hum), 4,5, NULL);
-			}
-			xTaskDelayUntil( &xLastWakeTime, 4000/portTICK_PERIOD_MS );
-		}
-	}
-}
-*/
 
 /*-----------------------------------------------------------*/
 void soundTask( void *pvParameters )
@@ -269,10 +166,11 @@ void initialiseSystem()
 	motion_sensor = motion_create();
 	//Sound sensor
 	sound_sensor = sound_create();
-	//co2 sensor
+	//CO2 sensor
 	co2_sensor = co2_create();
-	co2_set_threshold(co2_sensor, 2000);
-	rc_servo(-100);
+	create_co2_task(co2_sensor);
+	//co2 sensor
+	co2_set_threshold(co2_sensor,1000);
 	// vvvvvvvvvvvvvvvvv BELOW IS LoRaWAN initialisation vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 	// Status Leds driver
 	status_leds_initialise(5); // Priority 5 for internal task

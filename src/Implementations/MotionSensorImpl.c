@@ -4,10 +4,8 @@
  * Created: 4/16/2023 1:09:27 PM
  *  Author: drago
  */ 
-#include "hcSr501.h"
 #include "../Headers/MotionSensor.h"
-#include <stdlib.h>
-#include <avr/io.h>
+
 
 typedef struct motion
 {

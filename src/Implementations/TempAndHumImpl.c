@@ -23,6 +23,8 @@ tempAndHum_t tempAndHum_create()
 	_new_tempAndHum->avg_temperature = 0.0;
 	_new_tempAndHum->avg_humidity = 0.0;
 	_new_tempAndHum->measurements = 0;
+	_new_tempAndHum->threshold_hum = threshold_create();
+	_new_tempAndHum->threshold_temp = threshold_create();
 	return _new_tempAndHum;
 }
 
@@ -110,9 +112,29 @@ void temp_hum_task( void *pvParameters )
 		if(measure_temp_hum(temp_hum))
 		{
 			//comment the payloads if you want to test them.
-			//add_to_payload(get_average_temp(temp_hum),2,3,NULL);
-			//add_to_payload(get_average_hum(temp_hum),4,5,NULL);
+			add_to_payload(get_average_temp(temp_hum),2,3,NULL);
+			add_to_payload(get_average_hum(temp_hum),4,5,NULL);
 		}
 		xTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(4000UL));
 	}
+}
+
+bool hum_threshold_surpassed(tempAndHum_t self){
+	return threshold_surpassed(self->threshold_hum, self->humidity);
+}
+uint16_t hum_get_threshold(tempAndHum_t self){
+	return get_threshold(self->threshold_hum);
+}
+void hum_set_threshold(tempAndHum_t self, uint16_t val){
+	set_threshold(self->threshold_hum, val);
+}
+
+bool temp_threshold_surpassed(tempAndHum_t self){
+	return threshold_surpassed(self->threshold_temp, self->temperature);
+}
+uint16_t temp_get_threshold(tempAndHum_t self){
+	return get_threshold(self->threshold_temp);
+}
+void temp_set_threshold(tempAndHum_t self, uint16_t val){
+	set_threshold(self->threshold_temp, val);
 }
