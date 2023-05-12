@@ -11,7 +11,7 @@ extern "C"
 
 FAKE_VALUE_FUNC(hih8120_driverReturnCode_t, hih8120_initialise);
 FAKE_VALUE_FUNC(hih8120_driverReturnCode_t, hih8120_destroy);
-FAKE_VALUE_FUNC(bool, hih8120_isReady);
+FAKE_VALUE_FUNC(bool, hih8120_isReady);	
 FAKE_VALUE_FUNC(hih8120_driverReturnCode_t, hih8120_wakeup);
 FAKE_VALUE_FUNC(hih8120_driverReturnCode_t, hih8120_measure);
 FAKE_VALUE_FUNC(uint16_t, hih8120_getHumidityPercent_x10);

@@ -10,6 +10,7 @@ include(FetchContent)
 FetchContent_Declare(
   googletest
   URL https://github.com/google/googletest/archive/refs/tags/release-1.11.0.zip
+  DOWNLOAD_EXTRACT_TIMESTAMP false
 )
 # For Windows: Prevent overriding the parent project's compiler/linker settings
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
@@ -18,6 +19,8 @@ FetchContent_MakeAvailable(googletest )
 
 set(SOURCES_TEST
     TemperatureAndHumidityTests.cpp
+    SoundTest.cpp
+    ../src/Implementations/SoundImpl.c
     FreeRTOS_defs/FreeRTOS_FFF_MocksDefinitions.cpp
     ../src/Implementations/TempAndHumImpl.c
     ${SRCS}

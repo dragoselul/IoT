@@ -5,7 +5,7 @@
  *  Author: Jagerinho
  */ 
 
-#include "sen14262.h"
+#include "../drivers/sen14262.h"
 #include <stdlib.h>
 #include <stdio.h>
 
