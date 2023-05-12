@@ -11,6 +11,7 @@
 
 #include <lora_driver.h>
 #include <status_leds.h>
+#include <semphr.h>
 
 // Parameters for OTAA join - You have got these in a mail from IHA
 #define LORA_appEUI "9276B3CF3B069355"
@@ -18,15 +19,22 @@
 
 void lora_handler_task( void *pvParameters );
 
-static lora_driver_payload_t _uplink_payload;
+SemaphoreHandle_t gateKeeper = NULL;
 
-void lora_handler_initialise(UBaseType_t lora_handler_task_priority, void *payload_var)
+static lora_driver_payload_t _uplink_payload;
+static lora_driver_payload_t _downlink_payload;
+
+void lora_handler_initialise(UBaseType_t lora_handler_task_priority)
 {
+	if ( gateKeeper == NULL )  // Check to confirm that the Semaphore has not already been created.
+	{
+		gateKeeper = xSemaphoreCreateMutex();  // Create a mutex semaphore.
+	}
 	xTaskCreate(
 	lora_handler_task
 	,  "LRHand"  // A name just for humans
 	,  configMINIMAL_STACK_SIZE+200  // This stack size can be checked & adjusted by reading the Stack Highwater
-	,  payload_var
+	,  NULL
 	,  lora_handler_task_priority  // Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
 	,  NULL );
 }
@@ -35,8 +43,8 @@ static void _lora_setup(void)
 {
 	char _out_buf[20];
 	lora_driver_returnCode_t rc;
+	_uplink_payload.len = 10;
 	status_leds_slowBlink(led_ST2); // OPTIONAL: Led the green led blink slowly while we are setting up LoRa
-
 	// Factory reset the transceiver
 	printf("FactoryReset >%s<\n", lora_driver_mapReturnCodeToText(lora_driver_rn2483FactoryReset()));
 	
@@ -104,6 +112,59 @@ static void _lora_setup(void)
 	}
 }
 
+bool switchGarageId = true;
+
+void add_to_payload(uint16_t data, uint8_t byte_pos1, uint8_t byte_pos2, uint8_t bit_pos)
+{
+	if(xSemaphoreTake(gateKeeper, portMAX_DELAY))
+	{
+		printf("\n Data is: %d\n", data);
+		if(byte_pos1 == 0)
+		puts("CO2 writing payload\n");
+		if(byte_pos1 == 2)
+		puts("Temp writing payload\n");
+		if(byte_pos1 == 4)
+		puts("Hum writing payload\n");
+		if(byte_pos1 == 6)
+		puts("Lux writing payload\n");
+		if(byte_pos1 == 8)
+		{
+			if(bit_pos == 0)
+			puts("Servo changing bit\n");
+			if(bit_pos == 1)
+			puts("Motion changing bit\n");
+			if(bit_pos == 2)
+			puts("Sound changing bit\n");
+			if(bit_pos == 3)
+			puts("Alarm changing bit\n");
+			_uplink_payload.bytes[byte_pos1] = data>>bit_pos;
+		}
+		else
+		{
+			_uplink_payload.bytes[byte_pos1] = data >> 8;
+			_uplink_payload.bytes[byte_pos2] = data & 0xFF;
+		}
+		if(switchGarageId)
+		{
+			uint16_t hash = 5381;
+			int c;
+			unsigned char* str = "0004A30B00251001";
+			while (c = *str++) {
+				hash = ((hash << 5) + hash) + c;
+			}
+			_uplink_payload.bytes[9] = hash;
+			switchGarageId = false;
+	}
+	printf("[0]: %d \n [1]: %d \n [2]: %d \n [3]: %d \n [4]: %d \n [5]: %d \n [6]: %d \n [7]: %d \n [8]: %d \n [9]: %d \n", _uplink_payload.bytes[0], _uplink_payload.bytes[1], _uplink_payload.bytes[2], _uplink_payload.bytes[3], _uplink_payload.bytes[4], _uplink_payload.bytes[5], _uplink_payload.bytes[6], _uplink_payload.bytes[7], _uplink_payload.bytes[8], _uplink_payload.bytes[9]);
+		vTaskDelay(pdMS_TO_TICKS(50UL));
+		xSemaphoreGive(gateKeeper);
+	}
+	else
+	{
+		puts("Could not take mutex");
+	}
+}
+
 /*-----------------------------------------------------------*/
 void lora_handler_task( void *pvParameters )
 {
@@ -118,8 +179,7 @@ void lora_handler_task( void *pvParameters )
 
 	_lora_setup();
 
-	_uplink_payload.len = 10;
-	_uplink_payload.portNo = 2;
+	_uplink_payload.portNo = 1;
 
 	TickType_t xLastWakeTime;
 	const TickType_t xFrequency = pdMS_TO_TICKS(300000UL); // Upload message every 5 minutes (300000 ms)
@@ -127,12 +187,7 @@ void lora_handler_task( void *pvParameters )
 	
 	for(;;)
 	{
-		xTaskDelayUntil( &xLastWakeTime, xFrequency );
-		for (int i = 0; i<20;i++)
-		{
-			_uplink_payload.bytes[i] = ((uint8_t*)pvParameters)[i];
-		}
-		
+		xTaskDelayUntil( &xLastWakeTime, xFrequency );	
 
 		status_leds_shortPuls(led_ST4);  // OPTIONAL
 		printf("Upload Message >%s<\n", lora_driver_mapReturnCodeToText(lora_driver_sendUploadMessage(false, &_uplink_payload)));

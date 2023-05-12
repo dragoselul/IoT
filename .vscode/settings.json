@@ -1,5 +1,11 @@
 {
     "files.associations": {
-        "atmega_freertos.h": "c"
+        "atmega_freertos.h": "c",
+        "vector": "c",
+        "xstring": "c",
+        "xutility": "c",
+        "array": "c",
+        "string": "c",
+        "string_view": "c"
     }
 }
