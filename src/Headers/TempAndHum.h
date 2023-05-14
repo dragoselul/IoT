@@ -9,7 +9,7 @@
 
 typedef struct tempAndHum* tempAndHum_t;
 
-tempAndHum_t tempAndHum_create();
+tempAndHum_t tempAndHum_create(threshold_t*);
 void tempAndHum_destroy(tempAndHum_t*);
 void update_averages(tempAndHum_t);
 void reset_averages(tempAndHum_t);

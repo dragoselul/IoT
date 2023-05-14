@@ -356,9 +356,6 @@
     <None Include="FreeRTOS\src\LICENSE.md">
       <SubType>compile</SubType>
     </None>
-    <Compile Include="Headers\Average.h">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="Headers\CO2.h">
       <SubType>compile</SubType>
     </Compile>
@@ -375,9 +372,6 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Headers\Threshold.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="Implementations\AverageImpl.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Implementations\CO2Impl.c">

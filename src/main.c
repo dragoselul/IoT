@@ -37,6 +37,7 @@ light_t light_sensor;
 motion_t motion_sensor;
 sound_t sound_sensor;
 co2_t co2_sensor;
+threshold_t thresholds;
 
 /*
 void display(TickType_t ms, void *data, uint8_t decimal_places)
@@ -176,9 +177,11 @@ void initialiseSystem()
 	status_leds_initialise(5); // Priority 5 for internal task
 	// Display initialization
 	// Initialise the LoRaWAN driver without down-link buffer
-	lora_driver_initialise(1, NULL);
+	MessageBufferHandle_t downLinkMessageBufferHandle = xMessageBufferCreate(sizeof(lora_driver_payload_t)*2); // Here I make room for two downlink messages in the message buffer
+	thresholds = threshold_create(*downLinkMessageBufferHandle);
+	lora_driver_initialise(ser_USART1, downLinkMessageBufferHandle); // The parameter is the USART port the RN2483 module is connected to - in this case USART1 - here no message buffer for down-link messages are defined
 	// Create LoRaWAN task and start it up with priority 3
-	lora_handler_initialise(3);
+	lora_handler_initialise(3, &thresholds);
 	// vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 }
 
