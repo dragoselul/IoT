@@ -7,11 +7,10 @@ typedef struct tempAndHum
 	float avg_humidity;
 	float avg_temperature;
 	uint8_t measurements;
-	threshold_t threshold_hum;
-	threshold_t threshold_temp;
+	threshold_t* th_point;
 }tempAndHum;
 
-tempAndHum_t tempAndHum_create()
+tempAndHum_t tempAndHum_create(threshold_t* point)
 {
 	tempAndHum_t _new_tempAndHum = (tempAndHum_t)calloc(1,sizeof(tempAndHum));
 	if (NULL == _new_tempAndHum)
@@ -23,8 +22,7 @@ tempAndHum_t tempAndHum_create()
 	_new_tempAndHum->avg_temperature = 0.0;
 	_new_tempAndHum->avg_humidity = 0.0;
 	_new_tempAndHum->measurements = 0;
-	_new_tempAndHum->threshold_hum = threshold_create();
-	_new_tempAndHum->threshold_temp = threshold_create();
+	_new_tempAndHum->th_point = point;
 	return _new_tempAndHum;
 }
 
@@ -68,6 +66,10 @@ bool measure_temp_hum(tempAndHum_t self)
 	vTaskDelay(pdMS_TO_TICKS(10UL));
 	self->humidity = hih8120_getHumidityPercent_x10();
 	self->temperature = hih8120_getTemperature_x10();
+	if(self->temperature > get_temperature_threshold(self->th_point))
+		add_to_payload(1,8,NULL,3); // alarm
+	if(self->humidity > get_humidity_threshold(self->th_point))
+		add_to_payload(1,8,NULL,0); // open window/door/something
 	update_averages(self);
 	self->measurements++;
 	return true;
@@ -117,24 +119,4 @@ void temp_hum_task( void *pvParameters )
 		}
 		xTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(4000UL));
 	}
-}
-
-bool hum_threshold_surpassed(tempAndHum_t self){
-	return threshold_surpassed(self->threshold_hum, self->humidity);
-}
-uint16_t hum_get_threshold(tempAndHum_t self){
-	return get_threshold(self->threshold_hum);
-}
-void hum_set_threshold(tempAndHum_t self, uint16_t val){
-	set_threshold(self->threshold_hum, val);
-}
-
-bool temp_threshold_surpassed(tempAndHum_t self){
-	return threshold_surpassed(self->threshold_temp, self->temperature);
-}
-uint16_t temp_get_threshold(tempAndHum_t self){
-	return get_threshold(self->threshold_temp);
-}
-void temp_set_threshold(tempAndHum_t self, uint16_t val){
-	set_threshold(self->threshold_temp, val);
 }

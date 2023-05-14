@@ -18,13 +18,14 @@
 #define LORA_appKEY "84860CBA5C5116F9EC56E1B4346CA899"
 
 void lora_handler_task( void *pvParameters );
+void lora_downlink_task( void *pvParameters );
 
 SemaphoreHandle_t gateKeeper = NULL;
 
 static lora_driver_payload_t _uplink_payload;
 static lora_driver_payload_t _downlink_payload;
 
-void lora_handler_initialise(UBaseType_t lora_handler_task_priority)
+void lora_handler_initialise(UBaseType_t lora_handler_task_priority, void* thresholds)
 {
 	if ( gateKeeper == NULL )  // Check to confirm that the Semaphore has not already been created.
 	{
@@ -37,6 +38,14 @@ void lora_handler_initialise(UBaseType_t lora_handler_task_priority)
 	,  NULL
 	,  lora_handler_task_priority  // Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
 	,  NULL );
+	
+	xTaskCreate(
+	lora_downlink_task
+	,	"LRDownLink"
+	,	configMINIMAL_STACK_SIZE+200
+	,	thresholds
+	,	lora_handler_task_priority
+	,	NULL );
 }
 
 static void _lora_setup(void)
@@ -44,6 +53,7 @@ static void _lora_setup(void)
 	char _out_buf[20];
 	lora_driver_returnCode_t rc;
 	_uplink_payload.len = 10;
+	_downlink_payload.len = 9;
 	status_leds_slowBlink(led_ST2); // OPTIONAL: Led the green led blink slowly while we are setting up LoRa
 	// Factory reset the transceiver
 	printf("FactoryReset >%s<\n", lora_driver_mapReturnCodeToText(lora_driver_rn2483FactoryReset()));
@@ -191,5 +201,18 @@ void lora_handler_task( void *pvParameters )
 
 		status_leds_shortPuls(led_ST4);  // OPTIONAL
 		printf("Upload Message >%s<\n", lora_driver_mapReturnCodeToText(lora_driver_sendUploadMessage(false, &_uplink_payload)));
+	}
+}
+
+void lora_downlink_task( void *pvParameters )
+{
+	threshold_t thresholds = *(threshold_t*) pvParameters;
+	xMessageBufferReceive(get_message_buffer(&thresholds)), &_downlink_payload, sizeof(lora_driver_payload_t), portMAX_DELAY);
+	printf("DOWN LINK: from port: %d with %d bytes received!", _downlink_payload.portNo, _downlink_payload.len); // Just for Debug
+	if (4 == _downlink_payload.len) // Check that we have got the expected 4 bytes
+	{
+
+		maxHumSetting = (_downlink_payload.bytes[0] << 8) + _downlink_payload.bytes[1];
+		maxTempSetting = (_downlink_payload.bytes[2] << 8) + _downlink_payload.bytes[3];
 	}
 }

@@ -5,8 +5,13 @@
 
 typedef struct threshold* threshold_t;
 
-threshold_t threshold_create();
+threshold_t threshold_create(MessageBufferHandle_t*);
 void threshold_destroy(threshold_t);
-bool threshold_surpassed(threshold_t, uint16_t);
-uint16_t get_threshold(threshold_t);
-void set_threshold(threshold_t, uint16_t);
+int16_t get_temperature_threshold(threshold_t*);
+uint16_t get_humidity_threshold(threshold_t*);
+uint16_t get_co2_threshold(threshold_t*);
+uint16_t get_light_threshold(threshold_t*);
+void set_temperature_threshold(threshold_t*, int16_t);
+void set_humidity_threshold(threshold_t*, uint16_t);
+void set_co2_threshold(threshold_t*, uint16_t);
+void set_light_threshold(threshold_t*, uint16_t);
