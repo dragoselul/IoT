@@ -53,7 +53,7 @@ static void _lora_setup(void)
 	char _out_buf[20];
 	lora_driver_returnCode_t rc;
 	_uplink_payload.len = 10;
-	_downlink_payload.len = 9;
+	_downlink_payload.len = 10;
 	status_leds_slowBlink(led_ST2); // OPTIONAL: Led the green led blink slowly while we are setting up LoRa
 	// Factory reset the transceiver
 	printf("FactoryReset >%s<\n", lora_driver_mapReturnCodeToText(lora_driver_rn2483FactoryReset()));
@@ -207,12 +207,17 @@ void lora_handler_task( void *pvParameters )
 void lora_downlink_task( void *pvParameters )
 {
 	threshold_t thresholds = *(threshold_t*) pvParameters;
-	xMessageBufferReceive(get_message_buffer(&thresholds)), &_downlink_payload, sizeof(lora_driver_payload_t), portMAX_DELAY);
-	printf("DOWN LINK: from port: %d with %d bytes received!", _downlink_payload.portNo, _downlink_payload.len); // Just for Debug
-	if (4 == _downlink_payload.len) // Check that we have got the expected 4 bytes
+	for(;;)
 	{
-
-		maxHumSetting = (_downlink_payload.bytes[0] << 8) + _downlink_payload.bytes[1];
-		maxTempSetting = (_downlink_payload.bytes[2] << 8) + _downlink_payload.bytes[3];
+		xMessageBufferReceive(get_message_buffer(&thresholds)), &_downlink_payload, sizeof(lora_driver_payload_t), portMAX_DELAY);
+		_downlink_payload.portNo = 1;
+		printf("DOWN LINK: from port: %d with %d bytes received!", _downlink_payload.portNo, _downlink_payload.len); // Just for Debug
+		if (10 == _downlink_payload.len && _downlink_payload.bytes[9] == 120) // Check that we have got the expected 4 bytes
+		{
+			set_co2_threshold(&thresholds,((_downlink_payload.bytes[0] << 8) + _downlink_payload.bytes[1]));
+			set_temperature_threshold(&thresholds,((_downlink_payload.bytes[2] << 8) + _downlink_payload.bytes[3]));
+			set_humidity_threshold(&thresholds,((_downlink_payload.bytes[4] << 8) + _downlink_payload.bytes[5]));
+			set_light_threshold(&thresholds,((_downlink_payload.bytes[6] << 8) + _downlink_payload.bytes[7]));
+			}
 	}
 }
