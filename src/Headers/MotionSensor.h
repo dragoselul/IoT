@@ -1,3 +1,5 @@
+#include "stdint.h"
+#include <stdlib.h>
 typedef struct motion* motion_t;
 
 motion_t motion_create();
