@@ -8,8 +8,9 @@ extern "C"
     #include "../src/Headers/Light.h"
     #include "../src/drivers/tsl2591.h"
 }
+typedef void (*callback)(tsl2591_returnCode_t rc);
 
-FAKE_VALUE_FUNC(tsl2591_returnCode_t, tsl2591_initialise, void(tsl2591_returnCode_t));
+FAKE_VALUE_FUNC(tsl2591_returnCode_t, tsl2591_initialise, callback);
 FAKE_VALUE_FUNC(tsl2591_returnCode_t, tsl2591_destroy);
 FAKE_VALUE_FUNC(tsl2591_returnCode_t, tsl2591_enable);
 FAKE_VALUE_FUNC(tsl2591_returnCode_t, tsl2591_disable);
