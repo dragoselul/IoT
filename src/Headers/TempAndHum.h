@@ -2,7 +2,6 @@
 #include "stdint-gcc.h"
 #include <stdlib.h>
 #include "../drivers/hih8120.h"
-#include "./Average.h"
 #include "./Threshold.h"
 #include "ATMEGA_FreeRTOS.h"
 #include "task.h"

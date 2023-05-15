@@ -6,12 +6,12 @@
 */
 #include <stddef.h>
 #include <stdio.h>
-
 #include <ATMEGA_FreeRTOS.h>
 
 #include <lora_driver.h>
 #include <status_leds.h>
 #include <semphr.h>
+#include "./Headers/Threshold.h"
 
 // Parameters for OTAA join - You have got these in a mail from IHA
 #define LORA_appEUI "9276B3CF3B069355"
@@ -21,16 +21,20 @@ void lora_handler_task( void *pvParameters );
 void lora_downlink_task( void *pvParameters );
 
 SemaphoreHandle_t gateKeeper = NULL;
+MessageBufferHandle_t downlink_buffer;
 
 static lora_driver_payload_t _uplink_payload;
 static lora_driver_payload_t _downlink_payload;
 
-void lora_handler_initialise(UBaseType_t lora_handler_task_priority, void* thresholds)
+void lora_handler_initialise(UBaseType_t lora_handler_task_priority, void* thresholds, void* buffer)
 {
 	if ( gateKeeper == NULL )  // Check to confirm that the Semaphore has not already been created.
 	{
 		gateKeeper = xSemaphoreCreateMutex();  // Create a mutex semaphore.
 	}
+	
+	downlink_buffer = *(MessageBufferHandle_t*) buffer;
+	
 	xTaskCreate(
 	lora_handler_task
 	,  "LRHand"  // A name just for humans
@@ -165,7 +169,7 @@ void add_to_payload(uint16_t data, uint8_t byte_pos1, uint8_t byte_pos2, uint8_t
 			_uplink_payload.bytes[9] = hash;
 			switchGarageId = false;
 	}
-	printf("[0]: %d \n [1]: %d \n [2]: %d \n [3]: %d \n [4]: %d \n [5]: %d \n [6]: %d \n [7]: %d \n [8]: %d \n [9]: %d \n", _uplink_payload.bytes[0], _uplink_payload.bytes[1], _uplink_payload.bytes[2], _uplink_payload.bytes[3], _uplink_payload.bytes[4], _uplink_payload.bytes[5], _uplink_payload.bytes[6], _uplink_payload.bytes[7], _uplink_payload.bytes[8], _uplink_payload.bytes[9]);
+	//printf("[0]: %d \n [1]: %d \n [2]: %d \n [3]: %d \n [4]: %d \n [5]: %d \n [6]: %d \n [7]: %d \n [8]: %d \n [9]: %d \n", _uplink_payload.bytes[0], _uplink_payload.bytes[1], _uplink_payload.bytes[2], _uplink_payload.bytes[3], _uplink_payload.bytes[4], _uplink_payload.bytes[5], _uplink_payload.bytes[6], _uplink_payload.bytes[7], _uplink_payload.bytes[8], _uplink_payload.bytes[9]);
 		vTaskDelay(pdMS_TO_TICKS(50UL));
 		xSemaphoreGive(gateKeeper);
 	}
@@ -188,8 +192,8 @@ void lora_handler_task( void *pvParameters )
 	lora_driver_flushBuffers(); // get rid of first version string from module after reset!
 
 	_lora_setup();
-
-	_uplink_payload.portNo = 1;
+	
+	_uplink_payload.portNo = 2;
 
 	TickType_t xLastWakeTime;
 	const TickType_t xFrequency = pdMS_TO_TICKS(300000UL); // Upload message every 5 minutes (300000 ms)
@@ -209,7 +213,7 @@ void lora_downlink_task( void *pvParameters )
 	threshold_t thresholds = *(threshold_t*) pvParameters;
 	for(;;)
 	{
-		xMessageBufferReceive(get_message_buffer(&thresholds)), &_downlink_payload, sizeof(lora_driver_payload_t), portMAX_DELAY);
+		xMessageBufferReceive(downlink_buffer, &_downlink_payload, sizeof(lora_driver_payload_t), portMAX_DELAY);
 		_downlink_payload.portNo = 1;
 		printf("DOWN LINK: from port: %d with %d bytes received!", _downlink_payload.portNo, _downlink_payload.len); // Just for Debug
 		if (10 == _downlink_payload.len && _downlink_payload.bytes[9] == 120) // Check that we have got the expected 10 bytes and the id of the garage is 120

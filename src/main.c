@@ -29,7 +29,7 @@ void motionTask(void *pvParameters);
 
 
 // Prototype for LoRaWAN handler
-void lora_handler_initialise(UBaseType_t lora_handler_task_priority);
+void lora_handler_initialise(UBaseType_t lora_handler_task_priority, void* thresh, void* downlink_buffer);
 
 // sensor variables
 tempAndHum_t temp_hum;
@@ -38,23 +38,6 @@ motion_t motion_sensor;
 sound_t sound_sensor;
 co2_t co2_sensor;
 threshold_t thresholds;
-
-/*
-void display(TickType_t ms, void *data, uint8_t decimal_places)
-{
-	if(xSemaphoreTake(gateKeeper, portMAX_DELAY))
-	{
-		puts("Display took the semaphore!\n");
-		display_7seg_display(*((float*)data), decimal_places);
-		vTaskDelay(ms);
-		xSemaphoreGive(gateKeeper);
-	}
-	else
-	{
-		puts("Could not take the display!\n");
-	}
-}
-*/
 
 /*-----------------------------------------------------------*/
 void create_tasks_and_semaphores(void)
@@ -150,6 +133,7 @@ void initialiseSystem()
 
 	// Make it possible to use stdio on COM port 0 (USB) on Arduino board - Setting 57600,8,N,1
 	stdio_initialise(ser_USART0);
+	
 	// Let's create some tasks
 	create_tasks_and_semaphores();
 	
@@ -158,7 +142,7 @@ void initialiseSystem()
 	rc_servo_initialise();
 	rc_servo(-100);
 	//Temp and humidity sensor
-	temp_hum = tempAndHum_create();
+	temp_hum = tempAndHum_create(&thresholds);
 	create_temp_hum_task(&temp_hum);
 	//Light sensor
 	light_sensor = light_create();
@@ -171,17 +155,17 @@ void initialiseSystem()
 	co2_sensor = co2_create();
 	create_co2_task(co2_sensor);
 	//co2 sensor
-	co2_set_threshold(co2_sensor,1000);
+//	co2_set_threshold(co2_sensor,1000);
 	// vvvvvvvvvvvvvvvvv BELOW IS LoRaWAN initialisation vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 	// Status Leds driver
 	status_leds_initialise(5); // Priority 5 for internal task
-	// Display initialization
-	// Initialise the LoRaWAN driver without down-link buffer
+	// Buffer
 	MessageBufferHandle_t downLinkMessageBufferHandle = xMessageBufferCreate(sizeof(lora_driver_payload_t)*2); // Here I make room for two downlink messages in the message buffer
-	thresholds = threshold_create(*downLinkMessageBufferHandle);
+	thresholds = threshold_create();
+	// Initialise the LoRaWAN driver without down-link buffer
 	lora_driver_initialise(ser_USART1, downLinkMessageBufferHandle); // The parameter is the USART port the RN2483 module is connected to - in this case USART1 - here no message buffer for down-link messages are defined
 	// Create LoRaWAN task and start it up with priority 3
-	lora_handler_initialise(3, &thresholds);
+	lora_handler_initialise(3, &thresholds, &downLinkMessageBufferHandle);
 	// vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 }
 
