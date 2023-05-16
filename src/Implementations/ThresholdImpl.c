@@ -51,16 +51,20 @@ uint16_t get_light_threshold(threshold_t* thresholds)
 void set_temperature_threshold(threshold_t* thresholds, int16_t new_threshold)
 {
 	(*thresholds)->temperature_threshold = new_threshold;
+	printf("light -> %d | %d\n", (*thresholds)->temperature_threshold, new_threshold);
 }
 void set_humidity_threshold(threshold_t* thresholds, uint16_t new_threshold)
 {
-	(*thresholds)->temperature_threshold = new_threshold;
+	(*thresholds)->humidity_threshold = new_threshold;
+	printf("light -> %d | %d\n", (*thresholds)->humidity_threshold, new_threshold);
 }
 void set_co2_threshold(threshold_t* thresholds, uint16_t new_threshold)
 {
-	(*thresholds)->temperature_threshold = new_threshold;
+	(*thresholds)->co2_threshold = new_threshold;
+	printf("light -> %d | %d\n", (*thresholds)->co2_threshold, new_threshold);
 }
 void set_light_threshold(threshold_t* thresholds, uint16_t new_threshold)
 {
-	(*thresholds)->temperature_threshold = new_threshold;
+	(*thresholds)->light_threshold = new_threshold;
+	printf("light -> %d | %d\n", (*thresholds)->light_threshold, new_threshold);
 }
