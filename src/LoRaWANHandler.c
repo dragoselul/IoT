@@ -208,13 +208,31 @@ void lora_downlink_task( void *pvParameters )
 	{
 		xMessageBufferReceive(downlink_buffer, &_downlink_payload, sizeof(lora_driver_payload_t), portMAX_DELAY);
 		_downlink_payload.portNo = 1;
-		printf("DOWN LINK: from port: %d with %d bytes received!", _downlink_payload.portNo, _downlink_payload.len); // Just for Debug
+		//printf("DOWN LINK: from port: %d with %d bytes received!", _downlink_payload.portNo, _downlink_payload.len); // Just for Debug
 		if (10 == _downlink_payload.len && _downlink_payload.bytes[9] == 120) // Check that we have got the expected 10 bytes and the id of the garage is 120
 		{
-			set_co2_threshold(&thresholds,((_downlink_payload.bytes[0] << 8) + _downlink_payload.bytes[1]));
-			set_temperature_threshold(&thresholds,((_downlink_payload.bytes[2] << 8) + _downlink_payload.bytes[3]));
-			set_humidity_threshold(&thresholds,((_downlink_payload.bytes[4] << 8) + _downlink_payload.bytes[5]));
-			set_light_threshold(&thresholds,((_downlink_payload.bytes[6] << 8) + _downlink_payload.bytes[7]));
+			
+			printf("%d %d %d %d %d %d %d %d %d %d %d", _downlink_payload.bytes[0], _downlink_payload.bytes[1], _downlink_payload.bytes[2], _downlink_payload.bytes[3], _downlink_payload.bytes[4], 
+			_downlink_payload.bytes[5], _downlink_payload.bytes[6], _downlink_payload.bytes[7], _downlink_payload.bytes[8], _downlink_payload.bytes[9]);
+			
+			
+			
+			set_co2_threshold(&thresholds,(uint16_t)(_downlink_payload.bytes[0]) << 8 | _downlink_payload.bytes[1]);
+			set_temperature_threshold(&thresholds,(uint16_t)(_downlink_payload.bytes[2]) << 8 | _downlink_payload.bytes[3]);
+			set_humidity_threshold(&thresholds,(uint16_t)(_downlink_payload.bytes[4]) << 8 | _downlink_payload.bytes[5]);
+			set_light_threshold(&thresholds,(uint16_t)(_downlink_payload.bytes[6]) << 8 | _downlink_payload.bytes[7]);
+			
+			printf("%d %d %d %d", (uint16_t)(_downlink_payload.bytes[0]) << 8 | _downlink_payload.bytes[1],
+			(uint16_t)(_downlink_payload.bytes[2]) << 8 | _downlink_payload.bytes[3],
+			(uint16_t)(_downlink_payload.bytes[4]) << 8 | _downlink_payload.bytes[5],
+			(uint16_t)(_downlink_payload.bytes[6]) << 8 | _downlink_payload.bytes[7],
+			(uint16_t)(_downlink_payload.bytes[7]) << 8 | _downlink_payload.bytes[8]
+			);
+			
+			//printf("%d %d %d %d", get_co2_threshold(&thresholds), get_temperature_threshold(&thresholds), get_humidity_threshold(&thresholds), get_light_threshold(&thresholds));
+			
+			
+			
 		}
 	}
 }
