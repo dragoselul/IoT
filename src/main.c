@@ -39,79 +39,9 @@ sound_t sound_sensor;
 co2_t co2_sensor;
 threshold_t thresholds;
 
-/*-----------------------------------------------------------*/
-void create_tasks_and_semaphores(void)
-{
-	/*
-	
-	xTaskCreate(
-	motionTask
-	,  "Motion sensor task"  // A name just for humans
-	,  configMINIMAL_STACK_SIZE  // This stack size can be checked & adjusted by reading the Stack Highwater
-	,  NULL
-	,  1  // Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
-	,  NULL );
-	*/
-}
-
 // SERVO JC14 = 0, JC13 = 1
 void rc_servo(uint16_t percentage){
 	rc_servo_setPosition(1, percentage);
-}
-
-
-/*-----------------------------------------------------------*/
-void motionTask(void *pvParameters)
-{
-	TickType_t xLastWakeTime;
-	// Initialise the xLastWakeTime variable with the current time.
-	xLastWakeTime = xTaskGetTickCount();
-	uint16_t is_detecting;
-	
-	if(motion_sensor != NULL)
-	{
-		for(;;)
-		{
-			if(!detecting(motion_sensor))
-			{
-				is_detecting = 0;
-				add_to_payload(is_detecting, 8,NULL, 1);
-			}
-			else
-			{
-				is_detecting = 1;
-				add_to_payload(is_detecting, 8,NULL, 1);
-			}
-			vTaskDelay(4000/portTICK_PERIOD_MS); // 1000 ms
-		}
-	}
-}
-
-/*-----------------------------------------------------------*/
-void soundTask( void *pvParameters )
-{
-	TickType_t xLastWakeTime;
-	//Initialize the xLastWakeTime variable with the current time.
-	xLastWakeTime = xTaskGetTickCount();
-	uint16_t sound_detecting;
-	
-	if(sound_sensor != NULL)
-	{
-		for(;;)
-		{
-			if(!soundDetection(sound_sensor))
-			{
-				sound_detecting = 0;
-				add_to_payload(sound_detecting, 8,NULL, 2);
-			}
-			else
-			{
-				sound_detecting = 1;
-				add_to_payload(sound_detecting, 8,NULL, 2);
-			}
-			xTaskDelayUntil( &xLastWakeTime, 4000/portTICK_PERIOD_MS); // 10 ms
-		}
-	}
 }
 
 /*-----------------------------------------------------------*/
@@ -122,9 +52,6 @@ void initialiseSystem()
 
 	// Make it possible to use stdio on COM port 0 (USB) on Arduino board - Setting 57600,8,N,1
 	stdio_initialise(ser_USART0);
-	
-	// Let's create some tasks
-	create_tasks_and_semaphores();
 	
 	display_7seg_initialise(NULL);
 	display_7seg_powerUp();
@@ -139,9 +66,11 @@ void initialiseSystem()
 	light_sensor = light_create(&thresholds);
 	create_light_task(&light_sensor);
 	//Motion sensor
-	//motion_sensor = motion_create();
+	motion_sensor = motion_create();
+	create_motion_task(&motion_sensor);
 	//Sound sensor
-	//sound_sensor = sound_create();
+	sound_sensor = sound_create();
+	create_sound_task(&sound_sensor);
 	//CO2 sensor
 	co2_sensor = co2_create(&thresholds);
 	create_co2_task(&co2_sensor);

@@ -1,9 +1,3 @@
-/*
- * MotionSensorImpl.c
- *
- * Created: 4/16/2023 1:09:27 PM
- *  Author: drago
- */ 
 #include "../Headers/MotionSensor.h"
 
 
@@ -34,10 +28,43 @@ bool detecting(motion_t self)
 {
 	if ( hcsr501_isDetecting(self->hcsr501Inst) )
 	{
+		vTaskDelay(pdMS_TO_TICKS(10UL));
 		return true;
 	}
 	else
 	{
+		vTaskDelay(pdMS_TO_TICKS(10UL));
 		return false;
+	}
+}
+
+void create_motion_task(motion_t* self)
+{
+	xTaskCreate(
+	motion_task
+	,  "Motion sensor task"  // A name just for humans
+	,  configMINIMAL_STACK_SIZE  // This stack size can be checked & adjusted by reading the Stack Highwater
+	,  self
+	,  1  // Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
+	,  NULL );
+}
+
+void motion_task(void *pvParameters)
+{
+	motion_t motion_sensor = *((motion_t*) pvParameters);
+	if(motion_sensor != NULL)
+	{
+		for(;;)
+		{
+			if(detecting(motion_sensor))
+			{
+				add_to_payload(1, 8,NULL, 1);
+			}
+			else
+			{
+				add_to_payload(0, 8,NULL, 1);
+			}
+			vTaskDelay(pdMS_TO_TICKS(4000UL)); // 1000 ms
+		}
 	}
 }

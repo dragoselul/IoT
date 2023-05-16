@@ -1,9 +1,3 @@
-/*
-* loraWANHandler.c
-*
-* Created: 12/04/2019 10:09:05
-*  Author: IHA
-*/
 #include <stddef.h>
 #include <stdio.h>
 #include <ATMEGA_FreeRTOS.h>
@@ -13,7 +7,6 @@
 #include <semphr.h>
 #include "./Headers/Threshold.h"
 
-// Parameters for OTAA join - You have got these in a mail from IHA
 #define LORA_appEUI "9276B3CF3B069355"
 #define LORA_appKEY "84860CBA5C5116F9EC56E1B4346CA899"
 

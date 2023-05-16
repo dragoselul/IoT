@@ -115,7 +115,6 @@ void light_task( void* pvParameters)
 				if(get_lux(light_sensor) <= get_light_threshold(&light_th))
 				{
 					status_leds_ledOn(led_ST4);
-					printf("Low light : %d", get_lux(light_sensor));
 				}
 				else
 				{
