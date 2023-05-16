@@ -25,6 +25,9 @@ FAKE_VALUE_FUNC(tsl2591_returnCode_t, tsl2591_getInfraredRaw, uint16_t*);
 FAKE_VALUE_FUNC(tsl2591_returnCode_t, tsl2591_getFullSpectrumRaw, uint16_t*);
 FAKE_VALUE_FUNC(tsl2591_returnCode_t, tsl2591_getCombinedDataRaw, tsl2591_combinedData_t*);
 FAKE_VALUE_FUNC(tsl2591_returnCode_t, tsl2591_getLux, float*);
+//FAKE_VALUE_FUNC(light_t, light_create);
+//FAKE_VOID_FUNC(light_destroy, light_t);
+
 
 
 
@@ -53,11 +56,11 @@ TEST_F(MotionTest, test_light_create_is_called){
     // Assert/Expect
     ASSERT_EQ(1, tsl2591_initialise_fake.call_count);
 }
-TEST_F(MotionTest, Test_sound_destroy_is_called){
+TEST_F(MotionTest, Test_light_destroy_is_called){
     // Arrange
 	// Act
     light_t lightSen = light_create();
     light_destroy(lightSen);
 
-    ASSERT_EQ(1, tsl2591_initialise_fake.call_count);
+    ASSERT_EQ(1, tsl2591_destroy_fake.call_count);
 }
