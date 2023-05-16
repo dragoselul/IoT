@@ -66,8 +66,12 @@ bool measure_temp_hum(tempAndHum_t self)
 	vTaskDelay(pdMS_TO_TICKS(10UL));
 	self->humidity = hih8120_getHumidityPercent_x10();
 	self->temperature = hih8120_getTemperature_x10();
-	if(self->temperature > get_temperature_threshold(self->th_point))
+	if(self->temperature > get_temperature_threshold(self->th_point)){
 		add_to_payload(1,8,NULL,3); // alarm
+		alarm_turn_on();
+	}else{
+		alarm_turn_off();
+	}
 	if(self->humidity > get_humidity_threshold(self->th_point))
 		add_to_payload(1,8,NULL,0); // open window/door/something
 	update_averages(self);
@@ -116,6 +120,7 @@ void temp_hum_task( void *pvParameters )
 			//comment the payloads if you want to test them.
 			add_to_payload(get_average_temp(temp_hum),2,3,NULL);
 			add_to_payload(get_average_hum(temp_hum),4,5,NULL);
+			
 		}
 		xTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(4000UL));
 	}
