@@ -5,6 +5,7 @@
 #include "ATMEGA_FreeRTOS.h"
 #include "task.h"
 #include "./Threshold.h"
+#include "Alarm.h"
 
 typedef struct co2* co2_t;
 

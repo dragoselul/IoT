@@ -3,5 +3,5 @@
 
 // ALARM PIN 11 on J15 (Timers)
 
-void turn_on();
-void turn_off();
+void alarm_turn_on();
+void alarm_turn_off();

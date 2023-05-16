@@ -95,13 +95,16 @@ void co2_task( void* pvParameters)
 		co2_get_data(co2_sensor);
 		if(get_co2_threshold(&co2_th) < co2_sensor->val)
 		{
+			alarm_turn_on();
 			rc_servo(100);
 			add_to_payload(1,8,NULL,0);
+			
 			// START SERVO
 			printf("CO2 Threshold surpassed : %d \n", co2_sensor->val);
 		}
 		else
 		{
+			alarm_turn_off();
 			rc_servo(-100);
 		}	
 		add_to_payload(co2_get_average(co2_sensor), 0,1, NULL);
