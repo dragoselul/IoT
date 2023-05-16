@@ -16,8 +16,8 @@ threshold_t threshold_create(){
 	}
 	_new_threshold -> temperature_threshold = 1000;
 	_new_threshold -> humidity_threshold = 1000;
-	_new_threshold -> light_threshold = 0;
-	_new_threshold -> co2_threshold = 2000;
+	_new_threshold -> light_threshold = 180;
+	_new_threshold -> co2_threshold = 1000;
 //	_new_threshold -> downlinkBuffer = *buffer;
 	return _new_threshold;
 }

@@ -85,7 +85,7 @@ static void _lora_setup(void)
 	printf("Set Receiver Delay: %d ms >%s<\n", 500, lora_driver_mapReturnCodeToText(lora_driver_setReceiveDelay(500)));
 
 	// Join the LoRaWAN
-	uint8_t maxJoinTriesLeft = 10;
+	uint8_t maxJoinTriesLeft = 100;
 	
 	do {
 		rc = lora_driver_join(LORA_OTAA);

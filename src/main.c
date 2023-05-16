@@ -42,18 +42,7 @@ threshold_t thresholds;
 /*-----------------------------------------------------------*/
 void create_tasks_and_semaphores(void)
 {
-	// Semaphores are useful to stop a Task proceeding, where it should be paused to wait,
-	// because it is sharing a resource, such as the Serial port.
-	// Semaphores should only be used whilst the scheduler is running, but we can set it up here.
-
-/*	
-	xTaskCreate(
-	co2Task
-	,  "CO2 Task"  // A name just for humans
-	,  configMINIMAL_STACK_SIZE  // This stack size can be checked & adjusted by reading the Stack Highwater
-	,  NULL
-	,  1  // Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
-	,  NULL );
+	/*
 	
 	xTaskCreate(
 	motionTask
@@ -141,27 +130,26 @@ void initialiseSystem()
 	display_7seg_powerUp();
 	rc_servo_initialise();
 	rc_servo(-100);
+	//Threshold init
+	thresholds = threshold_create();
 	//Temp and humidity sensor
 	temp_hum = tempAndHum_create(&thresholds);
 	create_temp_hum_task(&temp_hum);
 	//Light sensor
-	light_sensor = light_create();
+	light_sensor = light_create(&thresholds);
 	create_light_task(&light_sensor);
 	//Motion sensor
-	motion_sensor = motion_create();
+	//motion_sensor = motion_create();
 	//Sound sensor
-	sound_sensor = sound_create();
+	//sound_sensor = sound_create();
 	//CO2 sensor
-	co2_sensor = co2_create();
-	create_co2_task(co2_sensor);
-	//co2 sensor
-//	co2_set_threshold(co2_sensor,1000);
+	co2_sensor = co2_create(&thresholds);
+	create_co2_task(&co2_sensor);
 	// vvvvvvvvvvvvvvvvv BELOW IS LoRaWAN initialisation vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 	// Status Leds driver
 	status_leds_initialise(5); // Priority 5 for internal task
 	// Buffer
 	MessageBufferHandle_t downLinkMessageBufferHandle = xMessageBufferCreate(sizeof(lora_driver_payload_t)*2); // Here I make room for two downlink messages in the message buffer
-	thresholds = threshold_create();
 	// Initialise the LoRaWAN driver without down-link buffer
 	lora_driver_initialise(ser_USART1, downLinkMessageBufferHandle); // The parameter is the USART port the RN2483 module is connected to - in this case USART1 - here no message buffer for down-link messages are defined
 	// Create LoRaWAN task and start it up with priority 3
