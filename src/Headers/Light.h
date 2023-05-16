@@ -6,6 +6,7 @@
 #include "task.h"
 #include "./Threshold.h"
 #include <status_leds.h>
+#include "LED.h"
 
 typedef struct light* light_t;
 

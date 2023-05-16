@@ -114,10 +114,12 @@ void light_task( void* pvParameters)
 			{
 				if(get_lux(light_sensor) <= get_light_threshold(&light_th))
 				{
+					LED_turn_on();
 					status_leds_ledOn(led_ST4);
 				}
 				else
 				{
+					LED_turn_off();
 					status_leds_ledOff(led_ST4);
 				}
 				add_to_payload(get_lux(light_sensor), 6,7, NULL);
