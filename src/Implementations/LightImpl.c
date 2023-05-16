@@ -4,6 +4,7 @@ typedef struct light
 {
 	uint16_t _tmp;
 	float _lux;
+	threshold_t* th_point;
 }light;
 
 uint16_t _tmp;
@@ -44,7 +45,7 @@ void tsl2591Callback(tsl2591_returnCode_t rc)
 	}
 }
 
-light_t light_create()
+light_t light_create(threshold_t* point)
 {
 	light_t _new_light = (light_t)calloc(1,sizeof(light));
 	if (NULL == _new_light)
@@ -53,6 +54,7 @@ light_t light_create()
 		return NULL;
 	_new_light->_tmp = 0;
 	_new_light->_lux = 0;
+	_new_light->th_point = point;
 	return _new_light;
 }
 
@@ -71,8 +73,9 @@ bool get_light_data(light_t self)
 	{
 		vTaskDelay(pdMS_TO_TICKS(10UL));
 		self->_tmp = _tmp;
-		self->_lux = _lux*100.0;
+		self->_lux = _lux*10.0;
 	}
+	vTaskDelay(pdMS_TO_TICKS(10UL));
 	if ( TSL2591_OK != tsl2591_disable())
 		return false;
 	return true;
@@ -84,6 +87,8 @@ uint16_t get_tmp(light_t self)
 }
 uint16_t get_lux(light_t self)
 {
+	if(self->_lux < 0)
+		return 0;
 	return (uint16_t)self->_lux;
 }
 
@@ -99,30 +104,26 @@ void create_light_task(light_t* self)
 }
 void light_task( void* pvParameters)
 {
-	TickType_t xLastWakeTime = xTaskGetTickCount();
 	light_t light_sensor = *((light_t*)(pvParameters));
+	threshold_t light_th = *(light_sensor->th_point);
 	if(light_sensor != NULL)
 	{
 		for(;;)
 		{
 			if(get_light_data(light_sensor))
 			{
+				if(get_lux(light_sensor) <= get_light_threshold(&light_th))
+				{
+					status_leds_ledOn(led_ST4);
+					printf("Low light : %d", get_lux(light_sensor));
+				}
+				else
+				{
+					status_leds_ledOff(led_ST4);
+				}
 				add_to_payload(get_lux(light_sensor), 6,7, NULL);
 				vTaskDelay(pdMS_TO_TICKS(4000UL)); // 4000 ms
 			}
 		}
 	}
 }
-
-/*
-bool light_threshold_surpassed(light_t self){
-	return threshold_surpassed(self->threshold, self->_lux);
-}
-
-uint16_t light_get_threshold(light_t self){
-	return get_threshold(self->threshold);
-}
-
-void light_set_threshold(light_t self, uint16_t val){
-	set_threshold(self->threshold, val);
-*/

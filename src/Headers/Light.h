@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include "ATMEGA_FreeRTOS.h"
 #include "task.h"
+#include "./Threshold.h"
+#include <status_leds.h>
 
 typedef struct light* light_t;
 
