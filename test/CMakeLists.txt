@@ -26,6 +26,7 @@ set(SOURCES_TEST
     FreeRTOS_defs/FreeRTOS_FFF_MocksDefinitions.cpp
     ../src/Implementations/TempAndHumImpl.c
     ../src/Implementations/LightImpl.c
+    ../src/Implementations/MotionSensorImpl.c
     ${SRCS}
 )
 

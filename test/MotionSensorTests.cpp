@@ -6,14 +6,14 @@
 extern "C"
 {
     #include "../src/drivers/hcSr501.h"
-    #include "../src/Headers/hal.h"
+    #include "../src/Headers/MotionSensor.h"
 }
 
 FAKE_VALUE_FUNC(bool, hcsr501_isDetecting, hcsr501_p);
 FAKE_VALUE_FUNC(hcsr501_p, hcsr501_create, volatile uint8_t* , uint8_t);
 FAKE_VOID_FUNC(hcsr501_destroy,hcsr501_p);
-FAKE_VALUE_FUNC(motion_t, motion_create);
-FAKE_VOID_FUNC(motion_destroy, motion_t);
+//FAKE_VALUE_FUNC(motion_t, motion_create);
+//FAKE_VOID_FUNC(motion_destroy, motion_t);
 
 
 class MotionTest : public ::testing::Test
@@ -22,8 +22,8 @@ protected:
 	void SetUp() override
 	{
         RESET_FAKE(hcsr501_create);
-        RESET_FAKE(motion_create);
-        RESET_FAKE(motion_destroy);
+        //RESET_FAKE(motion_create);
+        //RESET_FAKE(motion_destroy);
 		FFF_RESET_HISTORY();
 	}
 	void TearDown() override
