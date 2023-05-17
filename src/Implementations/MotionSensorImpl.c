@@ -1,27 +1,25 @@
 #include "../Headers/MotionSensor.h"
-#include <avr/io.h>
 
 typedef struct motion
 {
 	hcsr501_p hcsr501Inst;
 }motion;
 
-motion_t motion_create()
+motion_t motion_create(hcsr501_p motion_sensor)
 {
 	motion_t _new_motion = (motion_t)calloc(1,sizeof(motion));
 	if (NULL == _new_motion)
 	return NULL;
 	_new_motion->hcsr501Inst = NULL;
-	_new_motion->hcsr501Inst = hcsr501_create(&PORTE, PE5);
+	_new_motion->hcsr501Inst = motion_sensor;
 	if ( NULL == _new_motion->hcsr501Inst )
 		return NULL;
-	hcsr501_create();
 	return _new_motion;
 }
 
 void motion_destroy(motion_t self)
 {
-	hcsr501_destroy();
+	hcsr501_destroy(self->hcsr501Inst);
 	if (NULL != self)
 	free(self);
 }

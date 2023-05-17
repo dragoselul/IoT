@@ -69,7 +69,7 @@ void initialiseSystem()
 	light_sensor = light_create(&thresholds);
 	create_light_task(&light_sensor);
 	//Motion sensor
-	motion_sensor = motion_create();
+	motion_sensor = motion_create(hcsr501_create(&PORTE, PE5));
 	create_motion_task(&motion_sensor);
 	//Sound sensor
 	sound_sensor = sound_create();
