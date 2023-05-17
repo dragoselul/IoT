@@ -15,11 +15,13 @@ motion_t motion_create()
 	_new_motion->hcsr501Inst = hcsr501_create(&PORTE, PE5);
 	if ( NULL == _new_motion->hcsr501Inst )
 		return NULL;
+	hcsr501_create();
 	return _new_motion;
 }
 
 void motion_destroy(motion_t self)
 {
+	hcsr501_destroy();
 	if (NULL != self)
 	free(self);
 }
