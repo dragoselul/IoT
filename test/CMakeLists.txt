@@ -21,6 +21,8 @@ set(SOURCES_TEST
     TemperatureAndHumidityTests.cpp
     MotionSensorTests.cpp
     LightSensorTests.cpp
+    SoundTest.cpp
+    ../src/Implementations/SoundImpl.c
     FreeRTOS_defs/FreeRTOS_FFF_MocksDefinitions.cpp
     ../src/Implementations/TempAndHumImpl.c
     ../src/Implementations/LightImpl.c
