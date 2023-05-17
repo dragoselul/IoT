@@ -28,6 +28,7 @@ FAKE_VOID_FUNC(set_temperature_threshold, threshold_t*, int16_t);
 FAKE_VOID_FUNC(set_humidity_threshold, threshold_t*, uint16_t);
 FAKE_VOID_FUNC(set_light_threshold, threshold_t*, uint16_t);
 FAKE_VOID_FUNC(set_co2_threshold, threshold_t*, uint16_t);
+//FAKE_VOID_FUNC(add_to_payload, uint16_t, uint8_t, uint8_t, uint8_t);
 
 class TempHumTest : public ::testing::Test
 {
@@ -57,12 +58,13 @@ TEST_F(TempHumTest, create_is_called)
 {
 	// Arrange
 	threshold_t thresh = threshold_create();
-	 tempAndHum_t tempHum = tempAndHum_create(&thresh);
+	tempAndHum_t tempHum = tempAndHum_create(&thresh);
 
 	// Assert/Expect
 	ASSERT_EQ(1, hih8120_initialise_fake.call_count);
 	ASSERT_EQ(1, threshold_create_fake.call_count);
 	ASSERT_TRUE((tempHum!=NULL));
+	ASSERT_TRUE((thresh!=NULL));
 }
 
 TEST_F(TempHumTest, destroy_is_called_with_no_arg) 
@@ -77,7 +79,8 @@ TEST_F(TempHumTest, destroy_is_called_with_no_arg)
 TEST_F(TempHumTest, destroy_is_called_with_arg) 
 {
 	// Arrange
-	tempAndHum_t tempHum = tempAndHum_create();
+	threshold_t thresh = threshold_create();
+	tempAndHum_t tempHum = tempAndHum_create(&thresh);
 	tempAndHum_destroy(&tempHum);
 
 	// Assert/Expect
@@ -129,9 +132,10 @@ TEST_F(TempHumTest, measure_temp_hum_no_args)
 TEST_F(TempHumTest, measure_temp_hum_args) 
 {
 	// Arrange
-	tempAndHum_t tempAndHum = tempAndHum_create();
+	threshold_t thresh = threshold_create();
+	tempAndHum_t tempHum = tempAndHum_create(&thresh);
 	// Assert/Expect
-	ASSERT_TRUE(measure_temp_hum(tempAndHum));
+	ASSERT_TRUE(measure_temp_hum(tempHum));
 	ASSERT_EQ(1, hih8120_wakeup_fake.call_count);
 	ASSERT_EQ(2, vTaskDelay_fake.call_count);
 	ASSERT_EQ(1, hih8120_measure_fake.call_count);
@@ -149,9 +153,10 @@ TEST_F(TempHumTest, get_average_hum_no_args)
 TEST_F(TempHumTest, get_average_hum_args_without_measurement) 
 {
 	// Arrange
-	tempAndHum_t tempAndHum = tempAndHum_create();
+	threshold_t thresh = threshold_create();
+	tempAndHum_t tempHum = tempAndHum_create(&thresh);
 	// Assert/Expect
-	ASSERT_EQ(0,get_average_hum(tempAndHum));
+	ASSERT_EQ(0,get_average_hum(tempHum));
 }
 
 TEST_F(TempHumTest, get_average_temp_no_args) 
@@ -163,9 +168,10 @@ TEST_F(TempHumTest, get_average_temp_no_args)
 TEST_F(TempHumTest, get_average_temp_args_without_measurement) 
 {
 	// Arrange
-	tempAndHum_t tempAndHum = tempAndHum_create();
+	threshold_t thresh = threshold_create();
+	tempAndHum_t tempHum = tempAndHum_create(&thresh);
 	// Assert/Expect
-	ASSERT_EQ(0,get_average_temp(tempAndHum));
+	ASSERT_EQ(0,get_average_temp(tempHum));
 }
 
 TEST_F(TempHumTest, create_temp_hum_task_no_args) 
@@ -179,14 +185,15 @@ TEST_F(TempHumTest, create_temp_hum_task_no_args)
 TEST_F(TempHumTest, create_temp_hum_task_args) 
 {
 	// Arrange
-	tempAndHum_t tempAndHum = tempAndHum_create();
-	create_temp_hum_task(&tempAndHum);
+	threshold_t thresh = threshold_create();
+	tempAndHum_t tempHum = tempAndHum_create(&thresh);
+	create_temp_hum_task(&tempHum);
 	// Assert/Expect
 	ASSERT_EQ(1,xTaskCreate_fake.call_count);
 	ASSERT_EQ(xTaskCreate_fake.arg0_val, &temp_hum_task);
 	ASSERT_EQ(strncmp(xTaskCreate_fake.arg1_val, "Temperature and Humidity task", 30), 0);
 	ASSERT_EQ(xTaskCreate_fake.arg2_val, configMINIMAL_STACK_SIZE);
-	ASSERT_EQ(xTaskCreate_fake.arg3_val, &tempAndHum);
+	ASSERT_EQ(xTaskCreate_fake.arg3_val, &tempHum);
 	ASSERT_EQ(xTaskCreate_fake.arg4_val, 1);
 	ASSERT_EQ(xTaskCreate_fake.arg5_val, nullptr);
 }

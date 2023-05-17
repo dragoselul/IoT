@@ -8,7 +8,6 @@ typedef struct threshold* threshold_t;
 
 threshold_t threshold_create();
 void threshold_destroy(threshold_t);
-// MessageBufferHandle_t get_message_buffer(threshold_t*);
 int16_t get_temperature_threshold(threshold_t*);
 uint16_t get_humidity_threshold(threshold_t*);
 uint16_t get_co2_threshold(threshold_t*);

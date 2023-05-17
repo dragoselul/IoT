@@ -1,11 +1,4 @@
-#include <stddef.h>
-#include <stdio.h>
-#include <ATMEGA_FreeRTOS.h>
-
-#include <lora_driver.h>
-#include <status_leds.h>
-#include <semphr.h>
-#include "./Headers/Threshold.h"
+#include "../Headers/LoRaWAN.h"
 
 #define LORA_appEUI "9276B3CF3B069355"
 #define LORA_appKEY "84860CBA5C5116F9EC56E1B4346CA899"
@@ -217,7 +210,7 @@ void lora_downlink_task( void *pvParameters )
 			//_downlink_payload.bytes[5], _downlink_payload.bytes[6], _downlink_payload.bytes[7], _downlink_payload.bytes[8], _downlink_payload.bytes[9]);
 			
 			uint16_t co2 = (uint16_t)(_downlink_payload.bytes[0]) << 8 | _downlink_payload.bytes[1];
-			uint16_t temp = (uint16_t)(_downlink_payload.bytes[2]) << 8 | _downlink_payload.bytes[3];
+			int16_t temp = (int16_t)(_downlink_payload.bytes[2]) << 8 | _downlink_payload.bytes[3];
 			uint16_t hum = (uint16_t)(_downlink_payload.bytes[4]) << 8 | _downlink_payload.bytes[5];
 			uint16_t lux = (uint16_t)(_downlink_payload.bytes[6]) << 8 | _downlink_payload.bytes[7];
 			

@@ -27,6 +27,7 @@ set(SOURCES_TEST
     ../src/Implementations/TempAndHumImpl.c
     ../src/Implementations/LightImpl.c
     ../src/Implementations/MotionSensorImpl.c
+    ../src/Implementations/LoRaWANHandler.c
     ${SRCS}
 )
 
