@@ -6,6 +6,7 @@ extern "C"
 {
     #include "../src/Headers/TempAndHum.h"
 	#include "../src/drivers/hih8120.h"
+	#include "../src/Headers/Threshold.h"
 }
 
 FAKE_VALUE_FUNC(hih8120_driverReturnCode_t, hih8120_initialise);
@@ -17,6 +18,16 @@ FAKE_VALUE_FUNC(uint16_t, hih8120_getHumidityPercent_x10);
 FAKE_VALUE_FUNC(int16_t, hih8120_getTemperature_x10);
 FAKE_VALUE_FUNC(float, hih8120_getHumidity);
 FAKE_VALUE_FUNC(float, hih8120_getTemperature);
+FAKE_VALUE_FUNC(threshold_t, threshold_create);
+FAKE_VOID_FUNC(threshold_destroy, threshold_t);
+FAKE_VALUE_FUNC(int16_t, get_temperature_threshold, threshold_t*);
+FAKE_VALUE_FUNC(uint16_t, get_humidity_threshold, threshold_t*);
+FAKE_VALUE_FUNC(uint16_t, get_c02_threshold, threshold_t*);
+FAKE_VALUE_FUNC(uint16_t, get_light_threshold, threshold_t*);
+FAKE_VOID_FUNC(set_temperature_threshold, threshold_t*, int16_t);
+FAKE_VOID_FUNC(set_humidity_threshold, threshold_t*, uint16_t);
+FAKE_VOID_FUNC(set_light_threshold, threshold_t*, uint16_t);
+FAKE_VOID_FUNC(set_co2_threshold, threshold_t*, uint16_t);
 
 class TempHumTest : public ::testing::Test
 {
@@ -45,10 +56,12 @@ protected:
 TEST_F(TempHumTest, create_is_called) 
 {
 	// Arrange
-	 tempAndHum_t tempHum = tempAndHum_create();
+	threshold_t thresh = threshold_create();
+	 tempAndHum_t tempHum = tempAndHum_create(&thresh);
 
 	// Assert/Expect
 	ASSERT_EQ(1, hih8120_initialise_fake.call_count);
+	ASSERT_EQ(1, threshold_create_fake.call_count);
 	ASSERT_TRUE((tempHum!=NULL));
 }
 
