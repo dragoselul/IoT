@@ -1,5 +1,5 @@
 #include "../Headers/MotionSensor.h"
-
+#include <avr/io.h>
 
 typedef struct motion
 {

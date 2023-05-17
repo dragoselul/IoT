@@ -1,6 +1,5 @@
 #include "hcSr501.h"
 #include <stdlib.h>
-#include <avr/io.h>
 #include "ATMEGA_FreeRTOS.h"
 #include "task.h"
 

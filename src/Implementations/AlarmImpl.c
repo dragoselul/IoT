@@ -1,4 +1,5 @@
 #include "../Headers/Alarm.h"
+#include <avr/io.h>
 
 alarm_turn_on(){
 	PORTL |= (1 << PL0);
