@@ -12,8 +12,7 @@ extern "C"
 FAKE_VALUE_FUNC(bool, hcsr501_isDetecting, hcsr501_p);
 FAKE_VALUE_FUNC(hcsr501_p, hcsr501_create, volatile uint8_t* , uint8_t);
 FAKE_VOID_FUNC(hcsr501_destroy,hcsr501_p);
-//FAKE_VALUE_FUNC(motion_t, motion_create);
-//FAKE_VOID_FUNC(motion_destroy, motion_t);
+
 
 
 class MotionTest : public ::testing::Test
@@ -22,27 +21,45 @@ protected:
 	void SetUp() override
 	{
         RESET_FAKE(hcsr501_create);
-        //RESET_FAKE(motion_create);
-        //RESET_FAKE(motion_destroy);
 		FFF_RESET_HISTORY();
 	}
 	void TearDown() override
 	{}
 };
 
-TEST_F(MotionTest, test_motion_create_is_called){
+TEST_F(MotionTest, create_is_called){
     // Arrange
+    volatile uint8_t mockport = 0x01;
+    uint8_t mockPortPin = 3;
+    hcsr501_p sensor = hcsr501_create(&mockport, mockPortPin);
 	// Act
-    //motion_create();
+    motion_t motion = motion_create(sensor);
 
     // Assert/Expect
-    //ASSERT_EQ(1, hcsr501_create_fake.call_count);
+    ASSERT_EQ(1, hcsr501_create_fake.call_count);
 }
-TEST_F(MotionTest, Test_motion_destroy_is_called){
+TEST_F(MotionTest, destroy_is_called){
     // Arrange
+    volatile uint8_t mockport = 0x01;
+    uint8_t mockPortPin = 3;
+    hcsr501_p sensor = hcsr501_create(&mockport, mockPortPin);
 	// Act
-    //motion_t motionSen = motion_create();
-    //motion_destroy(motionSen);
-
-    //ASSERT_EQ(1, hcsr501_destroy_fake.call_count);
+    motion_t motion = motion_create(sensor);
+    motion_destroy(motion);
+    // Assert/Expect
+    ASSERT_EQ(1, hcsr501_destroy_fake.call_count);
+}
+TEST_F(MotionTest, detecting_is_called_with_no_args){
+    ASSERT_FALSE(detecting(NULL));
+    // Assert/Expect
+}
+TEST_F(MotionTest, detecting_is_called_with_args){
+    // Arrange
+    volatile uint8_t mockport = 0x01;
+    uint8_t mockPortPin = 3;
+    hcsr501_p sensor = hcsr501_create(&mockport, mockPortPin);
+	// Act
+    motion_t motion = motion_create(sensor);
+    // Asser/Expect
+    ASSERT_TRUE(detecting(motion));
 }
