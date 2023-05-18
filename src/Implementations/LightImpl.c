@@ -123,7 +123,7 @@ void light_task( void* pvParameters)
 		{
 			if(get_light_data(light_sensor))
 			{
-				if(get_lux(light_sensor) <= get_light_threshold(&light_th))
+				if(get_lux(light_sensor) <= get_light_threshold(&light_th) && get_automatic_lights(&light_th) == true)
 				{
 					LED_turn_on();
 				}

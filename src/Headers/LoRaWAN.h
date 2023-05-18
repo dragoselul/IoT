@@ -1,6 +1,7 @@
 #pragma once
 #include <stddef.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include "ATMEGA_FreeRTOS.h"
 #include "../drivers/lora_driver.h"
 #include "../drivers/status_leds.h"
