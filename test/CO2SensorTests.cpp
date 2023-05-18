@@ -45,34 +45,34 @@ class Co2Test: public ::testing::Test
         {}
 };
 
+// TESTS for co2_create() function
 
 TEST_F(Co2Test, create_is_called)
 {
-    // Arange
-    threshold_t thresh = threshold_create();
-    co2_t co2 = co2_create(&thresh);
+  // Arange
+  threshold_t thresh = threshold_create();
+  co2_t co2 = co2_create(&thresh);
 
-    // Assert/Expect
-    ASSERT_EQ(1, mh_z19_initialise_fake.call_count);
-   // ASSERT_EQ(1, threshold_create_fake.call_count);
-    ASSERT_TRUE(co2 != NULL);
-  //  ASSERT_TRUE(threshold != NULL);
+  // Assert/Expect
+  ASSERT_EQ(1, mh_z19_initialise_fake.call_count);
+  ASSERT_TRUE(co2 != NULL);
 }
-
 
 TEST_F(Co2Test, struct_has_default_values_after_create)
 {
-    // Arange
-    threshold_t threshold = threshold_create();
-    co2_t co2 = co2_create(&threshold);
+  // Arange
+  threshold_t threshold = threshold_create();
+  co2_t co2 = co2_create(&threshold);
 
-    // Assert/Expect
-    ASSERT_TRUE(co2 != NULL);
-    ASSERT_TRUE(co2->val == 0);
-    ASSERT_TRUE(co2->avg_co2 == 0.0);
-    ASSERT_TRUE(co2->measurements == 0);
-    ASSERT_TRUE(co2->th_point == &threshold);
+  // Assert/Expect
+  ASSERT_TRUE(co2 != NULL);
+  ASSERT_TRUE(co2->val == 0);
+  ASSERT_TRUE(co2->avg_co2 == 0.0);
+  ASSERT_TRUE(co2->measurements == 0);
+  ASSERT_TRUE(co2->th_point == &threshold);
 }
+
+// TESTS for co2_destroy() function
 
 /*
 TEST_F(Co2Test, destroy_is_called)
@@ -87,29 +87,95 @@ TEST_F(Co2Test, destroy_is_called)
 }
 */
 
+// TESTS for co2_get_data() function
+
 TEST_F(Co2Test, measurement_taken_when_get_data_called)
 {
-    // Arrange
-    threshold_t threshold = threshold_create();
-    co2_t co2 = co2_create(&threshold);
+  // Arrange
+  threshold_t threshold = threshold_create();
+  co2_t co2 = co2_create(&threshold);
 
-    co2_get_data(co2);
-        
-    // Assert/Expect
-    ASSERT_EQ(1, mh_z19_takeMeassuring_fake.call_count);
+  co2_get_data(co2);
+      
+  // Assert/Expect
+  ASSERT_EQ(1, mh_z19_takeMeassuring_fake.call_count);
 }
 
-// NOT DONE
 TEST_F(Co2Test, get_data_after_measure)
 {
-    // Arrange
-    threshold_t threshold = threshold_create();
-    co2_t co2 = co2_create(&threshold);
+  // Arrange
+  threshold_t threshold = threshold_create();
+  co2_t co2 = co2_create(&threshold);
 
-    //uint16_t old_val = co2->val;
+  co2_get_data(co2);
 
-    co2_get_data(co2);
+  // Assert/Expect
+  ASSERT_EQ(1, mh_z19_getCo2Ppm_fake.call_count);
+}
 
-    // Check if value is changed
-    //ASSERT_NE(old_val, co2->val);
+
+// TESTS for co2_get_value() function
+TEST_F(Co2Test, get_value_returns_correct_value){
+
+  // Arrange
+  threshold_t threshold = threshold_create();
+  co2_t co2 = co2_create(&threshold);
+  co2->val = 420;
+  
+  uint16_t val = co2_get_value(co2);
+
+  // Assert/Expect
+  ASSERT_EQ(420, val);
+
+}
+
+// TESTS for co2_update_average() function
+
+TEST_F(Co2Test, correct_average_after_1_measure){
+
+  threshold_t threshold = threshold_create();
+  co2_t co2 = co2_create(&threshold);
+
+  co2->val = 100;
+  co2_update_average(co2);
+
+  ASSERT_EQ(100, co2_get_average(co2));
+
+}
+
+TEST_F(Co2Test, correct_average_after_multiple_measures){
+
+  threshold_t threshold = threshold_create();
+  co2_t co2 = co2_create(&threshold);
+
+  co2->val = 100;
+  co2_update_average(co2);
+
+  // 100 / 1 = 100
+  ASSERT_EQ(100, co2_get_average(co2));
+
+  co2->val = 200;
+  co2_update_average(co2);
+
+  // (100 + 200) / 2 = 150
+  ASSERT_EQ(150, co2_get_average(co2));
+
+  co2->val = 300;
+  co2_update_average(co2);
+
+  // (100 + 200 + 300) / 3 = 200
+  ASSERT_EQ(200, co2_get_average(co2));
+
+  co2->val = 400;
+  co2_update_average(co2);
+
+  // (100 + 200 + 300 + 400) / 4 = 250
+  ASSERT_EQ(250, co2_get_average(co2));
+
+  co2->val = 500;
+  co2_update_average(co2);
+
+  // (100 + 200 + 300 + 400 + 500) / 5 = 300
+  ASSERT_EQ(300, co2_get_average(co2));
+
 }
