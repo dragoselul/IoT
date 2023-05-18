@@ -28,8 +28,8 @@ FAKE_VALUE_FUNC(float, hih8120_getTemperature);
 // FAKE_VOID_FUNC(set_humidity_threshold, threshold_t*, uint16_t);
 // FAKE_VOID_FUNC(set_light_threshold, threshold_t*, uint16_t);
 // FAKE_VOID_FUNC(set_co2_threshold, threshold_t*, uint16_t);
-FAKE_VOID_FUNC(alarm_turn_on);
-FAKE_VOID_FUNC(alarm_turn_off);
+//FAKE_VOID_FUNC(alarm_turn_on);
+//FAKE_VOID_FUNC(alarm_turn_off);
 
 class TempHumTest : public ::testing::Test
 {

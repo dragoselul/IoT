@@ -22,7 +22,8 @@ typedef struct co2
 
 co2_t co2_create(threshold_t*);
 void co2_destroy(co2_t);
-bool co2_get_data(co2_t self);
+bool co2_get_data(co2_t);
+void co2_evaluate_threshold(co2_t);
 uint16_t co2_get_value(co2_t);
 void co2_update_average(co2_t);
 uint16_t co2_get_average(co2_t);

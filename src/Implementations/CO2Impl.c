@@ -24,26 +24,26 @@ bool co2_get_data(co2_t self){
 		if(mh_z19_getCo2Ppm(&self->val) == MHZ19_OK)
 		{
 			vTaskDelay(pdMS_TO_TICKS(10UL));
+			//co2_evaluate_threshold(self);
 			co2_update_average(self);
-			evaluate_threshold(self);
 			return true;
 		}
 	}
 	return false;
 }
 
-void evaluate_threshold(co2_t self){
+void co2_evaluate_threshold(co2_t self){
 	if(get_co2_threshold(self->th_point) < self->val)
 	{
 		alarm_turn_on();
-		rc_servo(100);
+		open_door();
 		add_to_payload(1,8,255,0);
 		printf("CO2 Threshold surpassed : %d \n", self->val);
 	}
 	else
 	{
 		alarm_turn_off();
-		rc_servo(-100);
+		close_door();
 	}
 }
 
@@ -102,7 +102,6 @@ void co2_task( void* pvParameters)
 	threshold_t co2_th = *(co2_sensor->th_point);
 	for(;;)
 	{
-		co2_measure();
 		co2_get_data(co2_sensor);
 		add_to_payload(co2_get_average(co2_sensor), 0,1, 255);
 		vTaskDelay(pdMS_TO_TICKS(4000UL)); // 500 ms

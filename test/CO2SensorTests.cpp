@@ -14,9 +14,10 @@ extern "C"
 FAKE_VOID_FUNC(mh_z19_initialise, serial_comPort_t);
 FAKE_VALUE_FUNC(mh_z19_returnCode_t, mh_z19_getCo2Ppm, uint16_t*);
 FAKE_VALUE_FUNC(mh_z19_returnCode_t, mh_z19_takeMeassuring);
-FAKE_VOID_FUNC(rc_servo, uint16_t);
 FAKE_VOID_FUNC(alarm_turn_on);
 FAKE_VOID_FUNC(alarm_turn_off);
+FAKE_VOID_FUNC(open_door);
+FAKE_VOID_FUNC(close_door);
 
 // FAKE_VOID_FUNC(set_temperature_threshold, threshold_t*, int16_t);
 // FAKE_VOID_FUNC(set_humidity_threshold, threshold_t*, uint16_t);
@@ -36,10 +37,18 @@ class Co2Test: public ::testing::Test
             RESET_FAKE(vTaskDelayUntil);
             RESET_FAKE(vTaskDelay);
 
-            // RESET CO2 Sensor Driver Functions
+            // RESET CO2 SENSOR DRIVER FAKES
             RESET_FAKE(mh_z19_initialise);
             RESET_FAKE(mh_z19_getCo2Ppm);
             RESET_FAKE(mh_z19_takeMeassuring);
+
+            // RESET ALARM FAKES
+            RESET_FAKE(alarm_turn_on);
+            RESET_FAKE(alarm_turn_off);
+
+            // RESET SERVO FAKES
+            RESET_FAKE(open_door);
+            RESET_FAKE(close_door);
 
             FFF_RESET_HISTORY();
         }
@@ -47,8 +56,7 @@ class Co2Test: public ::testing::Test
         {}
 };
 
-// TESTS for co2_create() function
-
+// TEST IF CO2_CREATE IS PROPERLY CALLED AND INITIALIZES THE SENSOR
 TEST_F(Co2Test, create_is_called)
 {
   // Arange
@@ -60,6 +68,7 @@ TEST_F(Co2Test, create_is_called)
   ASSERT_TRUE(co2 != NULL);
 }
 
+// TEST IF CO2_CREATE INITIALIZED SENSOR STRUCT PROPERLY
 TEST_F(Co2Test, struct_has_default_values_after_create)
 {
   // Arange
@@ -89,20 +98,7 @@ TEST_F(Co2Test, destroy_is_called)
 }
 */
 
-// TESTS for co2_get_data() function
-
-TEST_F(Co2Test, measurement_taken_when_get_data_called)
-{
-  // Arrange
-  threshold_t threshold = threshold_create();
-  co2_t co2 = co2_create(&threshold);
-
-  co2_get_data(co2);
-      
-  // Assert/Expect
-  ASSERT_EQ(1, mh_z19_takeMeassuring_fake.call_count);
-}
-
+// TEST THAT GET_DATA RETURNS TRUE IF THERE IS A MEASURING AVAILABLE
 TEST_F(Co2Test, get_data_after_successful_measure)
 {
   // Arrange
@@ -117,6 +113,7 @@ TEST_F(Co2Test, get_data_after_successful_measure)
   ASSERT_EQ(1, mh_z19_getCo2Ppm_fake.call_count);
 }
 
+// TEST THAT GET_DATA RETURNS FALSE IF THERE IS NO MEASURING AVAILABLE
 TEST_F(Co2Test, get_data_after_unsuccessful_measure)
 {
   // Arrange
@@ -132,8 +129,7 @@ TEST_F(Co2Test, get_data_after_unsuccessful_measure)
   ASSERT_EQ(1, mh_z19_getCo2Ppm_fake.call_count);
 }
 
-
-// TESTS for co2_get_value() function
+// TEST IF TAKE MEASURE AND GET CO2 PPM FUNCTIONS ARE CALLED
 TEST_F(Co2Test, get_value_returns_correct_value)
 {
 
@@ -149,8 +145,63 @@ TEST_F(Co2Test, get_value_returns_correct_value)
 
 }
 
-// TESTS for co2_update_average() function
+// TEST IF ALARM IS TURNED ON WHEN CO2 SURPASSES THRESHOLD
+TEST_F(Co2Test, alarm_turned_on_after_threshold_surpassed){
+  // Arrange
+  threshold_t threshold = threshold_create();
+  co2_t co2 = co2_create(&threshold);
+  set_co2_threshold(&threshold, 800);
+  co2->val = 900;
 
+  co2_evaluate_threshold(co2);
+
+  // Assert/Expect
+  ASSERT_EQ(1, alarm_turn_on_fake.call_count);
+}
+
+// TEST IF ALARM IS TURNED OFF WHEN CO2 IS BELOW THRESHOLD
+TEST_F(Co2Test, alarm_turned_off_after_threshold_not_surpassed){
+  // Arrange
+  threshold_t threshold = threshold_create();
+  co2_t co2 = co2_create(&threshold);
+  set_co2_threshold(&threshold, 800);
+  co2->val = 700;
+
+  co2_evaluate_threshold(co2);
+
+  // Assert/Expect
+  ASSERT_EQ(1, alarm_turn_off_fake.call_count);
+}
+
+// TEST IF DOOR IS OPENED WHEN CO2 SURPASSES THRESHOLD
+TEST_F(Co2Test, door_opened_after_threshold_surpassed){
+  // Arrange
+  threshold_t threshold = threshold_create();
+  co2_t co2 = co2_create(&threshold);
+  set_co2_threshold(&threshold, 800);
+  co2->val = 900;
+
+  co2_evaluate_threshold(co2);
+
+  // Assert/Expect
+  ASSERT_EQ(1, open_door_fake.call_count);
+}
+
+// TEST IF DOOR IS OPENED WHEN CO2 SURPASSES THRESHOLD
+TEST_F(Co2Test, door_closed_after_threshold_not_surpassed){
+  // Arrange
+  threshold_t threshold = threshold_create();
+  co2_t co2 = co2_create(&threshold);
+  set_co2_threshold(&threshold, 800);
+  co2->val = 700;
+
+  co2_evaluate_threshold(co2);
+
+  // Assert/Expect
+  ASSERT_EQ(1, close_door_fake.call_count);
+}
+
+// TEST IF THE AVERAGE IS CORRECTLY CALCULATED AFTER A MEASURE
 TEST_F(Co2Test, correct_average_after_1_measure)
 {
 
@@ -164,6 +215,7 @@ TEST_F(Co2Test, correct_average_after_1_measure)
 
 }
 
+// TEST IF THE AVERAGE IS CORRECTLY CALCULATED AFTER MULTIPLE MEASURES
 TEST_F(Co2Test, correct_average_after_multiple_measures)
 {
 
@@ -202,8 +254,7 @@ TEST_F(Co2Test, correct_average_after_multiple_measures)
 
 }
 
-// TESTS for co2_reset_average() function
-
+// TESTS IF THE AVERAGE AND MEASURMENTS ARE RESET AFTER RESET IS CALLED
 TEST_F(Co2Test, reset_average_defaults_values)
 {
 
@@ -220,7 +271,7 @@ TEST_F(Co2Test, reset_average_defaults_values)
 
 }
 
-// TESTS for co2_create() function
+// TESTS IF THE TASK FOR CO2 MEASURING IS SUCCESSFULLY CREATED
 TEST_F(Co2Test, create_co2_task) 
 {
 	// Arrange
