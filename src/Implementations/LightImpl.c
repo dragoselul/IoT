@@ -47,6 +47,8 @@ void tsl2591Callback(tsl2591_returnCode_t rc)
 
 light_t light_create(threshold_t* point)
 {
+	if(point == NULL)
+		return NULL;
 	light_t _new_light = (light_t)calloc(1,sizeof(light));
 	if (NULL == _new_light)
 		return NULL;
@@ -60,13 +62,17 @@ light_t light_create(threshold_t* point)
 
 void light_destroy(light_t* self)
 {
-	if (NULL != self)
-	free(self);
-	tsl2591_destroy();
+	if (self != NULL && *self != NULL)
+    {
+		free(self);
+		tsl2591_destroy();
+	}
 }
 
 bool get_light_data(light_t self)
 {
+	if(self == NULL)
+		return false;
 	if ( TSL2591_OK != tsl2591_enable() )
 		return false;
 	vTaskDelay(pdMS_TO_TICKS(60UL));
@@ -84,17 +90,21 @@ bool get_light_data(light_t self)
 
 uint16_t get_tmp(light_t self)
 {
+	if(self == NULL)
+		return 0;
 	return self->_tmp;
 }
 uint16_t get_lux(light_t self)
 {
-	if(self->_lux < 0)
+	if(self->_lux < 0 || self == NULL)
 		return 0;
 	return (uint16_t)self->_lux;
 }
 
 void create_light_task(light_t* self)
 {
+	if(self == NULL)
+		return;
 	xTaskCreate(
 	light_task
 	,  "Light Task"
