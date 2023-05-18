@@ -14,12 +14,6 @@ extern "C"
 FAKE_VOID_FUNC(mh_z19_initialise, serial_comPort_t);
 FAKE_VALUE_FUNC(mh_z19_returnCode_t, mh_z19_getCo2Ppm, uint16_t*);
 FAKE_VALUE_FUNC(mh_z19_returnCode_t, mh_z19_takeMeassuring);
-// FAKE_VALUE_FUNC(threshold_t, threshold_create);
-// FAKE_VOID_FUNC(threshold_destroy, threshold_t);
-// FAKE_VOID_FUNC(set_co2_threshold, threshold_t*, uint16_t);
-// FAKE_VALUE_FUNC(uint16_t, get_c02_threshold, threshold_t*);
-// FAKE_VOID_FUNC(alarm_turn_on);
-// FAKE_VOID_FUNC(alarm_turn_off);
 FAKE_VOID_FUNC(rc_servo, uint16_t);
 
 // FAKE_VOID_FUNC(set_temperature_threshold, threshold_t*, int16_t);
@@ -64,7 +58,8 @@ TEST_F(Co2Test, create_is_called)
     ASSERT_TRUE(co2 != NULL);
   //  ASSERT_TRUE(threshold != NULL);
 }
- 
+
+/*
 TEST_F(Co2Test, struct_has_default_values_after_create)
 {
     // Arange
@@ -73,11 +68,11 @@ TEST_F(Co2Test, struct_has_default_values_after_create)
 
     // Assert/Expect
     ASSERT_TRUE(co2 != NULL);
-   // ASSERT_TRUE(co2->val == 0);
-   // ASSERT_TRUE(co2->avg_co2 == 0.0);
-   // ASSERT_TRUE(co2->measurements == 0);
-   // ASSERT_TRUE(co2->th_point == &threshold);
-}
+    //ASSERT_TRUE(co2->val == 0);
+    //ASSERT_TRUE(co2->avg_co2 == 0.0);
+    //ASSERT_TRUE(co2->measurements == 0);
+    //ASSERT_TRUE(co2->th_point == &threshold);
+}*/
 
 /*
 TEST_F(Co2Test, destroy_is_called)
@@ -92,18 +87,34 @@ TEST_F(Co2Test, destroy_is_called)
 }
 */
 
-TEST_F(Co2Test, get_data_after_measure)
+TEST_F(Co2Test, measurement_taken_when_get_data_called)
 {
     // Arrange
     threshold_t threshold = threshold_create();
     co2_t co2 = co2_create(&threshold);
 
   //  uint16_t old_val = co2->val;
-    
-    
+
+    co2_get_data(co2);
+        
     // Assert/Expect
     ASSERT_EQ(1, mh_z19_takeMeassuring_fake.call_count);
 
     // Check if value is changed
-  //  ASSERT_NE(old_val, co2->val);
+    // ASSERT_NE(old_val, co2->val);
+}
+
+// NOT DONE
+TEST_F(Co2Test, get_data_after_measure)
+{
+    // Arrange
+    threshold_t threshold = threshold_create();
+    co2_t co2 = co2_create(&threshold);
+
+    //uint16_t old_val = co2->val;
+
+    co2_get_data(co2);
+
+    // Check if value is changed
+    //ASSERT_NE(old_val, co2->val);
 }
