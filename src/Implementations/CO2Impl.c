@@ -1,15 +1,12 @@
 #include "../Headers/CO2.h"
-#include "../Headers/Threshold.h"
 
-mh_z19_returnCode_t rc;
-
+mh_z19_returnCode_t rc = MHZ19_NO_MEASSURING_AVAILABLE;
 
 co2_t co2_create(threshold_t* point){
 	co2_t _new_co2 = (co2_t) calloc (1, sizeof(co2));
 	if(NULL == _new_co2)
 		return NULL;
 	mh_z19_initialise(ser_USART3);
-	rc = MHZ19_NO_MEASSURING_AVAILABLE;
 	_new_co2->val = 0;
 	_new_co2->th_point = point;
 	_new_co2->avg_co2 = 0.0;
@@ -27,11 +24,27 @@ bool co2_get_data(co2_t self){
 		if(mh_z19_getCo2Ppm(&self->val) == MHZ19_OK)
 		{
 			vTaskDelay(pdMS_TO_TICKS(10UL));
+			//co2_evaluate_threshold(self);
 			co2_update_average(self);
 			return true;
 		}
 	}
 	return false;
+}
+
+void co2_evaluate_threshold(co2_t self){
+	if(get_co2_threshold(self->th_point) < self->val)
+	{
+		alarm_turn_on();
+		open_door();
+		add_to_payload(1,8,255,0);
+		printf("CO2 Threshold surpassed : %d \n", self->val);
+	}
+	else
+	{
+		alarm_turn_off();
+		close_door();
+	}
 }
 
 uint16_t co2_get_value(co2_t self){
@@ -41,20 +54,24 @@ uint16_t co2_get_average(co2_t self){
 	return (uint16_t)self->avg_co2;
 }
 void co2_reset_average(co2_t self){
-	if(self == NULL)
+	if(&self == NULL)
 		return;
 	self->avg_co2 = 0.0;
 	self->measurements = 0;
 }
 void co2_update_average(co2_t self){
-	if(self == NULL)
+	if(&self == NULL)
 		return;
+
+	/*
 	if(self->measurements <= 8)
 	{
 		self->avg_co2 = self->val;
 		return;
 	}
-	self->avg_co2 = self->avg_co2 + (self->val - self->avg_co2) / (self->measurements + 1);
+	*/
+	//self->avg_co2 = self->avg_co2 + (self->val - self->avg_co2) / (self->measurements + 1);
+	self->avg_co2 = (self->avg_co2 * self->measurements + self->val) / ++self->measurements;
 }
 
 void log_errors(mh_z19_returnCode_t code){
@@ -86,20 +103,6 @@ void co2_task( void* pvParameters)
 	for(;;)
 	{
 		co2_get_data(co2_sensor);
-		if(get_co2_threshold(&co2_th) < co2_sensor->val)
-		{
-			alarm_turn_on();
-			rc_servo(100);
-			add_to_payload(1,8,255,0);
-			
-			// START SERVO
-			printf("CO2 Threshold surpassed : %d \n", co2_sensor->val);
-		}
-		else
-		{
-			alarm_turn_off();
-			rc_servo(-100);
-		}	
 		add_to_payload(co2_get_average(co2_sensor), 0,1, 255);
 		vTaskDelay(pdMS_TO_TICKS(4000UL)); // 500 ms
 	}
