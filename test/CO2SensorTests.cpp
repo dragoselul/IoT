@@ -15,6 +15,8 @@ FAKE_VOID_FUNC(mh_z19_initialise, serial_comPort_t);
 FAKE_VALUE_FUNC(mh_z19_returnCode_t, mh_z19_getCo2Ppm, uint16_t*);
 FAKE_VALUE_FUNC(mh_z19_returnCode_t, mh_z19_takeMeassuring);
 FAKE_VOID_FUNC(rc_servo, uint16_t);
+FAKE_VOID_FUNC(alarm_turn_on);
+FAKE_VOID_FUNC(alarm_turn_off);
 
 // FAKE_VOID_FUNC(set_temperature_threshold, threshold_t*, int16_t);
 // FAKE_VOID_FUNC(set_humidity_threshold, threshold_t*, uint16_t);
@@ -101,21 +103,39 @@ TEST_F(Co2Test, measurement_taken_when_get_data_called)
   ASSERT_EQ(1, mh_z19_takeMeassuring_fake.call_count);
 }
 
-TEST_F(Co2Test, get_data_after_measure)
+TEST_F(Co2Test, get_data_after_successful_measure)
 {
   // Arrange
+  mh_z19_getCo2Ppm_fake.return_val = MHZ19_OK;
   threshold_t threshold = threshold_create();
   co2_t co2 = co2_create(&threshold);
 
-  co2_get_data(co2);
+  bool measured = co2_get_data(co2);
 
   // Assert/Expect
+  ASSERT_TRUE(measured);
+  ASSERT_EQ(1, mh_z19_getCo2Ppm_fake.call_count);
+}
+
+TEST_F(Co2Test, get_data_after_unsuccessful_measure)
+{
+  // Arrange
+  mh_z19_getCo2Ppm_fake.return_val = MHZ19_NO_MEASSURING_AVAILABLE;
+  threshold_t threshold = threshold_create();
+  co2_t co2 = co2_create(&threshold);
+
+  bool measured = co2_get_data(co2);
+
+  // Assert/Expect
+  ASSERT_FALSE(measured);
+  ASSERT_EQ(1, mh_z19_takeMeassuring_fake.call_count);
   ASSERT_EQ(1, mh_z19_getCo2Ppm_fake.call_count);
 }
 
 
 // TESTS for co2_get_value() function
-TEST_F(Co2Test, get_value_returns_correct_value){
+TEST_F(Co2Test, get_value_returns_correct_value)
+{
 
   // Arrange
   threshold_t threshold = threshold_create();
@@ -131,7 +151,8 @@ TEST_F(Co2Test, get_value_returns_correct_value){
 
 // TESTS for co2_update_average() function
 
-TEST_F(Co2Test, correct_average_after_1_measure){
+TEST_F(Co2Test, correct_average_after_1_measure)
+{
 
   threshold_t threshold = threshold_create();
   co2_t co2 = co2_create(&threshold);
@@ -143,7 +164,8 @@ TEST_F(Co2Test, correct_average_after_1_measure){
 
 }
 
-TEST_F(Co2Test, correct_average_after_multiple_measures){
+TEST_F(Co2Test, correct_average_after_multiple_measures)
+{
 
   threshold_t threshold = threshold_create();
   co2_t co2 = co2_create(&threshold);
@@ -178,4 +200,39 @@ TEST_F(Co2Test, correct_average_after_multiple_measures){
   // (100 + 200 + 300 + 400 + 500) / 5 = 300
   ASSERT_EQ(300, co2_get_average(co2));
 
+}
+
+// TESTS for co2_reset_average() function
+
+TEST_F(Co2Test, reset_average_defaults_values)
+{
+
+  threshold_t threshold = threshold_create();
+  co2_t co2 = co2_create(&threshold);
+
+  co2->val = 100;
+  co2_update_average(co2);
+  ASSERT_EQ(100, co2_get_average(co2));
+
+  co2_reset_average(co2);
+  ASSERT_EQ(0.0, co2->avg_co2);
+  ASSERT_EQ(0, co2->measurements);
+
+}
+
+// TESTS for co2_create() function
+TEST_F(Co2Test, create_co2_task) 
+{
+	// Arrange
+	threshold_t thresh = threshold_create();
+	co2_t co2 = co2_create(&thresh);
+	create_co2_task(&co2);
+	// Assert/Expect
+	ASSERT_EQ(1,xTaskCreate_fake.call_count);
+	ASSERT_EQ(xTaskCreate_fake.arg0_val, &co2_task);
+	ASSERT_EQ(strncmp(xTaskCreate_fake.arg1_val, "CO2 Task", 9), 0);
+	ASSERT_EQ(xTaskCreate_fake.arg2_val, configMINIMAL_STACK_SIZE);
+	ASSERT_EQ(xTaskCreate_fake.arg3_val, &co2);
+	ASSERT_EQ(xTaskCreate_fake.arg4_val, 1);
+	ASSERT_EQ(xTaskCreate_fake.arg5_val, nullptr);
 }
