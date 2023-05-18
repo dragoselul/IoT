@@ -12,6 +12,8 @@ typedef struct tempAndHum
 
 tempAndHum_t tempAndHum_create(threshold_t* point)
 {
+	if(point == NULL)
+		return NULL;
 	tempAndHum_t _new_tempAndHum = (tempAndHum_t)calloc(1,sizeof(tempAndHum));
 	if (NULL == _new_tempAndHum)
 		return NULL;
@@ -47,7 +49,7 @@ void update_averages(tempAndHum_t self){
 }
 
 void reset_averages(tempAndHum_t self){
-	if(&self == NULL)
+	if(self == NULL)
 		return;
 	self->avg_temperature = 0.0;
 	self->avg_humidity = 0.0;

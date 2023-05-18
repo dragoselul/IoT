@@ -30,7 +30,6 @@ FAKE_VOID_FUNC(set_light_threshold, threshold_t*, uint16_t);
 FAKE_VOID_FUNC(set_co2_threshold, threshold_t*, uint16_t);
 FAKE_VOID_FUNC(alarm_turn_on);
 FAKE_VOID_FUNC(alarm_turn_off);
-//FAKE_VOID_FUNC(add_to_payload, uint16_t, uint8_t, uint8_t, uint8_t);
 
 class TempHumTest : public ::testing::Test
 {
@@ -56,24 +55,29 @@ protected:
 	{}
 };
 
-TEST_F(TempHumTest, create_is_called) 
+TEST_F(TempHumTest, create_is_called_with_no_arg) 
 {
 	// Arrange
-	threshold_t thresh = threshold_create();
-	tempAndHum_t tempHum = tempAndHum_create(&thresh);
+	tempAndHum_t tempHum = tempAndHum_create(NULL);
+	// Assert/Expect
+	ASSERT_EQ(0, hih8120_initialise_fake.call_count);
+	ASSERT_TRUE(tempHum==NULL);
+}
 
+TEST_F(TempHumTest, create_is_called_with_arg) 
+{
+	// Arrange
+	threshold_t thresh = threshold_create_fake.return_val;
+	tempAndHum_t tempHum = tempAndHum_create(&thresh);
 	// Assert/Expect
 	ASSERT_EQ(1, hih8120_initialise_fake.call_count);
-	ASSERT_EQ(1, threshold_create_fake.call_count);
-	ASSERT_TRUE((tempHum!=NULL));
-	ASSERT_TRUE((thresh!=NULL));
+	ASSERT_TRUE(tempHum!=NULL);
 }
 
 TEST_F(TempHumTest, destroy_is_called_with_no_arg) 
 {
 	// Arrange
 	tempAndHum_destroy(NULL);
-
 	// Assert/Expect
 	ASSERT_EQ(1, hih8120_destroy_fake.call_count);
 }
@@ -88,43 +92,51 @@ TEST_F(TempHumTest, destroy_is_called_with_arg)
 	// Assert/Expect
 	ASSERT_EQ(1, hih8120_destroy_fake.call_count);
 }
-/*
+
 TEST_F(TempHumTest, update_averages_no_args) 
 {
 	// Arrange
+	threshold_t thresh = threshold_create();
+	tempAndHum_t tempHum = tempAndHum_create(&thresh);
 	update_averages(NULL);
 	// Assert/Expect
-	ASSERT_EQ(0, calculate_average_fake.call_count);
+	ASSERT_EQ(0, get_average_temp(tempHum));
+	ASSERT_EQ(0, get_average_hum(tempHum));
 }
 
 TEST_F(TempHumTest, update_averages_args) 
 {
 	// Arrange
-	tempAndHum_t tempAndHum = tempAndHum_create();
-	update_averages(tempAndHum);
+	threshold_t thresh = threshold_create();
+	tempAndHum_t tempHum = tempAndHum_create(&thresh);
+	ASSERT_EQ(0, get_average_temp(tempHum));
+	ASSERT_EQ(0, get_average_hum(tempHum));
+	update_averages(tempHum);
 	// Assert/Expect
-	ASSERT_EQ(2, calculate_average_fake.call_count);
+	ASSERT_EQ(0, get_average_temp(tempHum));
+	ASSERT_EQ(0, get_average_hum(tempHum));
+	//ASSERT_EQ(2, calculate_average_fake.call_count);
 }
 
-TEST_F(TempHumTest, reset_averages_no_args) 
-{
-	// Arrange
-	reset_averages(NULL);
-	// Assert/Expect
-	ASSERT_EQ(0, average_destroy_fake.call_count);
-	ASSERT_EQ(0, average_create_fake.call_count);
-}
+// TEST_F(TempHumTest, reset_averages_no_args) 
+// {
+// 	// Arrange
+// 	reset_averages(NULL);
+// 	// Assert/Expect
+// 	ASSERT_EQ(0, average_destroy_fake.call_count);
+// 	ASSERT_EQ(0, average_create_fake.call_count);
+// }
 
-TEST_F(TempHumTest, reset_averages_args) 
-{
-	// Arrange
-	tempAndHum_t tempAndHum = tempAndHum_create();
-	reset_averages(tempAndHum);
-	// Assert/Expect
-	ASSERT_EQ(2, average_destroy_fake.call_count);
-	ASSERT_EQ(4, average_create_fake.call_count);
-}
-*/
+// TEST_F(TempHumTest, reset_averages_args) 
+// {
+// 	// Arrange
+// 	tempAndHum_t tempAndHum = tempAndHum_create();
+// 	reset_averages(tempAndHum);
+// 	// Assert/Expect
+// 	ASSERT_EQ(2, average_destroy_fake.call_count);
+// 	ASSERT_EQ(4, average_create_fake.call_count);
+// }
+
 TEST_F(TempHumTest, measure_temp_hum_no_args) 
 {
 	// Arrange

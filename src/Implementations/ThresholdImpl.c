@@ -6,7 +6,6 @@ typedef struct threshold
 	uint16_t humidity_threshold;
 	uint16_t light_threshold;
 	uint16_t co2_threshold;
-	//MessageBufferHandle_t downlinkBuffer;
 } threshold;
 
 threshold_t threshold_create(){
@@ -18,7 +17,6 @@ threshold_t threshold_create(){
 	_new_threshold -> humidity_threshold = 1000;
 	_new_threshold -> light_threshold = 180;
 	_new_threshold -> co2_threshold = 1000;
-//	_new_threshold -> downlinkBuffer = *buffer;
 	return _new_threshold;
 }
 void threshold_destroy(threshold_t self){
@@ -26,11 +24,6 @@ void threshold_destroy(threshold_t self){
 		free(self);
 	}
 }
-
-// MessageBufferHandle_t get_message_buffer(threshold_t* thresholds)
-// {
-// 	return (*thresholds)->downlinkBuffer;
-// }
 
 int16_t get_temperature_threshold(threshold_t* thresholds)
 {
