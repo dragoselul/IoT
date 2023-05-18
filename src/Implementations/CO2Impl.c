@@ -1,13 +1,5 @@
 #include "../Headers/CO2.h"
 
-typedef struct co2
-{
-	uint16_t val;
-	float avg_co2;
-	uint8_t measurements;
-	threshold_t threshold;
-} co2;
-
 uint16_t val = 0;
 mh_z19_returnCode_t rc = MHZ19_NO_MEASSURING_AVAILABLE;
 
@@ -15,7 +7,7 @@ void mhz19_callback(uint16_t ppm){
 	val = ppm;
 }
 
-co2_t co2_create(){
+co2_t co2_create(threshold_t* point){
 	co2_t _new_co2 = (co2_t) calloc (1, sizeof(co2));
 	if(NULL == _new_co2)
 		return NULL;
@@ -23,7 +15,7 @@ co2_t co2_create(){
 	mh_z19_injectCallBack(mhz19_callback);
 
 	_new_co2->val = 0;
-	_new_co2->threshold = threshold_create();
+	_new_co2->th_point = point;
 	_new_co2->avg_co2 = 0.0;
 	_new_co2->measurements = 0;
 	return _new_co2;
@@ -71,16 +63,6 @@ void co2_update_average(co2_t self){
 	*/
 	//self->avg_co2 = self->avg_co2 + (self->val - self->avg_co2) / (self->measurements + 1);
 	self->avg_co2 = (self->avg_co2 * self->measurements + self->val) / ++self->measurements;
-}
-
-bool co2_threshold_surpassed(co2_t self){
-	return threshold_surpassed(self->threshold, self->val);
-}
-uint16_t co2_get_threshold(co2_t self){
-	return get_threshold(self->threshold);
-}
-void co2_set_threshold(co2_t self, uint16_t newThreshold){
-	set_threshold(self->threshold, newThreshold);
 }
 
 void log_errors(mh_z19_returnCode_t code){
