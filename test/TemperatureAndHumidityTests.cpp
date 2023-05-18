@@ -28,6 +28,8 @@ FAKE_VOID_FUNC(set_temperature_threshold, threshold_t*, int16_t);
 FAKE_VOID_FUNC(set_humidity_threshold, threshold_t*, uint16_t);
 FAKE_VOID_FUNC(set_light_threshold, threshold_t*, uint16_t);
 FAKE_VOID_FUNC(set_co2_threshold, threshold_t*, uint16_t);
+FAKE_VOID_FUNC(alarm_turn_on);
+FAKE_VOID_FUNC(alarm_turn_off);
 //FAKE_VOID_FUNC(add_to_payload, uint16_t, uint8_t, uint8_t, uint8_t);
 
 class TempHumTest : public ::testing::Test

@@ -58,11 +58,11 @@ void sound_task( void *pvParameters )
 		{
 			if(soundDetection(sound_sensor))
 			{
-				add_to_payload(1, 8,NULL, 2);
+				add_to_payload(1, 8,255, 2);
 			}
 			else
 			{
-				add_to_payload(0, 8,NULL, 2);
+				add_to_payload(0, 8,255, 2);
 			}
 			vTaskDelay(pdMS_TO_TICKS(4000UL)); // 10 ms
 		}

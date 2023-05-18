@@ -58,11 +58,11 @@ void motion_task(void *pvParameters)
 		{
 			if(detecting(motion_sensor))
 			{
-				add_to_payload(1, 8,NULL, 1);
+				add_to_payload(1, 8,255, 1);
 			}
 			else
 			{
-				add_to_payload(0, 8,NULL, 1);
+				add_to_payload(0, 8,255, 1);
 			}
 			vTaskDelay(pdMS_TO_TICKS(4000UL)); // 1000 ms
 		}

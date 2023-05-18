@@ -226,7 +226,7 @@ void lora_downlink_task( void *pvParameters )
 			
 			printf("%d %d %d %d\n", co2, temp, hum, lux);
 			
-			printf("%d %d %d %d\n", get_co2_threshold(&thresholds), get_temperature_threshold(&thresholds), get_humidity_threshold(&thresholds), get_light_threshold(&thresholds));
+			//printf("%d %d %d %d\n", get_co2_threshold(&thresholds), get_temperature_threshold(&thresholds), get_humidity_threshold(&thresholds), get_light_threshold(&thresholds));
 			
 			
 			

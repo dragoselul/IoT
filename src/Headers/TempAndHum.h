@@ -5,8 +5,8 @@
 #include "./Threshold.h"
 #include "ATMEGA_FreeRTOS.h"
 #include "task.h"
-#include "Alarm.h"
-#include "LoRaWAN.h"
+#include "./Alarm.h"
+#include "./LoRaWAN.h"
 
 typedef struct tempAndHum* tempAndHum_t;
 

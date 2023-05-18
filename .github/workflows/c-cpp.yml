@@ -2,7 +2,7 @@ name: C/C++ CI
 
 on:
   push:
-    branches: [master, cleanup-optimization, Motion_Sensor_Test]
+    branches: [master, Create-downlink-functionality, Motion_Sensor_Test]
   pull_request:
     branches: [master]
 

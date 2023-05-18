@@ -5,8 +5,8 @@
 #include "ATMEGA_FreeRTOS.h"
 #include "task.h"
 #include "./Threshold.h"
-#include <status_leds.h>
-#include "LED.h"
+#include "./LED.h"
+#include "./LoRaWAN.h"
 
 typedef struct light* light_t;
 

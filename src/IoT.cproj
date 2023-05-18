@@ -368,6 +368,9 @@
     <Compile Include="Headers\Light.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="Headers\LoRaWAN.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="Headers\MotionSensor.h">
       <SubType>compile</SubType>
     </Compile>
@@ -392,6 +395,9 @@
     <Compile Include="Implementations\LightImpl.c">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="Implementations\LoRaWANHandler.c">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="Implementations\MotionSensorImpl.c">
       <SubType>compile</SubType>
     </Compile>
@@ -402,9 +408,6 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Implementations\ThresholdImpl.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="LoRaWANHandler.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="main.c">

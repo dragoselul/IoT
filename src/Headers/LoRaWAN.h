@@ -1,10 +1,10 @@
 #pragma once
 #include <stddef.h>
 #include <stdio.h>
-#include <ATMEGA_FreeRTOS.h>
-#include <lora_driver.h>
-#include <status_leds.h>
-#include <semphr.h>
+#include "ATMEGA_FreeRTOS.h"
+#include "../drivers/lora_driver.h"
+#include "../drivers/status_leds.h"
+#include "semphr.h"
 #include "./Threshold.h"
 
 void lora_handler_initialise(UBaseType_t, void*, void*);

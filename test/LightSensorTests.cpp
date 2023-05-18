@@ -25,6 +25,8 @@ FAKE_VALUE_FUNC(tsl2591_returnCode_t, tsl2591_getInfraredRaw, uint16_t*);
 FAKE_VALUE_FUNC(tsl2591_returnCode_t, tsl2591_getFullSpectrumRaw, uint16_t*);
 FAKE_VALUE_FUNC(tsl2591_returnCode_t, tsl2591_getCombinedDataRaw, tsl2591_combinedData_t*);
 FAKE_VALUE_FUNC(tsl2591_returnCode_t, tsl2591_getLux, float*);
+FAKE_VOID_FUNC(LED_turn_on);
+FAKE_VOID_FUNC(LED_turn_off);
 //FAKE_VALUE_FUNC(light_t, light_create);
 //FAKE_VOID_FUNC(light_destroy, light_t);
 

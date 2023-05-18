@@ -21,6 +21,7 @@ set(SOURCES_TEST
     TemperatureAndHumidityTests.cpp
     MotionSensorTests.cpp
     LightSensorTests.cpp
+    LoRaWANTests.cpp
     SoundTest.cpp
     ../src/Implementations/SoundImpl.c
     FreeRTOS_defs/FreeRTOS_FFF_MocksDefinitions.cpp
@@ -36,7 +37,6 @@ include_directories(
   FreeRTOS_defs  # Mock and FreeRTOS definitions
   ../src/drivers
   ../src/Headers
-  .../Atmel/Studio/7.0/toolchain/avr8/avr8-gnu-toolchain/avr/include/avr
 )
 
 # Something to 

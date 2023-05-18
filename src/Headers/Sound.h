@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include "ATMEGA_FreeRTOS.h"
 #include "task.h"
+#include "LoRaWAN.h"
 
 typedef struct sound* sound_t;
 
