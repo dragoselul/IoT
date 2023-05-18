@@ -305,7 +305,7 @@
     <Folder Include="FreeRTOS\FreeRTOSTraceDriver\" />
     <Folder Include="FreeRTOS\src\" />
     <Folder Include="Headers" />
-    <Folder Include="Implementations" />
+    <Folder Include="Implementations\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="drivers\.gitignore">
@@ -362,6 +362,9 @@
     <Compile Include="Headers\CO2.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="Headers\Servo.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="Headers\LED.h">
       <SubType>compile</SubType>
     </Compile>
@@ -386,10 +389,10 @@
     <Compile Include="Implementations\AlarmImpl.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="Implementations\LEDImpl.c">
+    <Compile Include="Implementations\CO2Impl.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="Implementations\CO2Impl.c">
+    <Compile Include="Implementations\LEDImpl.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Implementations\LightImpl.c">
@@ -399,6 +402,9 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Implementations\MotionSensorImpl.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Implementations\ServoImpl.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Implementations\SoundImpl.c">

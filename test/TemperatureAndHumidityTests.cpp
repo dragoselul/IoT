@@ -18,16 +18,16 @@ FAKE_VALUE_FUNC(uint16_t, hih8120_getHumidityPercent_x10);
 FAKE_VALUE_FUNC(int16_t, hih8120_getTemperature_x10);
 FAKE_VALUE_FUNC(float, hih8120_getHumidity);
 FAKE_VALUE_FUNC(float, hih8120_getTemperature);
-FAKE_VALUE_FUNC(threshold_t, threshold_create);
-FAKE_VOID_FUNC(threshold_destroy, threshold_t);
-FAKE_VALUE_FUNC(int16_t, get_temperature_threshold, threshold_t*);
-FAKE_VALUE_FUNC(uint16_t, get_humidity_threshold, threshold_t*);
-FAKE_VALUE_FUNC(uint16_t, get_c02_threshold, threshold_t*);
-FAKE_VALUE_FUNC(uint16_t, get_light_threshold, threshold_t*);
-FAKE_VOID_FUNC(set_temperature_threshold, threshold_t*, int16_t);
-FAKE_VOID_FUNC(set_humidity_threshold, threshold_t*, uint16_t);
-FAKE_VOID_FUNC(set_light_threshold, threshold_t*, uint16_t);
-FAKE_VOID_FUNC(set_co2_threshold, threshold_t*, uint16_t);
+// FAKE_VALUE_FUNC(threshold_t, threshold_create);
+// FAKE_VOID_FUNC(threshold_destroy, threshold_t);
+// FAKE_VALUE_FUNC(int16_t, get_temperature_threshold, threshold_t*);
+// FAKE_VALUE_FUNC(uint16_t, get_humidity_threshold, threshold_t*);
+// FAKE_VALUE_FUNC(uint16_t, get_c02_threshold, threshold_t*);
+// FAKE_VALUE_FUNC(uint16_t, get_light_threshold, threshold_t*);
+// FAKE_VOID_FUNC(set_temperature_threshold, threshold_t*, int16_t);
+// FAKE_VOID_FUNC(set_humidity_threshold, threshold_t*, uint16_t);
+// FAKE_VOID_FUNC(set_light_threshold, threshold_t*, uint16_t);
+// FAKE_VOID_FUNC(set_co2_threshold, threshold_t*, uint16_t);
 FAKE_VOID_FUNC(alarm_turn_on);
 FAKE_VOID_FUNC(alarm_turn_off);
 
@@ -71,7 +71,9 @@ TEST_F(TempHumTest, create_is_called_with_arg)
 	tempAndHum_t tempHum = tempAndHum_create(&thresh);
 	// Assert/Expect
 	ASSERT_EQ(1, hih8120_initialise_fake.call_count);
-	ASSERT_TRUE(tempHum!=NULL);
+	//ASSERT_EQ(1, threshold_create_fake.call_count);
+	ASSERT_TRUE((tempHum!=NULL));
+	ASSERT_TRUE((thresh!=NULL));
 }
 
 TEST_F(TempHumTest, destroy_is_called_with_no_arg) 

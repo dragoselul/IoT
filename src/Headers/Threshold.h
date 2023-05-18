@@ -1,3 +1,4 @@
+#pragma once
 #include "stdint-gcc.h"
 #include <stdlib.h>
 #include <stdio.h>
