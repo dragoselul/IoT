@@ -6,6 +6,7 @@
 #include "task.h"
 #include "./Threshold.h"
 #include "Alarm.h"
+#include "Servo.h"
 
 typedef struct co2* co2_t;
 

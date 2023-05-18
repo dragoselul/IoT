@@ -13,7 +13,6 @@
  // Needed for LoRaWAN
 #include <lora_driver.h>
 #include <status_leds.h>
-#include <rc_servo.h>
 
 //Drivers
 #include "./Headers/CO2.h"
@@ -21,6 +20,7 @@
 #include "./Headers/TempAndHum.h"
 #include "./Headers/MotionSensor.h"
 #include "./Headers/Sound.h"
+#include "./Headers/Servo.h"
 #include "display_7seg.h"
 
 // define the tasks
@@ -38,11 +38,6 @@ motion_t motion_sensor;
 sound_t sound_sensor;
 co2_t co2_sensor;
 threshold_t thresholds;
-
-// SERVO JC14 = 0, JC13 = 1
-void rc_servo(uint16_t percentage){
-	rc_servo_setPosition(1, percentage);
-}
 
 /*-----------------------------------------------------------*/
 void initialiseSystem()
