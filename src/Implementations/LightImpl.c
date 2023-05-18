@@ -58,10 +58,11 @@ light_t light_create(threshold_t* point)
 	return _new_light;
 }
 
-void light_destroy(light_t self)
+void light_destroy(light_t* self)
 {
 	if (NULL != self)
 	free(self);
+	tsl2591_destroy();
 }
 
 bool get_light_data(light_t self)
