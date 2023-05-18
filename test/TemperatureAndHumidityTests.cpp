@@ -18,16 +18,6 @@ FAKE_VALUE_FUNC(uint16_t, hih8120_getHumidityPercent_x10);
 FAKE_VALUE_FUNC(int16_t, hih8120_getTemperature_x10);
 FAKE_VALUE_FUNC(float, hih8120_getHumidity);
 FAKE_VALUE_FUNC(float, hih8120_getTemperature);
-// FAKE_VALUE_FUNC(threshold_t, threshold_create);
-// FAKE_VOID_FUNC(threshold_destroy, threshold_t);
-// FAKE_VALUE_FUNC(int16_t, get_temperature_threshold, threshold_t*);
-// FAKE_VALUE_FUNC(uint16_t, get_humidity_threshold, threshold_t*);
-// FAKE_VALUE_FUNC(uint16_t, get_c02_threshold, threshold_t*);
-// FAKE_VALUE_FUNC(uint16_t, get_light_threshold, threshold_t*);
-// FAKE_VOID_FUNC(set_temperature_threshold, threshold_t*, int16_t);
-// FAKE_VOID_FUNC(set_humidity_threshold, threshold_t*, uint16_t);
-// FAKE_VOID_FUNC(set_light_threshold, threshold_t*, uint16_t);
-// FAKE_VOID_FUNC(set_co2_threshold, threshold_t*, uint16_t);
 FAKE_VOID_FUNC(alarm_turn_on);
 FAKE_VOID_FUNC(alarm_turn_off);
 
@@ -64,25 +54,23 @@ TEST_F(TempHumTest, create_is_called_with_no_arg)
 	ASSERT_TRUE(tempHum==NULL);
 }
 
-/*
 TEST_F(TempHumTest, create_is_called_with_arg) 
 {
 	// Arrange
-	threshold_t thresh = threshold_create_fake.return_val;
+	threshold_t thresh = threshold_create();
 	tempAndHum_t tempHum = tempAndHum_create(&thresh);
 	// Assert/Expect
 	ASSERT_EQ(1, hih8120_initialise_fake.call_count);
-	//ASSERT_EQ(1, threshold_create_fake.call_count);
 	ASSERT_TRUE((tempHum!=NULL));
 	ASSERT_TRUE((thresh!=NULL));
-}*/
+}
 
 TEST_F(TempHumTest, destroy_is_called_with_no_arg) 
 {
 	// Arrange
 	tempAndHum_destroy(NULL);
 	// Assert/Expect
-	ASSERT_EQ(1, hih8120_destroy_fake.call_count);
+	ASSERT_EQ(0, hih8120_destroy_fake.call_count);
 }
 
 TEST_F(TempHumTest, destroy_is_called_with_arg) 
@@ -93,57 +81,140 @@ TEST_F(TempHumTest, destroy_is_called_with_arg)
 	tempAndHum_destroy(&tempHum);
 
 	// Assert/Expect
+	ASSERT_EQ(1, hih8120_initialise_fake.call_count);
+	ASSERT_FALSE((tempHum!=NULL));
 	ASSERT_EQ(1, hih8120_destroy_fake.call_count);
+}
+
+TEST_F(TempHumTest, get_averages_no_args) 
+{
+	// Arrange
+	hih8120_getHumidityPercent_x10_fake.return_val = 200;
+	hih8120_getTemperature_x10_fake.return_val = 300;
+	hih8120_wakeup_fake.return_val = HIH8120_OK;
+	hih8120_measure_fake.return_val = HIH8120_OK;
+	threshold_t thresh = threshold_create();
+	tempAndHum_t tempHum = tempAndHum_create(&thresh);
+	bool measure_successfully = measure_temp_hum(tempHum);
+	// Assert/Expect
+	ASSERT_TRUE(measure_successfully);
+	ASSERT_EQ(0, get_average_temp(NULL));
+	ASSERT_EQ(0, get_average_hum(NULL));
+}
+
+TEST_F(TempHumTest, get_averages_args) 
+{
+	// Arrange
+	hih8120_getHumidityPercent_x10_fake.return_val = 200;
+	hih8120_getTemperature_x10_fake.return_val = 300;
+	hih8120_wakeup_fake.return_val = HIH8120_OK;
+	hih8120_measure_fake.return_val = HIH8120_OK;
+	threshold_t thresh = threshold_create();
+	tempAndHum_t tempHum = tempAndHum_create(&thresh);
+	bool measure_successfully = measure_temp_hum(tempHum);
+	// Assert/Expect
+	ASSERT_TRUE(measure_successfully);
+	ASSERT_EQ(300, get_average_temp(tempHum));
+	ASSERT_EQ(200, get_average_hum(tempHum));
 }
 
 TEST_F(TempHumTest, update_averages_no_args) 
 {
 	// Arrange
+	hih8120_getHumidityPercent_x10_fake.return_val = 200;
+	hih8120_getTemperature_x10_fake.return_val = 300;
+	hih8120_wakeup_fake.return_val = HIH8120_OK;
+	hih8120_measure_fake.return_val = HIH8120_OK;
 	threshold_t thresh = threshold_create();
 	tempAndHum_t tempHum = tempAndHum_create(&thresh);
+	bool measure_successfully = measure_temp_hum(tempHum);
+	ASSERT_TRUE(measure_successfully);
+	ASSERT_EQ(300, get_average_temp(tempHum));
+	ASSERT_EQ(200, get_average_hum(tempHum));
+
 	update_averages(NULL);
+
 	// Assert/Expect
-	ASSERT_EQ(0, get_average_temp(tempHum));
-	ASSERT_EQ(0, get_average_hum(tempHum));
+	ASSERT_EQ(300, get_average_temp(tempHum));
+	ASSERT_EQ(200, get_average_hum(tempHum));
 }
 
 TEST_F(TempHumTest, update_averages_args) 
 {
 	// Arrange
+	hih8120_getHumidityPercent_x10_fake.return_val = 200;
+	hih8120_getTemperature_x10_fake.return_val = 300;
+	hih8120_wakeup_fake.return_val = HIH8120_OK;
+	hih8120_measure_fake.return_val = HIH8120_OK;
 	threshold_t thresh = threshold_create();
 	tempAndHum_t tempHum = tempAndHum_create(&thresh);
-	ASSERT_EQ(0, get_average_temp(tempHum));
-	ASSERT_EQ(0, get_average_hum(tempHum));
+	bool measure_successfully = measure_temp_hum(tempHum);
+
+	ASSERT_TRUE(measure_successfully);
+	ASSERT_EQ(300, get_average_temp(tempHum));
+	ASSERT_EQ(200, get_average_hum(tempHum));
+
+	hih8120_getHumidityPercent_x10_fake.return_val = 400;
+	hih8120_getTemperature_x10_fake.return_val = 100;
+	measure_successfully = measure_temp_hum(tempHum);
+	ASSERT_TRUE(measure_successfully);
+
 	update_averages(tempHum);
+
+	// Assert/Expect
+	ASSERT_EQ(100, get_average_temp(tempHum));
+	ASSERT_EQ(400, get_average_hum(tempHum));
+}
+
+TEST_F(TempHumTest, reset_averages_no_args) 
+{
+	// Arrange
+	hih8120_getHumidityPercent_x10_fake.return_val = 200;
+	hih8120_getTemperature_x10_fake.return_val = 300;
+	hih8120_wakeup_fake.return_val = HIH8120_OK;
+	hih8120_measure_fake.return_val = HIH8120_OK;
+	threshold_t thresh = threshold_create();
+	tempAndHum_t tempHum = tempAndHum_create(&thresh);
+	bool measure_successfully = measure_temp_hum(tempHum);
+
+	ASSERT_TRUE(measure_successfully);
+	ASSERT_EQ(300, get_average_temp(tempHum));
+	ASSERT_EQ(200, get_average_hum(tempHum));
+	reset_averages(NULL);
+	// Assert/Expect
+	ASSERT_EQ(300, get_average_temp(tempHum));
+	ASSERT_EQ(200, get_average_hum(tempHum));
+}
+
+TEST_F(TempHumTest, reset_averages_args) 
+{
+	// Arrange
+	hih8120_getHumidityPercent_x10_fake.return_val = 200;
+	hih8120_getTemperature_x10_fake.return_val = 300;
+	hih8120_wakeup_fake.return_val = HIH8120_OK;
+	hih8120_measure_fake.return_val = HIH8120_OK;
+	threshold_t thresh = threshold_create();
+	tempAndHum_t tempHum = tempAndHum_create(&thresh);
+	bool measure_successfully = measure_temp_hum(tempHum);
+
+	ASSERT_TRUE(measure_successfully);
+	ASSERT_EQ(300, get_average_temp(tempHum));
+	ASSERT_EQ(200, get_average_hum(tempHum));
+	reset_averages(tempHum);
 	// Assert/Expect
 	ASSERT_EQ(0, get_average_temp(tempHum));
 	ASSERT_EQ(0, get_average_hum(tempHum));
-	//ASSERT_EQ(2, calculate_average_fake.call_count);
 }
-
-// TEST_F(TempHumTest, reset_averages_no_args) 
-// {
-// 	// Arrange
-// 	reset_averages(NULL);
-// 	// Assert/Expect
-// 	ASSERT_EQ(0, average_destroy_fake.call_count);
-// 	ASSERT_EQ(0, average_create_fake.call_count);
-// }
-
-// TEST_F(TempHumTest, reset_averages_args) 
-// {
-// 	// Arrange
-// 	tempAndHum_t tempAndHum = tempAndHum_create();
-// 	reset_averages(tempAndHum);
-// 	// Assert/Expect
-// 	ASSERT_EQ(2, average_destroy_fake.call_count);
-// 	ASSERT_EQ(4, average_create_fake.call_count);
-// }
 
 TEST_F(TempHumTest, measure_temp_hum_no_args) 
 {
 	// Arrange
 	ASSERT_FALSE(measure_temp_hum(NULL));
+	ASSERT_EQ(0, hih8120_wakeup_fake.call_count);
+	ASSERT_EQ(0, vTaskDelay_fake.call_count);
+	ASSERT_EQ(0, hih8120_measure_fake.call_count);
+	ASSERT_EQ(0, hih8120_getHumidityPercent_x10_fake.call_count);
+	ASSERT_EQ(0, hih8120_getTemperature_x10_fake.call_count);
 }
 
 TEST_F(TempHumTest, measure_temp_hum_args) 
@@ -170,10 +241,30 @@ TEST_F(TempHumTest, get_average_hum_no_args)
 TEST_F(TempHumTest, get_average_hum_args_without_measurement) 
 {
 	// Arrange
+	hih8120_getHumidityPercent_x10_fake.return_val = 200;
+	hih8120_getTemperature_x10_fake.return_val = 300;
+	hih8120_wakeup_fake.return_val = HIH8120_OK;
+	hih8120_measure_fake.return_val = HIH8120_OK;
 	threshold_t thresh = threshold_create();
 	tempAndHum_t tempHum = tempAndHum_create(&thresh);
 	// Assert/Expect
 	ASSERT_EQ(0,get_average_hum(tempHum));
+}
+
+TEST_F(TempHumTest, get_average_hum_args_with_measurement) 
+{
+	// Arrange
+	hih8120_getHumidityPercent_x10_fake.return_val = 200;
+	hih8120_getTemperature_x10_fake.return_val = 300;
+	hih8120_wakeup_fake.return_val = HIH8120_OK;
+	hih8120_measure_fake.return_val = HIH8120_OK;
+	threshold_t thresh = threshold_create();
+	tempAndHum_t tempHum = tempAndHum_create(&thresh);
+	bool measure_successfully = measure_temp_hum(tempHum);
+
+	ASSERT_TRUE(measure_successfully);
+	// Assert/Expect
+	ASSERT_EQ(200,get_average_hum(tempHum));
 }
 
 TEST_F(TempHumTest, get_average_temp_no_args) 
@@ -185,10 +276,30 @@ TEST_F(TempHumTest, get_average_temp_no_args)
 TEST_F(TempHumTest, get_average_temp_args_without_measurement) 
 {
 	// Arrange
+	hih8120_getHumidityPercent_x10_fake.return_val = 200;
+	hih8120_getTemperature_x10_fake.return_val = 300;
+	hih8120_wakeup_fake.return_val = HIH8120_OK;
+	hih8120_measure_fake.return_val = HIH8120_OK;
 	threshold_t thresh = threshold_create();
 	tempAndHum_t tempHum = tempAndHum_create(&thresh);
 	// Assert/Expect
 	ASSERT_EQ(0,get_average_temp(tempHum));
+}
+
+TEST_F(TempHumTest, get_average_temp_args_with_measurement) 
+{
+	// Arrange
+	hih8120_getHumidityPercent_x10_fake.return_val = 200;
+	hih8120_getTemperature_x10_fake.return_val = 300;
+	hih8120_wakeup_fake.return_val = HIH8120_OK;
+	hih8120_measure_fake.return_val = HIH8120_OK;
+	threshold_t thresh = threshold_create();
+	tempAndHum_t tempHum = tempAndHum_create(&thresh);
+	bool measure_successfully = measure_temp_hum(tempHum);
+
+	ASSERT_TRUE(measure_successfully);
+	// Assert/Expect
+	ASSERT_EQ(300,get_average_temp(tempHum));
 }
 
 TEST_F(TempHumTest, create_temp_hum_task_no_args) 

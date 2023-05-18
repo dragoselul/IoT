@@ -30,9 +30,12 @@ tempAndHum_t tempAndHum_create(threshold_t* point)
 
 void tempAndHum_destroy(tempAndHum_t* self)
 {
-	hih8120_destroy();
-	if (NULL != self)
-	free(*self);
+	if (self != NULL && *self != NULL)
+    {
+		hih8120_destroy();
+		free(*self);
+		*self = NULL;
+	}
 }
 
 void update_averages(tempAndHum_t self){
@@ -119,7 +122,6 @@ void temp_hum_task( void *pvParameters )
 	{
 		if(measure_temp_hum(temp_hum))
 		{
-			//comment the payloads if you want to test them.
 			add_to_payload(get_average_temp(temp_hum),2,3,255);
 			add_to_payload(get_average_hum(temp_hum),4,5,255);
 			
