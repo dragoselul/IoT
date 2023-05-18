@@ -1,3 +1,4 @@
+#pragma once
 #include "stdint.h"
 #include "mh_z19.h"
 #include <stdlib.h>
@@ -7,6 +8,7 @@
 #include "./Threshold.h"
 #include "Alarm.h"
 #include "Servo.h"
+#include "LoRaWAN.h"
 
 typedef struct co2* co2_t;
 

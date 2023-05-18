@@ -14,12 +14,12 @@ extern "C"
 FAKE_VOID_FUNC(mh_z19_initialise, serial_comPort_t);
 FAKE_VALUE_FUNC(mh_z19_returnCode_t, mh_z19_getCo2Ppm, uint16_t*);
 FAKE_VALUE_FUNC(mh_z19_returnCode_t, mh_z19_takeMeassuring);
-//FAKE_VALUE_FUNC(threshold_t, threshold_create);
-//FAKE_VOID_FUNC(threshold_destroy, threshold_t);
-//FAKE_VOID_FUNC(set_co2_threshold, threshold_t*, uint16_t);
-//FAKE_VALUE_FUNC(uint16_t, get_c02_threshold, threshold_t*);
-//FAKE_VOID_FUNC(alarm_turn_on);
-//FAKE_VOID_FUNC(alarm_turn_off);
+// FAKE_VALUE_FUNC(threshold_t, threshold_create);
+// FAKE_VOID_FUNC(threshold_destroy, threshold_t);
+// FAKE_VOID_FUNC(set_co2_threshold, threshold_t*, uint16_t);
+// FAKE_VALUE_FUNC(uint16_t, get_c02_threshold, threshold_t*);
+// FAKE_VOID_FUNC(alarm_turn_on);
+// FAKE_VOID_FUNC(alarm_turn_off);
 FAKE_VOID_FUNC(rc_servo, uint16_t);
 
 // FAKE_VOID_FUNC(set_temperature_threshold, threshold_t*, int16_t);
@@ -51,18 +51,18 @@ class Co2Test: public ::testing::Test
         {}
 };
 
-/*
+
 TEST_F(Co2Test, create_is_called)
 {
     // Arange
-    threshold_t threhsold = threshold_create();
-    co2_t co2 = co2_create(&threshold);
+    threshold_t thresh = threshold_create();
+    co2_t co2 = co2_create(&thresh);
 
     // Assert/Expect
     ASSERT_EQ(1, mh_z19_initialise_fake.call_count);
-    ASSERT_EQ(1, threshold_create_fake.call_count);
+   // ASSERT_EQ(1, threshold_create_fake.call_count);
     ASSERT_TRUE(co2 != NULL);
-    ASSERT_TRUE(threshold != NULL);
+  //  ASSERT_TRUE(threshold != NULL);
 }
  
 TEST_F(Co2Test, struct_has_default_values_after_create)
@@ -73,10 +73,10 @@ TEST_F(Co2Test, struct_has_default_values_after_create)
 
     // Assert/Expect
     ASSERT_TRUE(co2 != NULL);
-    ASSERT_TRUE(co2->val == 0);
-    ASSERT_TRUE(co2->avg_co2 == 0.0);
-    ASSERT_TRUE(co2->measurements == 0);
-    ASSERT_TRUE(co2->th_point == &threshold);
+   // ASSERT_TRUE(co2->val == 0);
+   // ASSERT_TRUE(co2->avg_co2 == 0.0);
+   // ASSERT_TRUE(co2->measurements == 0);
+   // ASSERT_TRUE(co2->th_point == &threshold);
 }
 
 TEST_F(Co2Test, destroy_is_called)
@@ -96,14 +96,12 @@ TEST_F(Co2Test, get_data_after_measure)
     threshold_t threshold = threshold_create();
     co2_t co2 = co2_create(&threshold);
 
-    uint16_t old_val = co2->val;
+  //  uint16_t old_val = co2->val;
     
     
     // Assert/Expect
     ASSERT_EQ(1, mh_z19_takeMeassuring_fake.call_count);
 
     // Check if value is changed
-    ASSERT_NE(old_val, co2->val);
+  //  ASSERT_NE(old_val, co2->val);
 }
-
-*/

@@ -1,4 +1,5 @@
 #include "../Headers/CO2.h"
+#include "../Headers/Threshold.h"
 
 typedef struct co2
 {
@@ -97,7 +98,7 @@ void co2_task( void* pvParameters)
 		{
 			alarm_turn_on();
 			rc_servo(100);
-			add_to_payload(1,8,NULL,0);
+			add_to_payload(1,8,255,0);
 			
 			// START SERVO
 			printf("CO2 Threshold surpassed : %d \n", co2_sensor->val);
@@ -107,7 +108,7 @@ void co2_task( void* pvParameters)
 			alarm_turn_off();
 			rc_servo(-100);
 		}	
-		add_to_payload(co2_get_average(co2_sensor), 0,1, NULL);
+		add_to_payload(co2_get_average(co2_sensor), 0,1, 255);
 		vTaskDelay(pdMS_TO_TICKS(4000UL)); // 500 ms
 	}
 }
