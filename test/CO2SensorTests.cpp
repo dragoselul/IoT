@@ -59,7 +59,7 @@ TEST_F(Co2Test, create_is_called)
   //  ASSERT_TRUE(threshold != NULL);
 }
 
-/*
+
 TEST_F(Co2Test, struct_has_default_values_after_create)
 {
     // Arange
@@ -68,11 +68,11 @@ TEST_F(Co2Test, struct_has_default_values_after_create)
 
     // Assert/Expect
     ASSERT_TRUE(co2 != NULL);
-    //ASSERT_TRUE(co2->val == 0);
-    //ASSERT_TRUE(co2->avg_co2 == 0.0);
-    //ASSERT_TRUE(co2->measurements == 0);
-    //ASSERT_TRUE(co2->th_point == &threshold);
-}*/
+    ASSERT_TRUE(co2->val == 0);
+    ASSERT_TRUE(co2->avg_co2 == 0.0);
+    ASSERT_TRUE(co2->measurements == 0);
+    ASSERT_TRUE(co2->th_point == &threshold);
+}
 
 /*
 TEST_F(Co2Test, destroy_is_called)
@@ -93,15 +93,10 @@ TEST_F(Co2Test, measurement_taken_when_get_data_called)
     threshold_t threshold = threshold_create();
     co2_t co2 = co2_create(&threshold);
 
-  //  uint16_t old_val = co2->val;
-
     co2_get_data(co2);
         
     // Assert/Expect
     ASSERT_EQ(1, mh_z19_takeMeassuring_fake.call_count);
-
-    // Check if value is changed
-    // ASSERT_NE(old_val, co2->val);
 }
 
 // NOT DONE

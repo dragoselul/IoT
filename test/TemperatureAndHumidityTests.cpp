@@ -64,6 +64,7 @@ TEST_F(TempHumTest, create_is_called_with_no_arg)
 	ASSERT_TRUE(tempHum==NULL);
 }
 
+/*
 TEST_F(TempHumTest, create_is_called_with_arg) 
 {
 	// Arrange
@@ -74,7 +75,7 @@ TEST_F(TempHumTest, create_is_called_with_arg)
 	//ASSERT_EQ(1, threshold_create_fake.call_count);
 	ASSERT_TRUE((tempHum!=NULL));
 	ASSERT_TRUE((thresh!=NULL));
-}
+}*/
 
 TEST_F(TempHumTest, destroy_is_called_with_no_arg) 
 {

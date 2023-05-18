@@ -1,14 +1,6 @@
 #include "../Headers/CO2.h"
 #include "../Headers/Threshold.h"
 
-typedef struct co2
-{
-	uint16_t val;
-	float avg_co2;
-	uint8_t measurements;
-	threshold_t* th_point;
-} co2;
-
 mh_z19_returnCode_t rc;
 
 
