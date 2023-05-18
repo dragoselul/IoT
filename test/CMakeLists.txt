@@ -22,12 +22,14 @@ set(SOURCES_TEST
     LightSensorTests.cpp
     LoRaWANTests.cpp
     SoundTest.cpp
+    CO2SensorTest.cpp
     ../src/Implementations/SoundImpl.c
     FreeRTOS_defs/FreeRTOS_FFF_MocksDefinitions.cpp
     ../src/Implementations/TempAndHumImpl.c
     ../src/Implementations/LightImpl.c
     ../src/Implementations/MotionSensorImpl.c
     ../src/Implementations/LoRaWANHandler.c
+    ../src/Implementations/CO2Impl.c
     ${SRCS}
 )
 
