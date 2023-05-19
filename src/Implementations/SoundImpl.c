@@ -21,11 +21,13 @@ bool get_sound_gate_state()
 void sound_destroy(sound_t self)
 {
 	if (NULL != self)
-	free(self);
+		free(self);
 }
 
 bool soundDetection(sound_t self)
 {
+	if(self == NULL)
+		return false;
 	self->_sound = sen14262_envelope();
 	if (self->_sound > 0)
 	{
@@ -39,6 +41,8 @@ bool soundDetection(sound_t self)
 
 void create_sound_task(sound_t* self)
 {
+	if(self == NULL)
+		return;
 	xTaskCreate(
 	sound_task
 	,  "Sound sensor task"

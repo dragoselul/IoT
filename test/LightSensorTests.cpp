@@ -35,6 +35,10 @@ class LightTest : public ::testing::Test
 protected:
 	void SetUp() override
 	{
+        RESET_FAKE(xTaskCreate);
+		RESET_FAKE(xTaskGetTickCount);
+		RESET_FAKE(xTaskDelayUntil);
+		RESET_FAKE(vTaskDelay);
         RESET_FAKE(tsl2591_initialise);
         RESET_FAKE(tsl2591_destroy);
         RESET_FAKE(tsl2591_enable);
