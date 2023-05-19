@@ -22,6 +22,7 @@ FAKE_VOID_FUNC(set_humidity_threshold, threshold_t*, uint16_t);
 FAKE_VOID_FUNC(set_light_threshold, threshold_t*, uint16_t);
 FAKE_VOID_FUNC(set_co2_threshold, threshold_t*, uint16_t);
 */
+
 FAKE_VALUE_FUNC(uint8_t ,lora_driver_getMaxPayloadSize);
 FAKE_VOID_FUNC(lora_driver_initialise, serial_comPort_t, MessageBufferHandle_t);
 FAKE_VALUE_FUNC(lora_driver_returnCode_t, lora_driver_setOtaaIdentity, char*, char*, char*);
@@ -59,6 +60,7 @@ protected:
 		RESET_FAKE(xTaskGetTickCount);
 		RESET_FAKE(xTaskDelayUntil);
 		RESET_FAKE(vTaskDelay);
+		RESET_FAKE(xSemaphoreTake);
 		RESET_FAKE(lora_driver_getMaxPayloadSize);
 		RESET_FAKE(lora_driver_initialise);
 		RESET_FAKE(lora_driver_setOtaaIdentity);
@@ -102,10 +104,114 @@ TEST_F(LoRaWANTest, tasks_created_after_intiliase_called){
 	ASSERT_EQ(2, xTaskCreate_fake.call_count);
 }
 
-TEST_F(LoRaWANTest, create_is_called) 
+TEST_F(LoRaWANTest, payload_correct_when_inserting_co2) 
 {
 	// Arrange
+	uint16_t co2 = 800;
+	xSemaphoreTake_fake.return_val = true;
+
+	add_to_payload(co2, 0, 1, 255);
+	lora_driver_payload_t payload = get_uplink_payload();
+	uint8_t bytes[sizeof(payload.bytes)];
+	memcpy(bytes, payload.bytes, sizeof(payload.bytes));
 
 	// Assert/Expect
-	ASSERT_EQ(1, 1);
+	ASSERT_EQ(800, (uint16_t)(bytes[0]) << 8 | bytes[1]);
+}
+
+TEST_F(LoRaWANTest, payload_correct_when_inserting_temperature) 
+{
+	// Arrange
+	uint16_t temperature = 250;
+	xSemaphoreTake_fake.return_val = true;
+	add_to_payload(temperature, 2, 3, 255);
+	lora_driver_payload_t payload = get_uplink_payload();
+	uint8_t bytes[sizeof(payload.bytes)];
+	memcpy(bytes, payload.bytes, sizeof(payload.bytes));
+
+	// Assert/Expect
+	ASSERT_EQ(250, (uint16_t)(bytes[2]) << 8 | bytes[3]);
+}
+
+TEST_F(LoRaWANTest, payload_correct_when_inserting_humidity) 
+{
+	// Arrange
+	uint16_t humidity = 250;
+	xSemaphoreTake_fake.return_val = true;
+	add_to_payload(humidity, 4, 5, 255);
+	lora_driver_payload_t payload = get_uplink_payload();
+	uint8_t bytes[sizeof(payload.bytes)];
+	memcpy(bytes, payload.bytes, sizeof(payload.bytes));
+
+	// Assert/Expect
+	ASSERT_EQ(250, (uint16_t)(bytes[4]) << 8 | bytes[5]);
+}
+
+TEST_F(LoRaWANTest, payload_correct_when_inserting_light) 
+{
+	// Arrange
+	uint16_t light = 250;
+	xSemaphoreTake_fake.return_val = true;
+	add_to_payload(light, 6, 7, 255);
+	lora_driver_payload_t payload = get_uplink_payload();
+	uint8_t bytes[sizeof(payload.bytes)];
+	memcpy(bytes, payload.bytes, sizeof(payload.bytes));
+
+	// Assert/Expect
+	ASSERT_EQ(250, (uint16_t)(bytes[6]) << 8 | bytes[7]);
+}
+
+TEST_F(LoRaWANTest, payload_correct_when_setting_open_door_true) 
+{
+	// Arrange
+	xSemaphoreTake_fake.return_val = true;
+	add_to_payload(1,8,255,0);
+	lora_driver_payload_t payload = get_uplink_payload();
+	uint8_t bytes[sizeof(payload.bytes)];
+	memcpy(bytes, payload.bytes, sizeof(payload.bytes));
+
+	// Assert/Expect
+	ASSERT_TRUE((bool)(bytes[8] & (1 << 0)) != 0);
+}
+
+TEST_F(LoRaWANTest, payload_correct_when_setting_motion_true) 
+{
+	// Arrange
+	xSemaphoreTake_fake.return_val = true;
+	add_to_payload(1,8,255,1);
+	lora_driver_payload_t payload = get_uplink_payload();
+	uint8_t bytes[sizeof(payload.bytes)];
+	memcpy(bytes, payload.bytes, sizeof(payload.bytes));
+
+	printf("%d", bytes[8]);
+	// Assert/Expect
+	ASSERT_TRUE((bool)(bytes[8] & (1 << 1)) != 0);
+}
+
+TEST_F(LoRaWANTest, payload_correct_when_setting_sound_true) 
+{
+	// Arrange
+	xSemaphoreTake_fake.return_val = true;
+	add_to_payload(1,8,255,2);
+	lora_driver_payload_t payload = get_uplink_payload();
+	uint8_t bytes[sizeof(payload.bytes)];
+	memcpy(bytes, payload.bytes, sizeof(payload.bytes));
+
+	printf("%d", bytes[8]);
+	// Assert/Expect
+	ASSERT_TRUE((bool)(bytes[8] & (1 << 2)) != 0);
+}
+
+TEST_F(LoRaWANTest, payload_correct_when_setting_alarm_true) 
+{
+	// Arrange
+	xSemaphoreTake_fake.return_val = true;
+	add_to_payload(1,8,255,3);
+	lora_driver_payload_t payload = get_uplink_payload();
+	uint8_t bytes[sizeof(payload.bytes)];
+	memcpy(bytes, payload.bytes, sizeof(payload.bytes));
+
+	printf("%d", bytes[8]);
+	// Assert/Expect
+	ASSERT_TRUE((bool)(bytes[8] & (1 << 3)) != 0);
 }

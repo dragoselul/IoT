@@ -129,6 +129,7 @@ void add_to_payload(uint16_t data, uint8_t byte_pos1, uint8_t byte_pos2, uint8_t
 		puts("Lux writing payload\n");
 		if(byte_pos1 == 8)
 		{
+			/*
 			if(bit_pos == 0)
 			puts("Servo changing bit\n");
 			if(bit_pos == 1)
@@ -137,7 +138,9 @@ void add_to_payload(uint16_t data, uint8_t byte_pos1, uint8_t byte_pos2, uint8_t
 			puts("Sound changing bit\n");
 			if(bit_pos == 3)
 			puts("Alarm changing bit\n");
+			*/
 			_uplink_payload.bytes[byte_pos1] = data>>bit_pos;
+			printf("%d", _uplink_payload.bytes[byte_pos1]);
 		}
 		else
 		{
@@ -223,4 +226,12 @@ void lora_downlink_task( void *pvParameters )
 			printf("%d %d %d %d %d\n", get_co2_threshold(&thresholds), get_temperature_threshold(&thresholds), get_humidity_threshold(&thresholds), get_light_threshold(&thresholds), get_automatic_lights(&thresholds));
 		}
 	}
+}
+
+lora_driver_payload_t get_downlink_payload(){
+	return _downlink_payload;
+}
+
+lora_driver_payload_t get_uplink_payload(){
+	return _uplink_payload;
 }
