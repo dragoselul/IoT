@@ -64,7 +64,7 @@ void light_destroy(light_t* self)
 {
 	if (self != NULL && *self != NULL)
     {
-		free(self);
+		free(*self);	
 		tsl2591_destroy();
 	}
 }
@@ -92,11 +92,15 @@ uint16_t get_tmp(light_t self)
 {
 	if(self == NULL)
 		return 0;
+	if(self->_tmp < 0)
+		return 0;
 	return self->_tmp;
 }
 uint16_t get_lux(light_t self)
 {
-	if(self->_lux < 0 || self == NULL)
+	if(self == NULL)
+		return 0;
+	if(self->_lux < 0)
 		return 0;
 	return (uint16_t)self->_lux;
 }

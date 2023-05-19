@@ -40,27 +40,23 @@ TEST_F(MotionTest, create_is_called){
 }
 TEST_F(MotionTest, destroy_is_called){
     // Arrange
-    volatile uint8_t mockport = 0x01;
-    uint8_t mockPortPin = 3;
-    hcsr501_p sensor = hcsr501_create(&mockport, mockPortPin);
-	// Act
-    motion_t motion = motion_create(sensor);
-    motion_destroy(motion);
+    hcsr501_p fakeHCSR501 = (hcsr501_p)calloc(1, sizeof(hcsr501_p));
+    motion_t motion = motion_create(fakeHCSR501);
+
+    motion_destroy(&motion);
     // Assert/Expect
     ASSERT_EQ(1, hcsr501_destroy_fake.call_count);
 }
 TEST_F(MotionTest, detecting_is_called_with_no_args){
     ASSERT_FALSE(detecting(NULL));
-    ASSERT_EQ(1, hcsr501_isDetecting_fake.call_count);
+    ASSERT_EQ(0, hcsr501_isDetecting_fake.call_count);
     // Assert/Expect
 }
 TEST_F(MotionTest, detecting_is_called_with_args){
     // Arrange
-    volatile uint8_t mockport = 0x01;
-    uint8_t mockPortPin = 3;
-    hcsr501_p sensor = hcsr501_create(&mockport, mockPortPin);
+    hcsr501_p fakeHCSR501 = (hcsr501_p)calloc(1, sizeof(hcsr501_p));
 	// Act
-    motion_t motion = motion_create(sensor);
+    motion_t motion = motion_create(fakeHCSR501);
     hcsr501_isDetecting_fake.return_val = true;
     // Asser/Expect
     ASSERT_TRUE(detecting(motion));
