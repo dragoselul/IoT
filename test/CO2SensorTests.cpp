@@ -83,21 +83,6 @@ TEST_F(Co2Test, struct_has_default_values_after_create)
   ASSERT_TRUE(co2->th_point == &threshold);
 }
 
-// TESTS for co2_destroy() function
-
-/*
-TEST_F(Co2Test, destroy_is_called)
-{
-    // Arrange
-    threshold_t threshold = threshold_create();
-    co2_t co2 = co2_create(&threshold);
-    co2_destroy(co2);
-
-    // Assert/Expect
-    ASSERT_EQ(NULL, &co2);
-}
-*/
-
 // TEST THAT GET_DATA RETURNS TRUE IF THERE IS A MEASURING AVAILABLE
 TEST_F(Co2Test, get_data_after_successful_measure)
 {
@@ -199,6 +184,17 @@ TEST_F(Co2Test, door_closed_after_threshold_not_surpassed){
 
   // Assert/Expect
   ASSERT_EQ(1, close_door_fake.call_count);
+}
+
+TEST_F(Co2Test, get_average_returns_average)
+{
+    // Arrange
+    threshold_t threshold = threshold_create();
+    co2_t co2 = co2_create(&threshold);
+    co2->avg_co2 = 100;
+
+    // Assert/Expect
+    ASSERT_EQ(100, co2_get_average(co2));
 }
 
 // TEST IF THE AVERAGE IS CORRECTLY CALCULATED AFTER A MEASURE
