@@ -20,7 +20,13 @@ class MotionTest : public ::testing::Test
 protected:
 	void SetUp() override
 	{
+        RESET_FAKE(xTaskCreate);
+		RESET_FAKE(xTaskGetTickCount);
+		RESET_FAKE(xTaskDelayUntil);
+		RESET_FAKE(vTaskDelay);
         RESET_FAKE(hcsr501_create);
+        RESET_FAKE(hcsr501_destroy);
+        RESET_FAKE(hcsr501_isDetecting);
 		FFF_RESET_HISTORY();
 	}
 	void TearDown() override
