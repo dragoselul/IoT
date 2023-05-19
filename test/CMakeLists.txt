@@ -31,7 +31,6 @@ set(SOURCES_TEST
     ../src/Implementations/LoRaWANHandler.c
     ../src/Implementations/CO2Impl.c
     ../src/Implementations/ThresholdImpl.c
-   # ../src/Implementations/AlarmImpl.c
     ${SRCS}
 )
 
