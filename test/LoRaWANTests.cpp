@@ -9,19 +9,6 @@ extern "C"
 	#include "../src/Headers/Threshold.h"
 }
 
-/*
-FAKE_VALUE_FUNC(threshold_t, threshold_create);
-FAKE_VOID_FUNC(threshold_destroy, threshold_t);
-FAKE_VALUE_FUNC(int16_t, get_temperature_threshold, threshold_t*);
-FAKE_VALUE_FUNC(uint16_t, get_humidity_threshold, threshold_t*);
-FAKE_VALUE_FUNC(uint16_t, get_c02_threshold, threshold_t*);
-FAKE_VALUE_FUNC(uint16_t, get_light_threshold, threshold_t*);
-
-FAKE_VOID_FUNC(set_temperature_threshold, threshold_t*, int16_t);
-FAKE_VOID_FUNC(set_humidity_threshold, threshold_t*, uint16_t);
-FAKE_VOID_FUNC(set_light_threshold, threshold_t*, uint16_t);
-FAKE_VOID_FUNC(set_co2_threshold, threshold_t*, uint16_t);
-*/
 FAKE_VALUE_FUNC(uint8_t ,lora_driver_getMaxPayloadSize);
 FAKE_VOID_FUNC(lora_driver_initialise, serial_comPort_t, MessageBufferHandle_t);
 FAKE_VALUE_FUNC(lora_driver_returnCode_t, lora_driver_setOtaaIdentity, char*, char*, char*);
@@ -108,4 +95,24 @@ TEST_F(LoRaWANTest, create_is_called)
 
 	// Assert/Expect
 	ASSERT_EQ(1, 1);
+}
+
+TEST_F(LoRaWANTest, lora_setup_called) 
+{
+	// Arrange
+	lora_driver_join_fake.return_val = LORA_ACCEPTED;
+	_lora_setup();
+	// Assert/Expect
+	ASSERT_EQ(lora_driver_rn2483FactoryReset_fake.call_count, 1);
+	ASSERT_EQ(lora_driver_mapReturnCodeToText_fake.call_count,9);
+	ASSERT_EQ(lora_driver_configureToEu868_fake.call_count, 1);
+	ASSERT_EQ(lora_driver_getRn2483Hweui_fake.call_count, 1);
+	ASSERT_EQ(lora_driver_setDeviceIdentifier_fake.call_count, 1);
+	ASSERT_EQ(lora_driver_setOtaaIdentity_fake.call_count, 1);
+	ASSERT_EQ(lora_driver_saveMac_fake.call_count, 1);
+	ASSERT_EQ(lora_driver_setAdaptiveDataRate_fake.call_count, 1);
+	ASSERT_EQ(lora_driver_setReceiveDelay_fake.call_count, 1);
+	ASSERT_EQ(lora_driver_join_fake.call_count, 1);
+	ASSERT_EQ(status_leds_slowBlink_fake.call_count, 1);
+	ASSERT_EQ(status_leds_ledOn_fake.call_count, 1);
 }
