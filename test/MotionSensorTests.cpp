@@ -51,6 +51,7 @@ TEST_F(MotionTest, destroy_is_called){
 }
 TEST_F(MotionTest, detecting_is_called_with_no_args){
     ASSERT_FALSE(detecting(NULL));
+    ASSERT_EQ(1, hcsr501_isDetecting_fake.call_count);
     // Assert/Expect
 }
 TEST_F(MotionTest, detecting_is_called_with_args){
@@ -60,6 +61,8 @@ TEST_F(MotionTest, detecting_is_called_with_args){
     hcsr501_p sensor = hcsr501_create(&mockport, mockPortPin);
 	// Act
     motion_t motion = motion_create(sensor);
+    hcsr501_isDetecting_fake.return_val = true;
     // Asser/Expect
     ASSERT_TRUE(detecting(motion));
+    ASSERT_EQ(1, hcsr501_isDetecting_fake.call_count);
 }
