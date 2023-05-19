@@ -6,6 +6,7 @@ typedef struct threshold
 	uint16_t humidity_threshold;
 	uint16_t light_threshold;
 	uint16_t co2_threshold;
+	bool automatic_lights;
 } threshold;
 
 threshold_t threshold_create(){
@@ -41,6 +42,10 @@ uint16_t get_light_threshold(threshold_t* thresholds)
 {
 	return (*thresholds)->light_threshold;
 }
+bool get_automatic_lights(threshold_t* thresholds){
+	return (*thresholds)->automatic_lights;
+}
+
 void set_temperature_threshold(threshold_t* thresholds, int16_t new_threshold)
 {
 	(*thresholds)->temperature_threshold = new_threshold;
@@ -60,4 +65,8 @@ void set_light_threshold(threshold_t* thresholds, uint16_t new_threshold)
 {
 	(*thresholds)->light_threshold = new_threshold;
 	//printf("light -> %d | %d\n", (*thresholds)->light_threshold, new_threshold);
+}
+
+void set_automatic_lights(threshold_t* thresholds, bool turnOn){
+	(*thresholds)->automatic_lights = turnOn;
 }
