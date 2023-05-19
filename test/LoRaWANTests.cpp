@@ -75,6 +75,15 @@ protected:
 	{}
 };
 
+TEST_F(LoRaWANTest, tasks_created_after_intiliase_called){
+	// Arrange
+	MessageBufferHandle_t downLinkMessageBufferHandle = xMessageBufferCreate(sizeof(lora_driver_payload_t)*2);
+	lora_driver_initialise(ser_USART1, downLinkMessageBufferHandle);
+
+	// Assert/Expect
+	ASSERT_EQ(2, xTaskCreate_fake.call_count);
+}
+
 TEST_F(LoRaWANTest, create_is_called) 
 {
 	// Arrange
