@@ -100,19 +100,6 @@ TEST_F(LightTest, get_light_data_no_args){
     bool get_light_data_succesfully = get_light_data(NULL);
     ASSERT_FALSE(get_light_data_succesfully);
 }
-TEST_F(LightTest, get_light_data_with_args_no_data){
-    // Arrange
-    threshold_t thresh = threshold_create();
-    light_t light = light_create(&thresh);
-    bool get_light_data_succesfully = get_light_data(light);
-    // Assert/Expect
-    ASSERT_EQ(1, tsl2591_enable_fake.call_count);
-    ASSERT_EQ(1, tsl2591_fetchData_fake.call_count);
-    ASSERT_EQ(1, tsl2591_disable_fake.call_count);
-    ASSERT_TRUE(get_light_data_succesfully);
-}
-
-//Callback testing-----------------------------------
 
 tsl2591_returnCode_t getVisibleRawFake(uint16_t* value) {
     *value = 150;
@@ -124,29 +111,36 @@ tsl2591_returnCode_t getLuxFake(float* value) {
     *value = 250.0;
     return TSL2591_OK;
 }
-/*
-TEST_F(LightTest, tsl2591Callback_args){
-    uint16_t _tmp = 100;
-    float _lux = 200.0;
 
+TEST_F(LightTest, get_light_data_with_args_data){
+    // Arrange
+    threshold_t thresh = threshold_create();
+    light_t light = light_create(&thresh);
+    
     // Set the behavior of the fake functions
     tsl259_getVisibleRaw_fake.return_val = TSL2591_OK;
-    tsl259_getVisibleRaw_fake.custom_fake = getVisibleRawFake;
-    tsl259_getVisibleRaw_fake.arg0_val = &_tmp;
+    tsl259_getVisibleRaw_fake.custom_fake = getVisibleRawFake;  
 
     tsl2591_getLux_fake.return_val = TSL2591_OK;
     tsl2591_getLux_fake.custom_fake = getLuxFake;
-    tsl2591_getLux_fake.arg0_val = &_lux;
 
-    // Call the function to be tested
+    tsl2591_enable_fake.return_val = TSL2591_OK;
+    tsl2591_fetchData_fake.return_val = TSL2591_OK;
+    tsl2591_disable_fake.return_val = TSL2591_OK;
+    
     tsl2591Callback(TSL2591_DATA_READY);
-
+    bool get_light_data_succesfully = get_light_data(light);
     // Verify the behavior of the fake functions
     ASSERT_EQ(tsl259_getVisibleRaw_fake.call_count, 1);
     ASSERT_EQ(tsl2591_getLux_fake.call_count, 1);
-    ASSERT_EQ(_tmp, 150);
-    ASSERT_EQ(_lux, 250.0);
-}*/
+    ASSERT_EQ(get_tmp(light), 150);
+    ASSERT_EQ(get_lux(light), 2500);
+    // Assert/Expect
+    ASSERT_EQ(1, tsl2591_enable_fake.call_count);
+    ASSERT_EQ(1, tsl2591_fetchData_fake.call_count);
+    ASSERT_EQ(1, tsl2591_disable_fake.call_count);
+    ASSERT_TRUE(get_light_data_succesfully);
+}
 
 TEST_F(LightTest, get_tmp_no_args){
     // Assert/Expect
@@ -159,6 +153,31 @@ TEST_F(LightTest, get_tmp_with_args_no_data){
     // Assert/Expect
     ASSERT_EQ(get_tmp(light), 0);
 }
+
+TEST_F(LightTest, get_tmp_with_args_with_data){
+    // Arrange
+    threshold_t thresh = threshold_create();
+    light_t light = light_create(&thresh);
+    
+    // Set the behavior of the fake functions
+    tsl259_getVisibleRaw_fake.return_val = TSL2591_OK;
+    tsl259_getVisibleRaw_fake.custom_fake = getVisibleRawFake;  
+
+    tsl2591_getLux_fake.return_val = TSL2591_OK;
+    tsl2591_getLux_fake.custom_fake = getLuxFake;
+
+    tsl2591_enable_fake.return_val = TSL2591_OK;
+    tsl2591_fetchData_fake.return_val = TSL2591_OK;
+    tsl2591_disable_fake.return_val = TSL2591_OK;
+    
+    tsl2591Callback(TSL2591_DATA_READY);
+    bool get_light_data_succesfully = get_light_data(light);
+    // Verify the behavior of the fake functions
+    ASSERT_EQ(tsl259_getVisibleRaw_fake.call_count, 1);
+    ASSERT_EQ(tsl2591_getLux_fake.call_count, 1);
+    ASSERT_EQ(get_tmp(light), 150);
+}
+
 TEST_F(LightTest, get_lux_no_args){
     // Assert/Expect
     ASSERT_EQ(get_lux(NULL), 0);
@@ -170,4 +189,52 @@ TEST_F(LightTest, get_lux_with_args_no_data){
     light_t light = light_create(&thresh);
     // Assert/Expect
     ASSERT_EQ(get_lux(light), 0);
+}
+
+TEST_F(LightTest, get_lux_with_args_with_data){
+    // Arrange
+    threshold_t thresh = threshold_create();
+    light_t light = light_create(&thresh);
+    
+    // Set the behavior of the fake functions
+    tsl259_getVisibleRaw_fake.return_val = TSL2591_OK;
+    tsl259_getVisibleRaw_fake.custom_fake = getVisibleRawFake;  
+
+    tsl2591_getLux_fake.return_val = TSL2591_OK;
+    tsl2591_getLux_fake.custom_fake = getLuxFake;
+
+    tsl2591_enable_fake.return_val = TSL2591_OK;
+    tsl2591_fetchData_fake.return_val = TSL2591_OK;
+    tsl2591_disable_fake.return_val = TSL2591_OK;
+    
+    tsl2591Callback(TSL2591_DATA_READY);
+    bool get_light_data_succesfully = get_light_data(light);
+    // Verify the behavior of the fake functions
+    ASSERT_EQ(tsl259_getVisibleRaw_fake.call_count, 1);
+    ASSERT_EQ(tsl2591_getLux_fake.call_count, 1);
+    ASSERT_EQ(get_lux(light), 2500);
+}
+
+TEST_F(LightTest, create_light_task_no_args) 
+{
+	// Arrange
+	create_light_task(NULL);
+	// Assert/Expect
+	ASSERT_EQ(0,xTaskCreate_fake.call_count);
+}
+
+TEST_F(LightTest, create_light_task_args) 
+{
+	// Arrange
+	threshold_t thresh = threshold_create();
+	light_t light = light_create(&thresh);
+	create_light_task(&light);
+	// Assert/Expect
+	ASSERT_EQ(1,xTaskCreate_fake.call_count);
+	ASSERT_EQ(xTaskCreate_fake.arg0_val, &light_task);
+	ASSERT_EQ(strncmp(xTaskCreate_fake.arg1_val, "Light Task", 11), 0);
+	ASSERT_EQ(xTaskCreate_fake.arg2_val, configMINIMAL_STACK_SIZE);
+	ASSERT_EQ(xTaskCreate_fake.arg3_val, &light);
+	ASSERT_EQ(xTaskCreate_fake.arg4_val, 1);
+	ASSERT_EQ(xTaskCreate_fake.arg5_val, nullptr);
 }
