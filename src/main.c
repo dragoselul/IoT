@@ -50,11 +50,9 @@ void initialiseSystem()
 
 	// Make it possible to use stdio on COM port 0 (USB) on Arduino board - Setting 57600,8,N,1
 	stdio_initialise(ser_USART0);
-	
+	initialize_door();
 	display_7seg_initialise(NULL);
 	display_7seg_powerUp();
-	rc_servo_initialise();
-	rc_servo(-100);
 	//Threshold init
 	thresholds = threshold_create();
 	//Temp and humidity sensor
