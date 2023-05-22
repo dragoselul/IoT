@@ -2,7 +2,7 @@ name: C/C++ CI
 
 on:
   push:
-    branches: [master, cleanup-optimization, Motion_Sensor_Test]
+    branches: [master, Create-downlink-functionality, Motion_Sensor_Test]
   pull_request:
     branches: [master]
 
@@ -16,7 +16,7 @@ jobs:
     - name: Install CMake
       uses: jwlawson/actions-setup-cmake@v1.13
       with:
-        cmake-version: '3.16.x'
+        cmake-version: '3.19.x'
     - name: Build
       run: |
         mkdir build

@@ -33,6 +33,7 @@ DEFINE_FAKE_VALUE_FUNC(BaseType_t, xTaskAbortDelay, TaskHandle_t);
 DEFINE_FAKE_VALUE_FUNC(UBaseType_t, uxTaskGetSystemState, TaskStatus_t*, UBaseType_t, unsigned long*);
 // void vTaskGetInfo(TaskHandle_t xTask, TaskStatus_t* pxTaskStatus, BaseType_t xGetFreeStackSpace, eTaskState eState);
 DEFINE_FAKE_VOID_FUNC(vTaskGetInfo, TaskHandle_t, TaskStatus_t*, BaseType_t, eTaskState);
+DEFINE_FAKE_VOID_FUNC(taskYIELD);
 
 // semphr.h
 // SemaphoreHandle_t xSemaphoreCreateBinary(void);

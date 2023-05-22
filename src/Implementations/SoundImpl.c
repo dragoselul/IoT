@@ -1,10 +1,3 @@
-/*
- * SoundImpl.c
- *
- * Created: 4/27/2023 1:18:26 PM
- *  Author: Jagerinho
- */ 
-
 #include "../Headers/Sound.h"
 
 typedef struct sound
@@ -28,11 +21,13 @@ bool get_sound_gate_state()
 void sound_destroy(sound_t self)
 {
 	if (NULL != self)
-	free(self);
+		free(self);
 }
 
 bool soundDetection(sound_t self)
 {
+	if(self == NULL)
+		return false;
 	self->_sound = sen14262_envelope();
 	if (self->_sound > 0)
 	{
@@ -41,5 +36,39 @@ bool soundDetection(sound_t self)
 	else
 	{
 		return false;
+	}
+}
+
+void create_sound_task(sound_t* self)
+{
+	if(self == NULL)
+		return;
+	xTaskCreate(
+	sound_task
+	,  "Sound sensor task"
+	,  configMINIMAL_STACK_SIZE
+	,  self
+	,  1  
+	,  NULL );
+}
+
+void sound_task( void *pvParameters )
+{
+	sound_t sound_sensor = *((sound_t*)pvParameters);
+	
+	if(sound_sensor != NULL)
+	{
+		for(;;)
+		{
+			if(soundDetection(sound_sensor))
+			{
+				add_to_payload(1, 8,255, 2);
+			}
+			else
+			{
+				add_to_payload(0, 8,255, 2);
+			}
+			vTaskDelay(pdMS_TO_TICKS(4000UL)); // 10 ms
+		}
 	}
 }

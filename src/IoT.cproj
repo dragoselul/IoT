@@ -305,7 +305,7 @@
     <Folder Include="FreeRTOS\FreeRTOSTraceDriver\" />
     <Folder Include="FreeRTOS\src\" />
     <Folder Include="Headers" />
-    <Folder Include="Implementations" />
+    <Folder Include="Implementations\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="drivers\.gitignore">
@@ -356,13 +356,22 @@
     <None Include="FreeRTOS\src\LICENSE.md">
       <SubType>compile</SubType>
     </None>
-    <Compile Include="Headers\Average.h">
+    <Compile Include="Headers\Alarm.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Headers\CO2.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="Headers\Servo.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Headers\LED.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="Headers\Light.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Headers\LoRaWAN.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Headers\MotionSensor.h">
@@ -377,16 +386,25 @@
     <Compile Include="Headers\Threshold.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="Implementations\AverageImpl.c">
+    <Compile Include="Implementations\AlarmImpl.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Implementations\CO2Impl.c">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="Implementations\LEDImpl.c">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="Implementations\LightImpl.c">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="Implementations\LoRaWANHandler.c">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="Implementations\MotionSensorImpl.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Implementations\ServoImpl.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Implementations\SoundImpl.c">
@@ -396,9 +414,6 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Implementations\ThresholdImpl.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="LoRaWANHandler.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="main.c">

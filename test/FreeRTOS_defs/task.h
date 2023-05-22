@@ -45,3 +45,5 @@ void vTaskGetInfo(TaskHandle_t xTask,
     TaskStatus_t* pxTaskStatus,
     BaseType_t xGetFreeStackSpace,
     eTaskState eState);
+
+void taskYIELD();

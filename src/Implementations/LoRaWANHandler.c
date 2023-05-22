@@ -1,35 +1,26 @@
-/*
-* loraWANHandler.c
-*
-* Created: 12/04/2019 10:09:05
-*  Author: IHA
-*/
-#include <stddef.h>
-#include <stdio.h>
+#include "../Headers/LoRaWAN.h"
 
-#include <ATMEGA_FreeRTOS.h>
-
-#include <lora_driver.h>
-#include <status_leds.h>
-#include <semphr.h>
-
-// Parameters for OTAA join - You have got these in a mail from IHA
 #define LORA_appEUI "9276B3CF3B069355"
 #define LORA_appKEY "84860CBA5C5116F9EC56E1B4346CA899"
 
 void lora_handler_task( void *pvParameters );
+void lora_downlink_task( void *pvParameters );
 
 SemaphoreHandle_t gateKeeper = NULL;
+MessageBufferHandle_t downlink_buffer;
 
 static lora_driver_payload_t _uplink_payload;
 static lora_driver_payload_t _downlink_payload;
 
-void lora_handler_initialise(UBaseType_t lora_handler_task_priority)
+void lora_handler_initialise(UBaseType_t lora_handler_task_priority, void* thresholds, void* buffer)
 {
 	if ( gateKeeper == NULL )  // Check to confirm that the Semaphore has not already been created.
 	{
 		gateKeeper = xSemaphoreCreateMutex();  // Create a mutex semaphore.
 	}
+	
+	downlink_buffer = *(MessageBufferHandle_t*) buffer;
+	
 	xTaskCreate(
 	lora_handler_task
 	,  "LRHand"  // A name just for humans
@@ -37,13 +28,22 @@ void lora_handler_initialise(UBaseType_t lora_handler_task_priority)
 	,  NULL
 	,  lora_handler_task_priority  // Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
 	,  NULL );
+	
+	xTaskCreate(
+	lora_downlink_task
+	,	"LRDownLink"
+	,	configMINIMAL_STACK_SIZE+200
+	,	thresholds
+	,	lora_handler_task_priority
+	,	NULL );
 }
 
-static void _lora_setup(void)
+void _lora_setup(void)
 {
 	char _out_buf[20];
 	lora_driver_returnCode_t rc;
 	_uplink_payload.len = 10;
+	_downlink_payload.len = 10;
 	status_leds_slowBlink(led_ST2); // OPTIONAL: Led the green led blink slowly while we are setting up LoRa
 	// Factory reset the transceiver
 	printf("FactoryReset >%s<\n", lora_driver_mapReturnCodeToText(lora_driver_rn2483FactoryReset()));
@@ -71,7 +71,7 @@ static void _lora_setup(void)
 	printf("Set Receiver Delay: %d ms >%s<\n", 500, lora_driver_mapReturnCodeToText(lora_driver_setReceiveDelay(500)));
 
 	// Join the LoRaWAN
-	uint8_t maxJoinTriesLeft = 10;
+	uint8_t maxJoinTriesLeft = 100;
 	
 	do {
 		rc = lora_driver_join(LORA_OTAA);
@@ -137,7 +137,7 @@ void add_to_payload(uint16_t data, uint8_t byte_pos1, uint8_t byte_pos2, uint8_t
 			puts("Sound changing bit\n");
 			if(bit_pos == 3)
 			puts("Alarm changing bit\n");
-			_uplink_payload.bytes[byte_pos1] = data>>bit_pos;
+			_uplink_payload.bytes[byte_pos1] |= (data << bit_pos);
 		}
 		else
 		{
@@ -155,7 +155,7 @@ void add_to_payload(uint16_t data, uint8_t byte_pos1, uint8_t byte_pos2, uint8_t
 			_uplink_payload.bytes[9] = hash;
 			switchGarageId = false;
 	}
-	printf("[0]: %d \n [1]: %d \n [2]: %d \n [3]: %d \n [4]: %d \n [5]: %d \n [6]: %d \n [7]: %d \n [8]: %d \n [9]: %d \n", _uplink_payload.bytes[0], _uplink_payload.bytes[1], _uplink_payload.bytes[2], _uplink_payload.bytes[3], _uplink_payload.bytes[4], _uplink_payload.bytes[5], _uplink_payload.bytes[6], _uplink_payload.bytes[7], _uplink_payload.bytes[8], _uplink_payload.bytes[9]);
+	//printf("[0]: %d \n [1]: %d \n [2]: %d \n [3]: %d \n [4]: %d \n [5]: %d \n [6]: %d \n [7]: %d \n [8]: %d \n [9]: %d \n", _uplink_payload.bytes[0], _uplink_payload.bytes[1], _uplink_payload.bytes[2], _uplink_payload.bytes[3], _uplink_payload.bytes[4], _uplink_payload.bytes[5], _uplink_payload.bytes[6], _uplink_payload.bytes[7], _uplink_payload.bytes[8], _uplink_payload.bytes[9]);
 		vTaskDelay(pdMS_TO_TICKS(50UL));
 		xSemaphoreGive(gateKeeper);
 	}
@@ -178,8 +178,8 @@ void lora_handler_task( void *pvParameters )
 	lora_driver_flushBuffers(); // get rid of first version string from module after reset!
 
 	_lora_setup();
-
-	_uplink_payload.portNo = 1;
+	
+	_uplink_payload.portNo = 2;
 
 	TickType_t xLastWakeTime;
 	const TickType_t xFrequency = pdMS_TO_TICKS(300000UL); // Upload message every 5 minutes (300000 ms)
@@ -192,4 +192,43 @@ void lora_handler_task( void *pvParameters )
 		status_leds_shortPuls(led_ST4);  // OPTIONAL
 		printf("Upload Message >%s<\n", lora_driver_mapReturnCodeToText(lora_driver_sendUploadMessage(false, &_uplink_payload)));
 	}
+}
+
+void lora_downlink_task( void *pvParameters )
+{
+	threshold_t thresholds = *(threshold_t*) pvParameters;
+	for(;;)
+	{
+		xMessageBufferReceive(downlink_buffer, &_downlink_payload, sizeof(lora_driver_payload_t), portMAX_DELAY);
+		_downlink_payload.portNo = 1;
+		printf("DOWN LINK: from port: %d with %d bytes received!", _downlink_payload.portNo, _downlink_payload.len); // Just for Debug
+		if (10 == _downlink_payload.len && _downlink_payload.bytes[9] == 120) // Check that we have got the expected 10 bytes and the id of the garage is 120
+		{
+			//printf("%d %d %d %d %d %d %d %d %d %d %d", _downlink_payload.bytes[0], _downlink_payload.bytes[1], _downlink_payload.bytes[2], _downlink_payload.bytes[3], _downlink_payload.bytes[4], 
+			//_downlink_payload.bytes[5], _downlink_payload.bytes[6], _downlink_payload.bytes[7], _downlink_payload.bytes[8], _downlink_payload.bytes[9]);	
+		
+			bool automatic_lights = (bool)(_downlink_payload.bytes[8] & (1 << 4)) != 0;
+			uint16_t co2 = (uint16_t)(_downlink_payload.bytes[0]) << 8 | _downlink_payload.bytes[1];
+			int16_t temp = (int16_t)(_downlink_payload.bytes[2]) << 8 | _downlink_payload.bytes[3];
+			uint16_t hum = (uint16_t)(_downlink_payload.bytes[4]) << 8 | _downlink_payload.bytes[5];
+			uint16_t lux = (uint16_t)(_downlink_payload.bytes[6]) << 8 | _downlink_payload.bytes[7];
+			
+			set_automatic_lights(&thresholds, automatic_lights);
+			set_co2_threshold(&thresholds,co2);
+			set_temperature_threshold(&thresholds,temp);
+			set_humidity_threshold(&thresholds,hum);
+			set_light_threshold(&thresholds, lux);
+			
+			printf("%d %d %d %d %d\n", co2, temp, hum, lux, automatic_lights);
+			printf("%d %d %d %d %d\n", get_co2_threshold(&thresholds), get_temperature_threshold(&thresholds), get_humidity_threshold(&thresholds), get_light_threshold(&thresholds), get_automatic_lights(&thresholds));
+		}
+	}
+}
+
+lora_driver_payload_t get_downlink_payload(){
+	return _downlink_payload;
+}
+
+lora_driver_payload_t get_uplink_payload(){
+	return _uplink_payload;
 }

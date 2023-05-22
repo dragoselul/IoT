@@ -7,12 +7,13 @@ typedef struct tempAndHum
 	float avg_humidity;
 	float avg_temperature;
 	uint8_t measurements;
-	threshold_t threshold_hum;
-	threshold_t threshold_temp;
+	threshold_t* th_point;
 }tempAndHum;
 
-tempAndHum_t tempAndHum_create()
+tempAndHum_t tempAndHum_create(threshold_t* point)
 {
+	if(point == NULL)
+		return NULL;
 	tempAndHum_t _new_tempAndHum = (tempAndHum_t)calloc(1,sizeof(tempAndHum));
 	if (NULL == _new_tempAndHum)
 		return NULL;
@@ -23,16 +24,18 @@ tempAndHum_t tempAndHum_create()
 	_new_tempAndHum->avg_temperature = 0.0;
 	_new_tempAndHum->avg_humidity = 0.0;
 	_new_tempAndHum->measurements = 0;
-	_new_tempAndHum->threshold_hum = threshold_create();
-	_new_tempAndHum->threshold_temp = threshold_create();
+	_new_tempAndHum->th_point = point;
 	return _new_tempAndHum;
 }
 
 void tempAndHum_destroy(tempAndHum_t* self)
 {
-	hih8120_destroy();
-	if (NULL != self)
-	free(*self);
+	if (self != NULL && *self != NULL)
+    {
+		hih8120_destroy();
+		free(*self);
+		*self = NULL;
+	}
 }
 
 void update_averages(tempAndHum_t self){
@@ -49,7 +52,7 @@ void update_averages(tempAndHum_t self){
 }
 
 void reset_averages(tempAndHum_t self){
-	if(&self == NULL)
+	if(self == NULL)
 		return;
 	self->avg_temperature = 0.0;
 	self->avg_humidity = 0.0;
@@ -68,6 +71,14 @@ bool measure_temp_hum(tempAndHum_t self)
 	vTaskDelay(pdMS_TO_TICKS(10UL));
 	self->humidity = hih8120_getHumidityPercent_x10();
 	self->temperature = hih8120_getTemperature_x10();
+	if(self->temperature > get_temperature_threshold(self->th_point)){
+		add_to_payload(1,8,255,3); // alarm
+		alarm_turn_on();
+	}else{
+		alarm_turn_off();
+	}
+	if(self->humidity > get_humidity_threshold(self->th_point))
+		add_to_payload(1,8,255,0); // open window/door/something
 	update_averages(self);
 	self->measurements++;
 	return true;
@@ -111,30 +122,10 @@ void temp_hum_task( void *pvParameters )
 	{
 		if(measure_temp_hum(temp_hum))
 		{
-			//comment the payloads if you want to test them.
-			add_to_payload(get_average_temp(temp_hum),2,3,NULL);
-			add_to_payload(get_average_hum(temp_hum),4,5,NULL);
+			add_to_payload(get_average_temp(temp_hum),2,3,255);
+			add_to_payload(get_average_hum(temp_hum),4,5,255);
+			
 		}
 		xTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(4000UL));
 	}
-}
-
-bool hum_threshold_surpassed(tempAndHum_t self){
-	return threshold_surpassed(self->threshold_hum, self->humidity);
-}
-uint16_t hum_get_threshold(tempAndHum_t self){
-	return get_threshold(self->threshold_hum);
-}
-void hum_set_threshold(tempAndHum_t self, uint16_t val){
-	set_threshold(self->threshold_hum, val);
-}
-
-bool temp_threshold_surpassed(tempAndHum_t self){
-	return threshold_surpassed(self->threshold_temp, self->temperature);
-}
-uint16_t temp_get_threshold(tempAndHum_t self){
-	return get_threshold(self->threshold_temp);
-}
-void temp_set_threshold(tempAndHum_t self, uint16_t val){
-	set_threshold(self->threshold_temp, val);
 }

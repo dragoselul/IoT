@@ -10,7 +10,6 @@ include(FetchContent)
 FetchContent_Declare(
   googletest
   URL https://github.com/google/googletest/archive/refs/tags/release-1.11.0.zip
-  DOWNLOAD_EXTRACT_TIMESTAMP false
 )
 # For Windows: Prevent overriding the parent project's compiler/linker settings
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
@@ -19,8 +18,19 @@ FetchContent_MakeAvailable(googletest )
 
 set(SOURCES_TEST
     TemperatureAndHumidityTests.cpp
+    MotionSensorTests.cpp
+    LightSensorTests.cpp
+    LoRaWANTests.cpp
+    SoundTest.cpp
+    CO2SensorTests.cpp
+    ../src/Implementations/SoundImpl.c
     FreeRTOS_defs/FreeRTOS_FFF_MocksDefinitions.cpp
     ../src/Implementations/TempAndHumImpl.c
+    ../src/Implementations/LightImpl.c
+    ../src/Implementations/MotionSensorImpl.c
+    ../src/Implementations/LoRaWANHandler.c
+    ../src/Implementations/CO2Impl.c
+    ../src/Implementations/ThresholdImpl.c
     ${SRCS}
 )
 
