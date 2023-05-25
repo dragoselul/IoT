@@ -16,8 +16,8 @@ FAKE_VALUE_FUNC(mh_z19_returnCode_t, mh_z19_getCo2Ppm, uint16_t*);
 FAKE_VALUE_FUNC(mh_z19_returnCode_t, mh_z19_takeMeassuring);
 FAKE_VOID_FUNC(alarm_turn_on);
 FAKE_VOID_FUNC(alarm_turn_off);
-FAKE_VOID_FUNC(open_door);
-FAKE_VOID_FUNC(close_door);
+FAKE_VOID_FUNC(servo_open);
+FAKE_VOID_FUNC(servo_close);
 
 // FAKE_VOID_FUNC(set_temperature_threshold, threshold_t*, int16_t);
 // FAKE_VOID_FUNC(set_humidity_threshold, threshold_t*, uint16_t);
@@ -47,8 +47,8 @@ class Co2Test: public ::testing::Test
             RESET_FAKE(alarm_turn_off);
 
             // RESET SERVO FAKES
-            RESET_FAKE(open_door);
-            RESET_FAKE(close_door);
+            RESET_FAKE(servo_open);
+            RESET_FAKE(servo_close);
 
             FFF_RESET_HISTORY();
         }
@@ -169,7 +169,7 @@ TEST_F(Co2Test, door_opened_after_threshold_surpassed){
   co2_evaluate_threshold(co2);
 
   // Assert/Expect
-  ASSERT_EQ(1, open_door_fake.call_count);
+  ASSERT_EQ(1, servo_open_fake.call_count);
 }
 
 // TEST IF DOOR IS OPENED WHEN CO2 SURPASSES THRESHOLD
@@ -183,7 +183,7 @@ TEST_F(Co2Test, door_closed_after_threshold_not_surpassed){
   co2_evaluate_threshold(co2);
 
   // Assert/Expect
-  ASSERT_EQ(1, close_door_fake.call_count);
+  ASSERT_EQ(1, servo_close_fake.call_count);
 }
 
 TEST_F(Co2Test, get_average_returns_average)

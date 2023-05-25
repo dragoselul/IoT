@@ -13,16 +13,18 @@ co2_t co2_create(threshold_t* point){
 	_new_co2->measurements = 0;
 	return _new_co2;
 }
+
 void co2_destroy(co2_t self){
-	if (NULL != self)
+	if (NULL != self){
+		return;
+	}
 	free(self);
 }
 
 bool co2_get_data(co2_t self){
 	if(mh_z19_takeMeassuring() == MHZ19_OK){
 		vTaskDelay(pdMS_TO_TICKS(50UL));
-		if(mh_z19_getCo2Ppm(&self->val) == MHZ19_OK)
-		{
+		if(mh_z19_getCo2Ppm(&self->val) == MHZ19_OK){
 			vTaskDelay(pdMS_TO_TICKS(10UL));
 			//co2_evaluate_threshold(self);
 			co2_update_average(self);
@@ -33,17 +35,14 @@ bool co2_get_data(co2_t self){
 }
 
 void co2_evaluate_threshold(co2_t self){
-	if(get_co2_threshold(self->th_point) < self->val)
-	{
+	if(get_co2_threshold(self->th_point) < self->val){
 		alarm_turn_on();
-		door_open();
+		servo_open();
 		add_to_payload(1,8,255,0);
-		printf("CO2 Threshold surpassed : %d \n", self->val);
 	}
-	else
-	{
+	else{
 		alarm_turn_off();
-		door_close();
+		servo_close();
 	}
 }
 
@@ -54,36 +53,17 @@ uint16_t co2_get_average(co2_t self){
 	return (uint16_t)self->avg_co2;
 }
 void co2_reset_average(co2_t self){
-	if(&self == NULL)
+	if(&self == NULL){
 		return;
+	}
 	self->avg_co2 = 0.0;
 	self->measurements = 0;
 }
 void co2_update_average(co2_t self){
-	if(&self == NULL)
-		return;
-
-	/*
-	if(self->measurements <= 8)
-	{
-		self->avg_co2 = self->val;
+	if(&self == NULL){
 		return;
 	}
-	*/
-	//self->avg_co2 = self->avg_co2 + (self->val - self->avg_co2) / (self->measurements + 1);
 	self->avg_co2 = (self->avg_co2 * self->measurements + self->val) / ++self->measurements;
-}
-
-void log_errors(mh_z19_returnCode_t code){
-	if(code == MHZ19_OK){
-		printf("[CO2 Sensor]: MHZ19_OK\n");
-		}if(code == MHZ19_NO_SERIAL){
-		printf("[CO2 Sensor]: MHZ19_NO_SERIAL\n");
-		}if(code == MHZ19_NO_MEASSURING_AVAILABLE){
-		printf("[CO2 Sensor]: MHZ19_NO_MEASSURING_AVAILABLE\n");
-		}if(code == MHZ19_PPM_MUST_BE_GT_999){
-		printf("[CO2 Sensor]: MHZ19_PPM_MUST_BE_GT_999\n");
-	}
 }
 
 void create_co2_task(co2_t* self)
@@ -96,6 +76,7 @@ void create_co2_task(co2_t* self)
 	,  1
 	,  NULL );
 }
+
 void co2_task( void* pvParameters)
 {
 	co2_t co2_sensor = *((co2_t*)pvParameters);
