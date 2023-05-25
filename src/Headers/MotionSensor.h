@@ -18,6 +18,6 @@ bool detecting(motion_t self);
 // Creates the task for the motion sensor to detect and update values
 void create_motion_task(motion_t*);
 
-// The function that the motion task will execute in a loop
+// The function that the motion task will execute
 // Checks if motion was detected and updates the LoRaWAN payload
 void motion_task(void*);

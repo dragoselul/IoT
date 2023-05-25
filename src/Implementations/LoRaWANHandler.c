@@ -23,10 +23,10 @@ void lora_handler_initialise(UBaseType_t lora_handler_task_priority, void* thres
 	
 	xTaskCreate(
 	lora_handler_task
-	,  "LRHand"  // A name just for humans
-	,  configMINIMAL_STACK_SIZE+200  // This stack size can be checked & adjusted by reading the Stack Highwater
+	,  "LRHand"
+	,  configMINIMAL_STACK_SIZE+200
 	,  NULL
-	,  lora_handler_task_priority  // Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
+	,  lora_handler_task_priority
 	,  NULL );
 	
 	xTaskCreate(
@@ -44,7 +44,8 @@ void _lora_setup(void)
 	lora_driver_returnCode_t rc;
 	_uplink_payload.len = 10;
 	_downlink_payload.len = 10;
-	status_leds_slowBlink(led_ST2); // OPTIONAL: Led the green led blink slowly while we are setting up LoRa
+	status_leds_slowBlink(led_ST2); // The green LED blink slowly while we are setting up LoRa
+	
 	// Factory reset the transceiver
 	printf("FactoryReset >%s<\n", lora_driver_mapReturnCodeToText(lora_driver_rn2483FactoryReset()));
 	
@@ -77,27 +78,23 @@ void _lora_setup(void)
 		rc = lora_driver_join(LORA_OTAA);
 		printf("Join Network TriesLeft:%d >%s<\n", maxJoinTriesLeft, lora_driver_mapReturnCodeToText(rc));
 
-		if ( rc != LORA_ACCEPTED)
-		{
+		if ( rc != LORA_ACCEPTED){
 			// Make the red led pulse to tell something went wrong
 			status_leds_longPuls(led_ST1); // OPTIONAL
 			// Wait 5 sec and lets try again
 			vTaskDelay(pdMS_TO_TICKS(5000UL));
 		}
-		else
-		{
+		else{
 			break;
 		}
 	} while (--maxJoinTriesLeft);
 
-	if (rc == LORA_ACCEPTED)
-	{
+	if (rc == LORA_ACCEPTED){
 		// Connected to LoRaWAN :-)
 		// Make the green led steady
 		status_leds_ledOn(led_ST2); // OPTIONAL
 	}
-	else
-	{
+	else{
 		// Something went wrong
 		// Turn off the green led
 		status_leds_ledOff(led_ST2); // OPTIONAL
@@ -114,10 +111,9 @@ void _lora_setup(void)
 
 bool switchGarageId = true;
 
-void add_to_payload(uint16_t data, uint8_t byte_pos1, uint8_t byte_pos2, uint8_t bit_pos)
-{
-	if(xSemaphoreTake(gateKeeper, portMAX_DELAY))
-	{
+void add_to_payload(uint16_t data, uint8_t byte_pos1, uint8_t byte_pos2, uint8_t bit_pos){
+	
+	if(xSemaphoreTake(gateKeeper, portMAX_DELAY)){
 		printf("\n Data is: %d\n", data);
 		if(byte_pos1 == 0)
 		puts("CO2 writing payload\n");
@@ -127,8 +123,7 @@ void add_to_payload(uint16_t data, uint8_t byte_pos1, uint8_t byte_pos2, uint8_t
 		puts("Hum writing payload\n");
 		if(byte_pos1 == 6)
 		puts("Lux writing payload\n");
-		if(byte_pos1 == 8)
-		{
+		if(byte_pos1 == 8){
 			if(bit_pos == 0)
 			puts("Servo changing bit\n");
 			if(bit_pos == 1)
@@ -139,17 +134,15 @@ void add_to_payload(uint16_t data, uint8_t byte_pos1, uint8_t byte_pos2, uint8_t
 			puts("Alarm changing bit\n");
 			_uplink_payload.bytes[byte_pos1] |= (data << bit_pos);
 		}
-		else
-		{
+		else{
 			_uplink_payload.bytes[byte_pos1] = data >> 8;
 			_uplink_payload.bytes[byte_pos2] = data & 0xFF;
 		}
-		if(switchGarageId)
-		{
+		if(switchGarageId){
 			uint16_t hash = 5381;
 			int c;
 			unsigned char* str = "0004A30B00251001";
-			while (c = *str++) {
+			while (c = *str++){
 				hash = ((hash << 5) + hash) + c;
 			}
 			_uplink_payload.bytes[9] = hash;
@@ -159,15 +152,13 @@ void add_to_payload(uint16_t data, uint8_t byte_pos1, uint8_t byte_pos2, uint8_t
 		vTaskDelay(pdMS_TO_TICKS(50UL));
 		xSemaphoreGive(gateKeeper);
 	}
-	else
-	{
+	else{
 		puts("Could not take mutex");
 	}
 }
 
 /*-----------------------------------------------------------*/
-void lora_handler_task( void *pvParameters )
-{
+void lora_handler_task( void *pvParameters ){
 	// Hardware reset of LoRaWAN transceiver
 	lora_driver_resetRn2483(1);
 	vTaskDelay(2);
@@ -185,8 +176,7 @@ void lora_handler_task( void *pvParameters )
 	const TickType_t xFrequency = pdMS_TO_TICKS(300000UL); // Upload message every 5 minutes (300000 ms)
 	xLastWakeTime = xTaskGetTickCount();
 	
-	for(;;)
-	{
+	for(;;){
 		xTaskDelayUntil( &xLastWakeTime, xFrequency );	
 
 		status_leds_shortPuls(led_ST4);  // OPTIONAL
@@ -194,16 +184,13 @@ void lora_handler_task( void *pvParameters )
 	}
 }
 
-void lora_downlink_task( void *pvParameters )
-{
+void lora_downlink_task( void *pvParameters ){
 	threshold_t thresholds = *(threshold_t*) pvParameters;
-	for(;;)
-	{
+	for(;;){
 		xMessageBufferReceive(downlink_buffer, &_downlink_payload, sizeof(lora_driver_payload_t), portMAX_DELAY);
 		_downlink_payload.portNo = 1;
 		printf("DOWN LINK: from port: %d with %d bytes received!", _downlink_payload.portNo, _downlink_payload.len); // Just for Debug
-		if (10 == _downlink_payload.len && _downlink_payload.bytes[9] == 120) // Check that we have got the expected 10 bytes and the id of the garage is 120
-		{
+		if (10 == _downlink_payload.len && _downlink_payload.bytes[9] == 120){ // Check that we have got the expected 10 bytes and the id of the garage is 120
 			//printf("%d %d %d %d %d %d %d %d %d %d %d", _downlink_payload.bytes[0], _downlink_payload.bytes[1], _downlink_payload.bytes[2], _downlink_payload.bytes[3], _downlink_payload.bytes[4], 
 			//_downlink_payload.bytes[5], _downlink_payload.bytes[6], _downlink_payload.bytes[7], _downlink_payload.bytes[8], _downlink_payload.bytes[9]);	
 		
