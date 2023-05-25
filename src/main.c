@@ -1,7 +1,3 @@
-/*
-* main.c
-* Author : gRPC
-*/
 #include "stdint-gcc.h"
 #include <stdio.h>
 #include <avr/io.h>
@@ -10,28 +6,24 @@
 #include <stdio_driver.h>
 #include <serial.h>
 
- // Needed for LoRaWAN
+// LoRaWAN Initialization
 #include <lora_driver.h>
 #include <status_leds.h>
 
-//Drivers
+// headers for sensors
 #include "./Headers/CO2.h"
 #include "./Headers/Light.h"
 #include "./Headers/TempAndHum.h"
 #include "./Headers/MotionSensor.h"
 #include "./Headers/Sound.h"
 #include "./Headers/Servo.h"
-#include "display_7seg.h"
 
-// define the tasks
-void displayTask( void *pvParameters );
 void motionTask(void *pvParameters);
-
 
 // Prototype for LoRaWAN handler
 void lora_handler_initialise(UBaseType_t lora_handler_task_priority, void* thresh, void* downlink_buffer);
 
-// sensor variables
+// Structures for the sensors
 tempAndHum_t temp_hum;
 light_t light_sensor;
 motion_t motion_sensor;
@@ -39,17 +31,19 @@ sound_t sound_sensor;
 co2_t co2_sensor;
 threshold_t thresholds;
 
-/*-----------------------------------------------------------*/
+// System Initialization
 void initialiseSystem()
 {
 	// Set output ports for leds used in the example
 	DDRA |= _BV(DDA0) | _BV(DDA7);
 	
 	// Initialize Alarm PIN
-	DDRL |= (1 << DDL0);
+	alarm_initialize();
 
 	// Make it possible to use stdio on COM port 0 (USB) on Arduino board - Setting 57600,8,N,1
 	stdio_initialise(ser_USART0);
+	
+	// Initialize the Servo
 	initialize_door();
 	display_7seg_initialise(NULL);
 	display_7seg_powerUp();

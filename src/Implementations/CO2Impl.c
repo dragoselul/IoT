@@ -36,14 +36,14 @@ void co2_evaluate_threshold(co2_t self){
 	if(get_co2_threshold(self->th_point) < self->val)
 	{
 		alarm_turn_on();
-		open_door();
+		door_open();
 		add_to_payload(1,8,255,0);
 		printf("CO2 Threshold surpassed : %d \n", self->val);
 	}
 	else
 	{
 		alarm_turn_off();
-		close_door();
+		door_close();
 	}
 }
 
