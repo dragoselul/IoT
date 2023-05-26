@@ -44,7 +44,7 @@ void create_sound_task(sound_t* self){
 	,  "Sound sensor task"
 	,  configMINIMAL_STACK_SIZE
 	,  self
-	,  1  // Priority (3 being the highest)
+	,  1
 	,  NULL );
 }
 
@@ -57,7 +57,6 @@ void sound_task( void *pvParameters ){
 				// Send "sound detected" to payload
 				add_to_payload(1, 8,255, 2);
 			}
-			// TODO Is the else necessary?
 			else{
 				// Send "sound not detected" to payload
 				add_to_payload(0, 8,255, 2);
