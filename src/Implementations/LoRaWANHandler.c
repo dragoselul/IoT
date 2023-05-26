@@ -148,7 +148,6 @@ void add_to_payload(uint16_t data, uint8_t byte_pos1, uint8_t byte_pos2, uint8_t
 			_uplink_payload.bytes[9] = hash;
 			switchGarageId = false;
 	}
-	//printf("[0]: %d \n [1]: %d \n [2]: %d \n [3]: %d \n [4]: %d \n [5]: %d \n [6]: %d \n [7]: %d \n [8]: %d \n [9]: %d \n", _uplink_payload.bytes[0], _uplink_payload.bytes[1], _uplink_payload.bytes[2], _uplink_payload.bytes[3], _uplink_payload.bytes[4], _uplink_payload.bytes[5], _uplink_payload.bytes[6], _uplink_payload.bytes[7], _uplink_payload.bytes[8], _uplink_payload.bytes[9]);
 		vTaskDelay(pdMS_TO_TICKS(50UL));
 		xSemaphoreGive(gateKeeper);
 	}
@@ -166,8 +165,9 @@ void lora_handler_task( void *pvParameters ){
 	// Give it a chance to wakeup
 	vTaskDelay(150);
 
-	lora_driver_flushBuffers(); // get rid of first version string from module after reset!
-
+	// get rid of first version string from module after reset!
+	lora_driver_flushBuffers(); 
+	
 	_lora_setup();
 	
 	_uplink_payload.portNo = 2;
@@ -178,8 +178,7 @@ void lora_handler_task( void *pvParameters ){
 	
 	for(;;){
 		xTaskDelayUntil( &xLastWakeTime, xFrequency );	
-
-		status_leds_shortPuls(led_ST4);  // OPTIONAL
+		status_leds_shortPuls(led_ST4);
 		printf("Upload Message >%s<\n", lora_driver_mapReturnCodeToText(lora_driver_sendUploadMessage(false, &_uplink_payload)));
 	}
 }
@@ -191,9 +190,7 @@ void lora_downlink_task( void *pvParameters ){
 		_downlink_payload.portNo = 1;
 		printf("DOWN LINK: from port: %d with %d bytes received!", _downlink_payload.portNo, _downlink_payload.len); // Just for Debug
 		if (10 == _downlink_payload.len && _downlink_payload.bytes[9] == 120){ // Check that we have got the expected 10 bytes and the id of the garage is 120
-			//printf("%d %d %d %d %d %d %d %d %d %d %d", _downlink_payload.bytes[0], _downlink_payload.bytes[1], _downlink_payload.bytes[2], _downlink_payload.bytes[3], _downlink_payload.bytes[4], 
-			//_downlink_payload.bytes[5], _downlink_payload.bytes[6], _downlink_payload.bytes[7], _downlink_payload.bytes[8], _downlink_payload.bytes[9]);	
-		
+
 			bool automatic_lights = (bool)(_downlink_payload.bytes[8] & (1 << 4)) != 0;
 			uint16_t co2 = (uint16_t)(_downlink_payload.bytes[0]) << 8 | _downlink_payload.bytes[1];
 			int16_t temp = (int16_t)(_downlink_payload.bytes[2]) << 8 | _downlink_payload.bytes[3];
@@ -205,9 +202,6 @@ void lora_downlink_task( void *pvParameters ){
 			set_temperature_threshold(&thresholds,temp);
 			set_humidity_threshold(&thresholds,hum);
 			set_light_threshold(&thresholds, lux);
-			
-			printf("%d %d %d %d %d\n", co2, temp, hum, lux, automatic_lights);
-			printf("%d %d %d %d %d\n", get_co2_threshold(&thresholds), get_temperature_threshold(&thresholds), get_humidity_threshold(&thresholds), get_light_threshold(&thresholds), get_automatic_lights(&thresholds));
 		}
 	}
 }

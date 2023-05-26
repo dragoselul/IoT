@@ -22,11 +22,15 @@ void co2_destroy(co2_t self){
 }
 
 bool co2_get_data(co2_t self){
+	// measures data a prepares for retrieval
 	if(mh_z19_takeMeassuring() == MHZ19_OK){
 		vTaskDelay(pdMS_TO_TICKS(50UL));
+		// takes a pointer to a variable, to which the value is saved
 		if(mh_z19_getCo2Ppm(&self->val) == MHZ19_OK){
 			vTaskDelay(pdMS_TO_TICKS(10UL));
+			// evaluates if threshold was surpassed
 			co2_evaluate_threshold(self);
+			// updates the average value
 			co2_update_average(self);
 			return true;
 		}
