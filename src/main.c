@@ -36,7 +36,7 @@ threshold_t thresholds;
 void initialiseSystem(){
 	
 	// TODO Delete if not necessary
-	// Set output ports for LEDs used in the example
+	// Set output ports for leds used in the example
 	DDRA |= _BV(DDA0) | _BV(DDA7);
 	
 	// Make it possible to turn on and off the Alarm
