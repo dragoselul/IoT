@@ -46,7 +46,7 @@ void initialiseSystem(){
 	LED_initialize();
 	
 	// Make it possible to use the RC-Servo to control the door
-	servo_intialize();
+	servo_initialize();
 
 	// Make it possible to use stdio on COM port 0 (USB) on Arduino board - Setting 57600,8,N,1
 	stdio_initialise(ser_USART0);

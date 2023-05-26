@@ -15,7 +15,7 @@ void lora_handler_initialise(UBaseType_t, void*, void*);
 void _lora_setup(void);
 
 // Adds data from sensors to the payload so it can be send through LoRa
-void add_to_payload(uint16_t, uint8_t, uint8_t, uint8_t);
+void add_to_payload(int32_t, uint8_t, uint8_t, uint8_t);
 
 // Task for handling LoRa up-link
 void lora_handler_task( void *pvParameters );

@@ -111,10 +111,11 @@ void _lora_setup(void)
 
 bool switchGarageId = true;
 
-void add_to_payload(uint16_t data, uint8_t byte_pos1, uint8_t byte_pos2, uint8_t bit_pos){
+void add_to_payload(int32_t data, uint8_t byte_pos1, uint8_t byte_pos2, uint8_t bit_pos){
 	
 	if(xSemaphoreTake(gateKeeper, portMAX_DELAY)){
 		
+		/*
 		printf("\n Data is: %d\n", data);
 		
 		if(byte_pos1 == 0){
@@ -125,8 +126,8 @@ void add_to_payload(uint16_t data, uint8_t byte_pos1, uint8_t byte_pos2, uint8_t
 			puts("Hum writing payload\n");
 		}if(byte_pos1 == 6){
 			puts("Light writing payload\n");
-		}if(byte_pos1 == 8){
-			if(bit_pos == 0){
+		}*/if(byte_pos1 == 8){
+			/*if(bit_pos == 0){
 				puts("Servo changing bit\n");
 			}if(bit_pos == 1){
 				puts("Motion changing bit\n");
@@ -134,7 +135,7 @@ void add_to_payload(uint16_t data, uint8_t byte_pos1, uint8_t byte_pos2, uint8_t
 				puts("Sound changing bit\n");
 			}if(bit_pos == 3){
 				puts("Alarm changing bit\n");
-			}
+			}*/
 			_uplink_payload.bytes[byte_pos1] |= (data << bit_pos);
 		}
 		else{
@@ -213,6 +214,8 @@ void lora_downlink_task( void *pvParameters ){
 			set_temperature_threshold(&thresholds,temp);
 			set_humidity_threshold(&thresholds,hum);
 			set_light_threshold(&thresholds, lux);
+			
+			printf("%d %d %d %d %d", co2, temp, hum, lux, automatic_lights);
 		}
 	}
 }

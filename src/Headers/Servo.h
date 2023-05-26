@@ -1,7 +1,7 @@
 #include <rc_servo.h>
 
 // Initialize the rc_servo driver and closes it
-void servo_intialize();
+void servo_initialize();
 
 // Sets the Servo position to 100% (OPEN)
 void servo_open();
