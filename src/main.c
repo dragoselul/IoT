@@ -98,16 +98,8 @@ void initialiseSystem(){
 
 /*-----------------------------------------------------------*/
 int main(void){
-	
 	// Initialize all drivers, sensors and PINs
 	initialiseSystem();
 	// Initialize and run the FreeRTOS scheduler. (Should never return)
 	vTaskStartScheduler(); 
-
-	// TODO Delete if not necessary
-
-	/* Replace with your application code */
-	while (1)
-	{
-	}
 }
