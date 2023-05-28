@@ -7,8 +7,11 @@
 #include "task.h"
 #include "./Alarm.h"
 #include "./LoRaWAN.h"
+#include "./ExternBooleans.h"
+#include "Servo.h"
 
 typedef struct tempAndHum* tempAndHum_t;
+
 
 // Creates the structure for the sensor and allocates it memory
 tempAndHum_t tempAndHum_create(threshold_t*);

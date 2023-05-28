@@ -26,6 +26,7 @@ tempAndHum_t tempAndHum_create(threshold_t* point){
 	_new_tempAndHum->avg_humidity = 0.0;
 	_new_tempAndHum->measurements = 0;
 	_new_tempAndHum->th_point = point;
+	servo_open_humidity = false;
 	return _new_tempAndHum;
 }
 
@@ -79,8 +80,9 @@ bool measure_temp_hum(tempAndHum_t self){
 	}else{
 		alarm_turn_off();
 	}
-	if(self->humidity > get_humidity_threshold(self->th_point)){
+	if(self->humidity > get_humidity_threshold(self->th_point) && servo_open_co2 == false){
 		add_to_payload(1,8,255,0);
+		servo_open_humidity = true;
 		servo_open();
 	}else{
 		servo_close();
@@ -126,6 +128,11 @@ void temp_hum_task(void *pvParameters){
 		if(measure_temp_hum(temp_hum)){
 			add_to_payload(get_average_temp(temp_hum),2,3,255);
 			add_to_payload(get_average_hum(temp_hum),4,5,255);
+		}
+		if(tempAndHum_reset == true)
+		{
+			reset_averages(temp_hum);
+			tempAndHum_reset = false;
 		}
 		xTaskDelayUntil(&xLastWakeTime, pdMS_TO_TICKS(4000UL));
 	}

@@ -7,6 +7,7 @@
 #include "../drivers/lora_driver.h"
 #include "../drivers/status_leds.h"
 #include "./Threshold.h"
+#include "./ExternBooleans.h"
 
 // Initializes the Semaphore and the LoRa up-link and down-link tasks
 void lora_handler_initialise(UBaseType_t, void*, void*);

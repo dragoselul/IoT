@@ -9,6 +9,7 @@ extern "C"
     #include "../src/Headers/Threshold.h"
     #include "../src/Headers/Servo.h"
     #include "../src/Headers/Alarm.h"
+    #include "../src/Headers/ExternBooleans.h"
 }
 
 FAKE_VOID_FUNC(mh_z19_initialise, serial_comPort_t);
@@ -49,7 +50,6 @@ class Co2Test: public ::testing::Test
             // RESET SERVO FAKES
             RESET_FAKE(servo_open);
             RESET_FAKE(servo_close);
-
             FFF_RESET_HISTORY();
         }
         void TearDown() override

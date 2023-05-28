@@ -11,6 +11,7 @@ co2_t co2_create(threshold_t* point){
 	_new_co2->th_point = point;
 	_new_co2->avg_co2 = 0.0;
 	_new_co2->measurements = 0;
+	servo_open_co2 = false;
 	return _new_co2;
 }
 
@@ -35,9 +36,10 @@ bool co2_get_data(co2_t self){
 }
 
 void co2_evaluate_threshold(co2_t self){
-	if(get_co2_threshold(self->th_point) < self->val){
+	if(get_co2_threshold(self->th_point) < self->val && servo_open_humidity == false){
 		alarm_turn_on();
 		servo_open();
+		servo_open_co2 = true;
 		add_to_payload(1,8,255,0);
 	}
 	else{
@@ -55,7 +57,7 @@ uint16_t co2_get_average(co2_t self){
 }
 
 void co2_reset_average(co2_t self){
-	if(&self == NULL){
+	if(self == NULL){
 		return;
 	}
 	self->avg_co2 = 0.0;
@@ -63,10 +65,12 @@ void co2_reset_average(co2_t self){
 }
 
 void co2_update_average(co2_t self){
-	if(&self == NULL){
+	if(self == NULL){
 		return;
 	}
-	self->avg_co2 = (self->avg_co2 * self->measurements + self->val) / ++self->measurements;
+	uint8_t co2Measurements = self->measurements;
+	self->avg_co2 = (self->avg_co2 * self->measurements + self->val) / ++co2Measurements;
+	self->measurements = co2Measurements;
 }
 
 void create_co2_task(co2_t* self){
@@ -81,10 +85,14 @@ void create_co2_task(co2_t* self){
 
 void co2_task( void* pvParameters){
 	co2_t co2_sensor = *((co2_t*)pvParameters);
-	threshold_t co2_th = *(co2_sensor->th_point);
 	for(;;){
 		co2_get_data(co2_sensor);
 		add_to_payload(co2_get_average(co2_sensor), 0,1, 255);
+		if(co2_reset == true)
+		{
+			co2_reset_average(co2_sensor);
+			co2_reset = false;
+		}
 		vTaskDelay(pdMS_TO_TICKS(4000UL)); // 500 ms
 	}
 }

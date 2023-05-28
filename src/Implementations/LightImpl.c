@@ -9,7 +9,6 @@ typedef struct light{
 uint16_t _tmp;
 float _lux;
 
-// TODO NECESSARY?
 void tsl2591Callback(tsl2591_returnCode_t rc){
 	switch (rc){
 		case TSL2591_DATA_READY:

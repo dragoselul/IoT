@@ -7,6 +7,7 @@ extern "C"
     #include "../src/Headers/LoRaWAN.h"
 	#include "../src/drivers/lora_driver.h"
 	#include "../src/Headers/Threshold.h"
+	#include "../src/Headers/ExternBooleans.h"
 }
 
 FAKE_VALUE_FUNC(uint8_t ,lora_driver_getMaxPayloadSize);

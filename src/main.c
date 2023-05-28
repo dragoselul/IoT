@@ -17,6 +17,7 @@
 #include "./Headers/MotionSensor.h"
 #include "./Headers/Sound.h"
 #include "./Headers/Servo.h"
+#include "./Headers/ExternBooleans.h"
 
 // Prototype for LoRaWAN handler
 void lora_handler_initialise(UBaseType_t lora_handler_task_priority, void* thresh, void* downlink_buffer);
@@ -28,7 +29,11 @@ motion_t motion_sensor;
 sound_t sound_sensor;
 co2_t co2_sensor;
 threshold_t thresholds;
-
+bool servo_open_co2,
+servo_open_humidity,
+tempAndHum_reset,
+co2_reset,
+light_reset;
 /*
 	Initializes all drivers and sensors and creates structures and thresholds for the sensors
 	as well as initializes the LoRaWAN driver for communication with back-end 
@@ -51,6 +56,11 @@ void initialiseSystem(){
 	// Make it possible to use stdio on COM port 0 (USB) on Arduino board - Setting 57600,8,N,1
 	stdio_initialise(ser_USART0);
 	
+	servo_open_co2	   = false;
+	servo_open_humidity= false;
+	tempAndHum_reset   = false;
+	co2_reset		   = false;
+	light_reset		   = false;
 	// Initialize Thresholds
 	thresholds = threshold_create();
 	

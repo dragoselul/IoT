@@ -9,8 +9,10 @@
 #include "Alarm.h"
 #include "Servo.h"
 #include "LoRaWAN.h"
+#include "./ExternBooleans.h"
 
 typedef struct co2* co2_t;
+
 
 // Structure that holds the co2 value, threshold and the average
 typedef struct co2 {

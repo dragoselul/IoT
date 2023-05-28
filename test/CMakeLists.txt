@@ -25,6 +25,7 @@ set(SOURCES_TEST
     CO2SensorTests.cpp
     ../src/Implementations/SoundImpl.c
     FreeRTOS_defs/FreeRTOS_FFF_MocksDefinitions.cpp
+    FreeRTOS_defs/BooleanDeclarations.cpp
     ../src/Implementations/TempAndHumImpl.c
     ../src/Implementations/LightImpl.c
     ../src/Implementations/MotionSensorImpl.c
