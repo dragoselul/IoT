@@ -7,6 +7,7 @@ extern "C"
     #include "../src/Headers/TempAndHum.h"
 	#include "../src/drivers/hih8120.h"
 	#include "../src/Headers/Threshold.h"
+	#include "../src/Headers/ExternBooleans.h"
 }
 
 FAKE_VALUE_FUNC(hih8120_driverReturnCode_t, hih8120_initialise);

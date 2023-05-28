@@ -1,7 +1,10 @@
 #include <rc_servo.h>
 
-void initialize_door();
+// Initialize the rc_servo driver and closes it
+void servo_initialize();
 
-void open_door();
+// Sets the Servo position to 100% (OPEN)
+void servo_open();
 
-void close_door();
+// Sets the Servo position to -100% (CLOSE)
+void servo_close();

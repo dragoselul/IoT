@@ -1,16 +1,14 @@
 #include "../Headers/Servo.h"
 
-
-void initialize_door(){
+void servo_initialize(){
 	rc_servo_initialise();
-	close_door();
+	servo_close();
 }
 
-// SERVO JC14 = 0, JC13 = 1
-void open_door(){
+void servo_open(){
 	rc_servo_setPosition(1, 100);
 }
 
-void close_door(){
+void servo_close(){
 	rc_servo_setPosition(1, -100);
 }

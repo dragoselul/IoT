@@ -362,6 +362,9 @@
     <Compile Include="Headers\CO2.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="Headers\ExternBooleans.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="Headers\Servo.h">
       <SubType>compile</SubType>
     </Compile>
